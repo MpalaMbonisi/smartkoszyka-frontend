@@ -1,0 +1,32 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Angular
+.angular/
+dist/
+tmp/
+out-tsc/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+coverage/
+*.spec.ts.snap
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build
+*.js.map
+*.d.ts
+*.metadata.json
