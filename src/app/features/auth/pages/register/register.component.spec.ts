@@ -1,16 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { RegisterComponent } from './register.component';
+import { Router } from '@angular/router';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
+  let router: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
     await TestBed.configureTestingModule({
       imports: [RegisterComponent],
+      providers: [{ provide: Router, useValue: routerSpy }],
     }).compileComponents();
 
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -143,7 +149,7 @@ describe('RegisterComponent', () => {
 
     it('should be valid with 8 or more characters', () => {
       const password = component.registerForm.get('password');
-      password?.setValue('StrongPassword1234');
+      password?.setValue('StrongStrongPassword12344');
 
       expect(password?.valid).toBeTruthy();
     });
@@ -152,7 +158,7 @@ describe('RegisterComponent', () => {
   describe('Password Confirmation Validation', () => {
     it('should be invalid when passwords do not match', () => {
       component.registerForm.patchValue({
-        password: 'StrongPassword1234',
+        password: 'StrongStrongPassword12344',
         confirmPassword: 'StrongPassword5678',
       });
 
@@ -162,8 +168,8 @@ describe('RegisterComponent', () => {
 
     it('should be valid when passwords match', () => {
       component.registerForm.patchValue({
-        password: 'StrongPassword1234',
-        confirmPassword: 'StrongPassword1234',
+        password: 'StrongStrongPassword12344',
+        confirmPassword: 'StrongStrongPassword12344',
       });
 
       const confirmPassword = component.registerForm.get('confirmPassword');
@@ -172,7 +178,7 @@ describe('RegisterComponent', () => {
 
     it('should show password mismatch error message', () => {
       component.registerForm.patchValue({
-        password: 'StrongPassword1234',
+        password: 'StrongStrongPassword12344',
         confirmPassword: 'StrongPassword5678',
       });
       component.registerForm.get('confirmPassword')?.markAsTouched();
@@ -183,7 +189,7 @@ describe('RegisterComponent', () => {
     it('should clear mismatch error when passwords match', () => {
       // First set mismatched passwords
       component.registerForm.patchValue({
-        password: 'StrongPassword1234',
+        password: 'StrongStrongPassword12344',
         confirmPassword: 'StrongPassword5678',
       });
 
@@ -192,11 +198,108 @@ describe('RegisterComponent', () => {
 
       // Then make them match
       component.registerForm.patchValue({
-        confirmPassword: 'StrongPassword1234',
+        confirmPassword: 'StrongStrongPassword12344',
       });
 
       confirmPassword = component.registerForm.get('confirmPassword');
       expect(confirmPassword?.hasError('passwordMismatch')).toBeFalsy();
     });
+  });
+
+  describe('Form Submission', () => {
+    it('should not submit when form is invalid', () => {
+      component.onSubmit();
+
+      expect(component.registerForm.touched).toBeTruthy();
+      expect(component.isLoading).toBeFalsy();
+    });
+
+    it('should submit when form is valid', fakeAsync(() => {
+      component.registerForm.patchValue({
+        firstName: 'Nicole',
+        lastName: 'Smith',
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+        confirmPassword: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+
+      expect(component.isLoading).toBeTruthy();
+      expect(component.errorMessage).toBe('');
+      expect(component.successMessage).toBe('');
+
+      tick(1500);
+
+      expect(component.isLoading).toBeFalsy();
+      expect(component.successMessage).toContain('Account created successfully');
+
+      tick(2000);
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    }));
+
+    it('should mark all fields as touched on invalid submission', () => {
+      component.onSubmit();
+
+      expect(component.registerForm.get('firstName')?.touched).toBeTruthy();
+      expect(component.registerForm.get('lastName')?.touched).toBeTruthy();
+      expect(component.registerForm.get('email')?.touched).toBeTruthy();
+      expect(component.registerForm.get('password')?.touched).toBeTruthy();
+      expect(component.registerForm.get('confirmPassword')?.touched).toBeTruthy();
+    });
+
+    it('should set loading state during submission', () => {
+      component.registerForm.patchValue({
+        firstName: 'Nicole',
+        lastName: 'Smith',
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+        confirmPassword: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+
+      expect(component.isLoading).toBeTruthy();
+    });
+
+    it('should clear error and success messages on new submission', () => {
+      component.errorMessage = 'Previous error';
+      component.successMessage = 'Previous success';
+
+      component.registerForm.patchValue({
+        firstName: 'Nicole',
+        lastName: 'Smith',
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+        confirmPassword: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+
+      expect(component.errorMessage).toBe('');
+      expect(component.successMessage).toBe('');
+    });
+
+    it('should not include confirmPassword in submitted data', fakeAsync(() => {
+      component.registerForm.patchValue({
+        firstName: 'Nicole',
+        lastName: 'Smith',
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+        confirmPassword: 'StrongPassword1234',
+      });
+
+      spyOn(console, 'log');
+      component.onSubmit();
+      tick(1500);
+
+      expect(console.log).toHaveBeenCalledWith('Register attempt:', {
+        firstName: 'Nicole',
+        lastName: 'Smith',
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+      });
+    }));
   });
 });
