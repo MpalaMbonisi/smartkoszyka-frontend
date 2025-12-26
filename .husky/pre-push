@@ -1,36 +1,11 @@
-echo "Running tests before push..."
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
 
-# Run tests and capture the output
-npm run test:ci
-
-# Get the exit code
-TEST_EXIT_CODE=$?
-
-# Check if tests passed OR if there are simply no tests (which is OK for now)
-if [ $TEST_EXIT_CODE -eq 0 ]; then
-  echo "Tests passed!"
-elif [ $TEST_EXIT_CODE -eq 1 ]; then
-  # Check if the failure was due to no tests found
-  if npm run test:ci 2>&1 | grep -q "Executed 0 of 0 SUCCESS"; then
-    echo "No tests found, but allowing push to continue..."
-    echo "Consider adding tests for better code quality!"
-  else
-    echo "Tests failed! Push aborted."
-    exit 1
-  fi
-else
-  echo "Tests failed with unexpected error! Push aborted."
-  exit 1
-fi
-
-echo "Building production build..."
-
-# Build the app
-npm run build
-
-if [ $? -ne 0 ]; then
-  echo "Build failed! Push aborted."
-  exit 1
-fi
-
-echo "All checks passed! Proceeding with push..."
+echo "Running pre-push checks..."
+echo "Running ESLint..."
+npm run lint
+echo "Running tests..."
+npm run test -- --watch=false --browsers=ChromeHeadless
+echo "Running build..."
+npm run build -- --configuration production
+echo "Pre-push checks passed!"
