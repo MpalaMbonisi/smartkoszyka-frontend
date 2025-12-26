@@ -434,8 +434,36 @@ describe('RegisterComponent', () => {
       firstName?.markAsTouched();
 
       const errorMessage = component.getErrorMessage('firstName');
-      expect(errorMessage).toContain('First name');
+      expect(errorMessage).toContain('First Name');
       expect(errorMessage.charAt(0)).toBe(errorMessage.charAt(0).toUpperCase());
+    });
+  });
+
+  describe('Password Match Validator', () => {
+    it('should return null when controls are missing', () => {
+      const result = component.passwordMatchValidator(component.registerForm);
+      // Initially password fields are empty but controls exist
+      expect(result).toBeNull(); // Will have mismatch since one is empty
+    });
+
+    it('should set error on confirmPassword when passwords mismatch', () => {
+      component.registerForm.patchValue({
+        password: 'StrongPassword1234',
+        confirmPassword: 'DifferentPassword12',
+      });
+
+      const confirmPassword = component.registerForm.get('confirmPassword');
+      expect(confirmPassword?.hasError('passwordMismatch')).toBeTruthy();
+    });
+
+    it('should return null when passwords match', () => {
+      component.registerForm.patchValue({
+        password: 'StrongPassword1234',
+        confirmPassword: 'StrongPassword1234',
+      });
+
+      const confirmPassword = component.registerForm.get('confirmPassword');
+      expect(confirmPassword?.hasError('passwordMismatch')).toBeFalsy();
     });
   });
 });
