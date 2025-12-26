@@ -466,4 +466,32 @@ describe('RegisterComponent', () => {
       expect(confirmPassword?.hasError('passwordMismatch')).toBeFalsy();
     });
   });
+
+  describe('Footer Integration', () => {
+    it('should render footer component', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const footer = compiled.querySelector('app-footer');
+
+      expect(footer).toBeTruthy();
+    });
+  });
+
+  describe('Accessibility', () => {
+    it('should have labels for all inputs', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const labels = compiled.querySelectorAll('label');
+
+      expect(labels.length).toBe(5); // firstName, lastName, email, password, confirmPassword
+    });
+
+    it('should have proper label-input associations', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+
+      const firstNameLabel = compiled.querySelector('label[for="firstName"]');
+      const firstNameInput = compiled.querySelector('#firstName');
+
+      expect(firstNameLabel).toBeTruthy();
+      expect(firstNameInput).toBeTruthy();
+    });
+  });
 });
