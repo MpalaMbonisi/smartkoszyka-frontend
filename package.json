@@ -8,6 +8,10 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadless --code-coverage",
+    "test:coverage": "ng test --watch=false --code-coverage",
+    "test:headless": "ng test --watch=false --browsers=ChromeHeadless",
+    "test:debug": "ng test --browsers=Chrome --watch=true --source-map",
+    "coverage:open": "open coverage/index.html",
     "lint": "ng lint",
     "lint:fix": "ng lint --fix",
     "format": "prettier --write \"src/**/*.{ts,html,scss}\"",
@@ -37,7 +41,8 @@
     "@angular/ssr": "^21.0.4",
     "express": "^5.1.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.0"
   },
   "devDependencies": {
     "@angular-eslint/builder": "21.1.0",
@@ -47,24 +52,24 @@
     "@angular-eslint/template-parser": "21.1.0",
     "@angular/build": "^21.0.4",
     "@angular/cli": "^21.0.4",
-    "@commitlint/cli": "^20.0.0",
     "@angular/compiler-cli": "^21.0.0",
+    "@commitlint/cli": "^20.0.0",
     "@types/express": "^5.0.1",
+    "@types/jasmine": "^5.1.13",
     "@types/node": "^20.17.19",
     "@typescript-eslint/eslint-plugin": "7.11.0",
     "@typescript-eslint/parser": "7.11.0",
     "eslint": "8.57.1",
     "husky": "^9.1.7",
-    "jsdom": "^27.1.0",
-    "lint-staged": "^16.2.7",
-    "prettier": "^3.7.4",
-    "typescript": "~5.9.2",
-    "vitest": "^4.0.8",
     "jasmine-core": "~5.9.0",
+    "jsdom": "^27.1.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
-    "karma-jasmine-html-reporter": "~2.1.0"
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
+    "typescript": "~5.9.2"
   }
 }
