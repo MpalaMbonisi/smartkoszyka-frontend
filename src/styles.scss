@@ -1,5 +1,6 @@
 @use "styles/variables" as v;
 @use "styles/mixins" as m;
+@use "sass:color";
 @import url("https://fonts.googleapis.com/css2?family=Indie+Flower&family=Roboto:wght@300;400;500;700&display=swap");
 
 * {
@@ -58,7 +59,7 @@ a {
   transition: color v.$transition-speed v.$transition-timing;
 
   &:hover {
-    color: darken(v.$primary, 10%);
+    color: color.adjust(v.$primary, $lightness: -10%);
   }
 }
 
