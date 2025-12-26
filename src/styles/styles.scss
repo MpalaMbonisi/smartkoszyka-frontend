@@ -1,0 +1,143 @@
+@import url("https://fonts.googleapis.com/css2?family=Indie+Flower&family=Roboto:wght@300;400;500;700&display=swap");
+@use "variables" as v;
+@use "mixins" as m;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  font-size: 16px;
+}
+
+body {
+  font-family: v.$font-primary;
+  @include m.theme-colors;
+  min-height: 100vh;
+  transition:
+    background-color v.$transition-speed v.$transition-timing,
+    color v.$transition-speed v.$transition-timing;
+}
+
+body:not([data-theme]) {
+  background-color: v.$light-bg;
+  color: v.$light-text;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: v.$spacing-sm;
+}
+
+h1 {
+  font-size: v.$font-size-2xl;
+}
+h2 {
+  font-size: v.$font-size-xl;
+}
+h3 {
+  font-size: v.$font-size-lg;
+}
+
+p {
+  line-height: 1.6;
+  margin-bottom: v.$spacing-sm;
+}
+
+a {
+  color: v.$primary;
+  text-decoration: none;
+  transition: color v.$transition-speed v.$transition-timing;
+
+  &:hover {
+    color: darken(v.$primary, 10%);
+  }
+}
+
+.container {
+  @include m.container;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-primary {
+  color: v.$primary;
+}
+
+.text-secondary {
+  @include m.theme-aware(color, v.$light-text-secondary, v.$dark-text-secondary);
+}
+
+.mt-sm {
+  margin-top: v.$spacing-sm;
+}
+.mt-md {
+  margin-top: v.$spacing-md;
+}
+.mt-lg {
+  margin-top: v.$spacing-lg;
+}
+
+.mb-sm {
+  margin-bottom: v.$spacing-sm;
+}
+.mb-md {
+  margin-bottom: v.$spacing-md;
+}
+.mb-lg {
+  margin-bottom: v.$spacing-lg;
+}
+
+.btn {
+  @include m.button-base;
+
+  &.btn-primary {
+    @include m.button-primary;
+  }
+
+  &.btn-secondary {
+    @include m.button-secondary;
+  }
+
+  &.btn-full-width {
+    width: 100%;
+  }
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  @include m.input-base;
+}
+
+label {
+  display: block;
+  margin-bottom: v.$spacing-xs;
+  font-weight: 500;
+  @include m.theme-aware(color, v.$light-text, v.$dark-text);
+}
+
+.form-group {
+  margin-bottom: v.$spacing-md;
+}
+
+.error-message {
+  color: #d32f2f;
+  font-size: v.$font-size-sm;
+  margin-top: v.$spacing-xs;
+}
+
+.card {
+  @include m.card;
+}
