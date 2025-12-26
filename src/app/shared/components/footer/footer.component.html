@@ -1,0 +1,19 @@
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-left">
+      <p>&copy; {{ currentYear }} SmartKoszyka. All rights reserved.</p>
+    </div>
+
+    <div class="footer-right">
+      <button class="theme-toggle" (click)="toggleTheme()" aria-label="Toggle theme">
+        @if (themeService.isDarkMode()) {
+          <span class="icon">☀️</span>
+          <span>Light Mode</span>
+        } @else {
+          <span class="icon">🌙</span>
+          <span>Dark Mode</span>
+        }
+      </button>
+    </div>
+  </div>
+</footer>
