@@ -406,4 +406,36 @@ describe('RegisterComponent', () => {
       expect(errorSpans.length).toBeGreaterThan(0);
     });
   });
+
+  describe('Helper Methods', () => {
+    it('should return correct field validity status', () => {
+      const firstName = component.registerForm.get('firstName');
+
+      expect(component.isFieldInvalid('firstName')).toBeFalsy();
+
+      firstName?.markAsTouched();
+      expect(component.isFieldInvalid('firstName')).toBeTruthy();
+    });
+
+    it('should return empty string for valid field', () => {
+      const firstName = component.registerForm.get('firstName');
+      firstName?.setValue('Nicole');
+
+      expect(component.getErrorMessage('firstName')).toBe('');
+    });
+
+    it('should handle non-existent field gracefully', () => {
+      expect(component.isFieldInvalid('nonexistent')).toBeFalsy();
+      expect(component.getErrorMessage('nonexistent')).toBe('');
+    });
+
+    it('should capitalize field labels in error messages', () => {
+      const firstName = component.registerForm.get('firstName');
+      firstName?.markAsTouched();
+
+      const errorMessage = component.getErrorMessage('firstName');
+      expect(errorMessage).toContain('First name');
+      expect(errorMessage.charAt(0)).toBe(errorMessage.charAt(0).toUpperCase());
+    });
+  });
 });
