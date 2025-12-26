@@ -71,4 +71,53 @@ describe('ThemeService', () => {
       expect(document.body.getAttribute('data-theme')).toBe('light');
     });
   });
+
+  describe('toggleTheme', () => {
+    it('should toggle from light to dark', () => {
+      localStorageSpy.getItem.and.returnValue('light');
+      service = new ThemeService();
+
+      service.toggleTheme();
+
+      expect(service.isDarkMode()).toBe(true);
+      expect(document.body.getAttribute('data-theme')).toBe('dark');
+      expect(localStorageSpy.setItem).toHaveBeenCalledWith('app-theme', 'dark');
+    });
+
+    it('should toggle from dark to light', () => {
+      localStorageSpy.getItem.and.returnValue('dark');
+      service = new ThemeService();
+
+      service.toggleTheme();
+
+      expect(service.isDarkMode()).toBe(false);
+      expect(document.body.getAttribute('data-theme')).toBe('light');
+      expect(localStorageSpy.setItem).toHaveBeenCalledWith('app-theme', 'light');
+    });
+
+    it('should update body attribute when toggling', () => {
+      service.toggleTheme();
+      const theme = service.isDarkMode() ? 'dark' : 'light';
+
+      expect(document.body.getAttribute('data-theme')).toBe(theme);
+    });
+  });
+
+  describe('persistence', () => {
+    it('should save theme preference to localStorage', () => {
+      service.toggleTheme();
+
+      expect(localStorageSpy.setItem).toHaveBeenCalledWith(
+        'app-theme',
+        service.isDarkMode() ? 'dark' : 'light'
+      );
+    });
+
+    it('should persist theme across service instances', () => {
+      localStorageSpy.getItem.and.returnValue('dark');
+      const newService = new ThemeService();
+
+      expect(newService.isDarkMode()).toBe(true);
+    });
+  });
 });
