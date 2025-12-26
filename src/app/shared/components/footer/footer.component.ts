@@ -8,7 +8,7 @@ import { ThemeService } from '../../../core/services/theme.service';
   styleUrl: './footer.component.scss',
 })
 export class FooterComponent {
-  private readonly themeService = inject(ThemeService);
+  public readonly themeService = inject(ThemeService);
 
   currentYear = new Date().getFullYear();
 
