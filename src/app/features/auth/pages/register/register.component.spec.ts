@@ -302,4 +302,108 @@ describe('RegisterComponent', () => {
       });
     }));
   });
+
+  describe('UI Rendering', () => {
+    it('should display logo with correct text', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logo = compiled.querySelector('.logo');
+
+      expect(logo?.textContent).toContain('Smart');
+      expect(logo?.textContent).toContain('Koszyka');
+    });
+
+    it('should display registration header', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+
+      expect(compiled.textContent).toContain('Create Account');
+      expect(compiled.textContent).toContain('Sign up to get started with SmartKoszyka');
+    });
+
+    it('should have all input fields', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+
+      expect(compiled.querySelector('#firstName')).toBeTruthy();
+      expect(compiled.querySelector('#lastName')).toBeTruthy();
+      expect(compiled.querySelector('#email')).toBeTruthy();
+      expect(compiled.querySelector('#password')).toBeTruthy();
+      expect(compiled.querySelector('#confirmPassword')).toBeTruthy();
+    });
+
+    it('should have submit button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitButton = compiled.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+      expect(submitButton).toBeTruthy();
+      expect(submitButton.textContent).toContain('Sign Up');
+    });
+
+    it('should display link to login page', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const loginLink = compiled.querySelector('a[routerLink="/login"]');
+
+      expect(loginLink).toBeTruthy();
+      expect(loginLink?.textContent).toContain('Sign in here');
+    });
+
+    it('should display error alert when error message exists', () => {
+      component.errorMessage = 'Registration failed';
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errorAlert = compiled.querySelector('.alert-error');
+
+      expect(errorAlert).toBeTruthy();
+      expect(errorAlert?.textContent).toContain('Registration failed');
+    });
+
+    it('should display success alert when success message exists', () => {
+      component.successMessage = 'Registration successful';
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const successAlert = compiled.querySelector('.alert-success');
+
+      expect(successAlert).toBeTruthy();
+      expect(successAlert?.textContent).toContain('Registration successful');
+    });
+
+    it('should show loading text when submitting', () => {
+      component.isLoading = true;
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitButton = compiled.querySelector('button[type="submit"]');
+
+      expect(submitButton?.textContent).toContain('Creating Account...');
+    });
+
+    it('should disable button when loading', () => {
+      component.isLoading = true;
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitButton = compiled.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+      expect(submitButton.disabled).toBeTruthy();
+    });
+
+    it('should display form-row for name fields', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const formRow = compiled.querySelector('.form-row');
+
+      expect(formRow).toBeTruthy();
+    });
+
+    it('should show validation errors in UI', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const firstName = component.registerForm.get('firstName');
+
+      firstName?.setValue('A');
+      firstName?.markAsTouched();
+      fixture.detectChanges();
+
+      const errorSpans = compiled.querySelectorAll('.error');
+      expect(errorSpans.length).toBeGreaterThan(0);
+    });
+  });
 });
