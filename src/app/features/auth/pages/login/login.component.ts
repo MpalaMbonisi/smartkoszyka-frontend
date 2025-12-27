@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth/auth-service';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ export class LoginComponent {
 
   private fb: FormBuilder = inject(FormBuilder);
   private router: Router = inject(Router);
+  private authService: AuthService = inject(AuthService);
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -42,14 +44,16 @@ export class LoginComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // TODO: Implement actual auth service call
-    console.log('Login attempt: ', this.loginForm.value);
-
-    // Simulate API call
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/dashboard']);
-    }, 1500);
+    this.authService.login(this.loginForm.value).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.router.navigate(['/dashboard']);
+      },
+      error: error => {
+        this.isLoading = false;
+        this.errorMessage = error.message || 'Login failed. Please try again.';
+      },
+    });
   }
 
   isFieldInvalid(fieldName: string): boolean {
