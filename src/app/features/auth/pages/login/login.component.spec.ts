@@ -1,22 +1,34 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-
 import { LoginComponent } from './login.component';
 import { provideRouter, Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
+import { of, Subject, throwError } from 'rxjs';
+import { AuthResponse, AuthService } from '../../../../core/services/auth/auth-service';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let router: Router;
+  let authService: jasmine.SpyObj<AuthService>;
+
+  const mockAuthResponse = {
+    token: 'fake-jwt-token',
+    email: 'nicolesmith@example.com',
+    firstName: 'Nicole',
+    lastName: 'Smith',
+  };
 
   beforeEach(async () => {
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['login']);
+
     await TestBed.configureTestingModule({
       imports: [LoginComponent, ReactiveFormsModule, FooterComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceSpy }],
     }).compileComponents();
 
     router = TestBed.inject(Router);
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
 
     spyOn(router, 'navigate');
 
@@ -125,9 +137,12 @@ describe('LoginComponent', () => {
 
       expect(component.loginForm.touched).toBeTruthy();
       expect(component.isLoading).toBeFalsy();
+      expect(authService.login).not.toHaveBeenCalled();
     });
 
-    it('should submit when form is valid', fakeAsync(() => {
+    it('should call authService.login with form values', () => {
+      authService.login.and.returnValue(of(mockAuthResponse));
+
       component.loginForm.patchValue({
         email: 'nicolesmith@example.com',
         password: 'StrongPassword1234',
@@ -135,22 +150,31 @@ describe('LoginComponent', () => {
 
       component.onSubmit();
 
-      expect(component.isLoading).toBeTruthy();
-      expect(component.errorMessage).toBe('');
+      expect(authService.login).toHaveBeenCalledWith({
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+      });
+    });
 
-      tick(1500);
+    it('should navigate to dashboard on successful login', fakeAsync(() => {
+      authService.login.and.returnValue(of(mockAuthResponse));
 
+      component.loginForm.patchValue({
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+      tick();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
       expect(component.isLoading).toBeFalsy();
     }));
 
-    it('should mark all fields as touched on invalid submission', () => {
-      component.onSubmit();
-
-      expect(component.loginForm.get('email')?.touched).toBeTruthy();
-      expect(component.loginForm.get('password')?.touched).toBeTruthy();
-    });
-
     it('should set loading state during submission', () => {
+      const registerSubject = new Subject<AuthResponse>();
+      authService.login.and.returnValue(registerSubject.asObservable());
+
       component.loginForm.patchValue({
         email: 'nicolesmith@example.com',
         password: 'StrongPassword1234',
@@ -162,6 +186,8 @@ describe('LoginComponent', () => {
     });
 
     it('should clear error message on new submission', () => {
+      authService.login.and.returnValue(of(mockAuthResponse));
+
       component.errorMessage = 'Previous error';
       component.loginForm.patchValue({
         email: 'nicolesmith@example.com',
@@ -171,6 +197,44 @@ describe('LoginComponent', () => {
       component.onSubmit();
 
       expect(component.errorMessage).toBe('');
+    });
+
+    it('should handle login error', fakeAsync(() => {
+      const error = new Error('Invalid credentials');
+      authService.login.and.returnValue(throwError(() => error));
+
+      component.loginForm.patchValue({
+        email: 'nicolesmith@example.com',
+        password: 'WrongPassword',
+      });
+
+      component.onSubmit();
+      tick();
+
+      expect(component.isLoading).toBeFalsy();
+      expect(component.errorMessage).toBe('Invalid credentials');
+      expect(router.navigate).not.toHaveBeenCalled();
+    }));
+
+    it('should show default error message when error has no message', fakeAsync(() => {
+      authService.login.and.returnValue(throwError(() => new Error()));
+
+      component.loginForm.patchValue({
+        email: 'nicolesmith@example.com',
+        password: 'WrongPassword',
+      });
+
+      component.onSubmit();
+      tick();
+
+      expect(component.errorMessage).toBe('Login failed. Please try again.');
+    }));
+
+    it('should mark all fields as touched on invalid submission', () => {
+      component.onSubmit();
+
+      expect(component.loginForm.get('email')?.touched).toBeTruthy();
+      expect(component.loginForm.get('password')?.touched).toBeTruthy();
     });
   });
 
