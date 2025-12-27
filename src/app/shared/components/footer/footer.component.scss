@@ -1,15 +1,16 @@
 @use "../../../../styles/variables" as v;
-@use "../../../../styles/mixins" as m;
 
 .footer {
-  @include m.surface-colors;
-  border-top: v.$border-width solid;
-  @include m.border-color;
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border-top: v.$border-width solid var(--border-color);
   padding: v.$spacing-lg 0;
   margin-top: auto;
 
   .footer-content {
-    @include m.container;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 v.$spacing-md;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -25,19 +26,32 @@
   .footer-left {
     p {
       margin: 0;
-      @include m.theme-aware(color, v.$light-text-secondary, v.$dark-text-secondary);
       font-size: v.$font-size-sm;
+      color: var(--text-secondary);
     }
   }
 
   .footer-right {
     .theme-toggle {
-      @include m.button-secondary;
       display: flex;
       align-items: center;
       gap: v.$spacing-xs;
       padding: v.$spacing-xs v.$spacing-sm;
       font-size: v.$font-size-sm;
+      border: v.$border-width solid var(--border-color);
+      border-radius: v.$border-radius;
+      background-color: var(--surface-color);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all v.$transition-speed v.$transition-timing;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+
+      &:hover {
+        background-color: v.$secondary;
+        border-color: v.$secondary;
+        color: #1a1a1a;
+      }
 
       .icon {
         font-size: 1.2rem;
