@@ -257,4 +257,130 @@ describe('AuthService', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/login']);
     });
   });
+
+  describe('getToken', () => {
+    it('should return token from localStorage', () => {
+      localStorageSpy.getItem.and.returnValue('stored-token');
+
+      const token = service.getToken();
+
+      expect(token).toBe('stored-token');
+      expect(localStorageSpy.getItem).toHaveBeenCalledWith('auth-token');
+    });
+
+    it('should return null if no token exists', () => {
+      localStorageSpy.getItem.and.returnValue(null);
+
+      const token = service.getToken();
+
+      expect(token).toBeNull();
+    });
+  });
+
+  describe('getCurrentUser', () => {
+    it('should return current user', () => {
+      const mockUser = {
+        email: 'nicolesmith@example.com',
+        firstName: 'Nicole',
+        lastName: 'Smith',
+      };
+
+      localStorageSpy.getItem.and.returnValue(JSON.stringify(mockUser));
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          AuthService,
+          provideRouter([]),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+        ],
+      });
+
+      const newService = TestBed.inject(AuthService);
+      const user = newService.getCurrentUser();
+
+      expect(user).toEqual(mockUser);
+    });
+
+    it('should return null if no user exists', () => {
+      localStorageSpy.getItem.and.returnValue(null);
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          AuthService,
+          provideRouter([]),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+        ],
+      });
+
+      const newService = TestBed.inject(AuthService);
+      const user = newService.getCurrentUser();
+
+      expect(user).toBeNull();
+    });
+  });
+
+  describe('initialization', () => {
+    it('should load user from localStorage on service creation', () => {
+      const mockUser = {
+        email: 'nicolesmith@example.com',
+        firstName: 'Nicole',
+        lastName: 'Smith',
+      };
+      localStorageSpy.getItem.and.returnValue(JSON.stringify(mockUser));
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          AuthService,
+          provideRouter([]),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+        ],
+      });
+
+      const newService = TestBed.inject(AuthService);
+
+      expect(newService.getCurrentUser()).toEqual(mockUser);
+    });
+
+    it('should set isAuthenticated based on token presence', () => {
+      localStorageSpy.getItem.and.returnValue('some-token');
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          AuthService,
+          provideRouter([]),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+        ],
+      });
+
+      const newService = TestBed.inject(AuthService);
+
+      expect(newService.isAuthenticated()).toBe(true);
+    });
+
+    it('should handle invalid JSON in localStorage gracefully', () => {
+      localStorageSpy.getItem.and.returnValue('invalid-json{');
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          AuthService,
+          provideRouter([]),
+          provideHttpClient(),
+          provideHttpClientTesting(),
+        ],
+      });
+
+      const newService = TestBed.inject(AuthService);
+
+      expect(newService.getCurrentUser()).toBeNull();
+    });
+  });
 });
