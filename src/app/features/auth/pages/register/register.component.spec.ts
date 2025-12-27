@@ -1,22 +1,25 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { RegisterComponent } from './register.component';
-import { Router } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FooterComponent } from '../../../../shared/components/footer/footer.component';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
-  let router: jasmine.SpyObj<Router>;
+  let router: Router;
 
   beforeEach(async () => {
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-
     await TestBed.configureTestingModule({
-      imports: [RegisterComponent],
-      providers: [{ provide: Router, useValue: routerSpy }],
+      imports: [RegisterComponent, ReactiveFormsModule, FooterComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
 
-    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    router = TestBed.inject(Router);
+
+    spyOn(router, 'navigate');
+
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

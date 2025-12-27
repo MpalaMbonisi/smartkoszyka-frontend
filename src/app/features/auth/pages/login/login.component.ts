@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +16,7 @@ export class LoginComponent {
   errorMessage = '';
 
   private fb: FormBuilder = inject(FormBuilder);
+  private router: Router = inject(Router);
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -47,7 +48,7 @@ export class LoginComponent {
     // Simulate API call
     setTimeout(() => {
       this.isLoading = false;
-      // this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard']);
     }, 1500);
   }
 

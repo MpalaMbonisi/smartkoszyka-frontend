@@ -1,15 +1,24 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { LoginComponent } from './login.component';
+import { provideRouter, Router } from '@angular/router';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FooterComponent } from '../../../../shared/components/footer/footer.component';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
+  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [LoginComponent],
+      imports: [LoginComponent, ReactiveFormsModule, FooterComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
+
+    router = TestBed.inject(Router);
+
+    spyOn(router, 'navigate');
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
