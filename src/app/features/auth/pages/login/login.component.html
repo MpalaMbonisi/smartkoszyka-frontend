@@ -1,0 +1,63 @@
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card" [class.loading]="isLoading">
+      <div class="auth-header">
+        <div class="logo"><span class="logo-smart">Smart</span><span class="logo-koszyka">Koszyka</span></div>
+        <h2>Welcome Back</h2>
+        <p>Sign in to your account to continue</p>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-error">
+          {{ errorMessage }}
+        </div>
+      }
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            [class.invalid]="isFieldInvalid('email')"
+          />
+          @if (isFieldInvalid('email')) {
+            <span class="error">{{ getErrorMessage('email') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            [class.invalid]="isFieldInvalid('password')"
+          />
+          @if (isFieldInvalid('password')) {
+            <span class="error">{{ getErrorMessage('password') }}</span>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" [disabled]="isLoading">
+            @if (isLoading) {
+              <span>Signing In...</span>
+            } @else {
+              <span>Sign In</span>
+            }
+          </button>
+        </div>
+
+        <div class="form-footer">
+          <p>Don't have an account? <a routerLink="/register">Sign up here</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <app-footer></app-footer>
+</div>
