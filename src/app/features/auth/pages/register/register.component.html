@@ -1,0 +1,113 @@
+<div class="auth-page">
+  <div class="auth-container">
+    <div class="auth-card" [class.loading]="isLoading">
+      <div class="auth-header">
+        <div class="logo"><span class="logo-smart">Smart</span><span class="logo-koszyka">Koszyka</span></div>
+        <h2>Create Account</h2>
+        <p>Sign up to get started with SmartKoszyka</p>
+      </div>
+
+      @if (errorMessage) {
+        <div class="alert alert-error">
+          {{ errorMessage }}
+        </div>
+      }
+
+      @if (successMessage) {
+        <div class="alert alert-success">
+          {{ successMessage }}
+        </div>
+      }
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              placeholder="Enter your first name"
+              [class.invalid]="isFieldInvalid('firstName')"
+            />
+            @if (isFieldInvalid('firstName')) {
+              <span class="error">{{ getErrorMessage('firstName') }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              placeholder="Enter your last name"
+              [class.invalid]="isFieldInvalid('lastName')"
+            />
+            @if (isFieldInvalid('lastName')) {
+              <span class="error">{{ getErrorMessage('lastName') }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            [class.invalid]="isFieldInvalid('email')"
+          />
+          @if (isFieldInvalid('email')) {
+            <span class="error">{{ getErrorMessage('email') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="Create a password (min. 8 characters)"
+            [class.invalid]="isFieldInvalid('password')"
+          />
+          @if (isFieldInvalid('password')) {
+            <span class="error">{{ getErrorMessage('password') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="Re-enter your password"
+            [class.invalid]="isFieldInvalid('confirmPassword')"
+          />
+          @if (isFieldInvalid('confirmPassword')) {
+            <span class="error">{{ getErrorMessage('confirmPassword') }}</span>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" [disabled]="isLoading">
+            @if (isLoading) {
+              <span>Creating Account...</span>
+            } @else {
+              <span>Sign Up</span>
+            }
+          </button>
+        </div>
+
+        <div class="form-footer">
+          <p>Already have an account? <a routerLink="/login">Sign in here</a></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <app-footer></app-footer>
+</div>

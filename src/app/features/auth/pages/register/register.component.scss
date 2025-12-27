@@ -1,0 +1,23 @@
+@use "../../auth-shared";
+@use "../../../../../styles/variables" as v;
+
+.auth-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+// Register-specific styles
+.auth-card {
+  max-width: 550px !important;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: v.$spacing-md;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
