@@ -164,4 +164,105 @@ describe('LoginComponent', () => {
       expect(component.errorMessage).toBe('');
     });
   });
+
+  describe('UI Rendering', () => {
+    it('should display logo with correct text', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logo = compiled.querySelector('.logo');
+
+      expect(logo?.textContent).toContain('Smart');
+      expect(logo?.textContent).toContain('Koszyka');
+    });
+
+    it('should display welcome text', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+
+      expect(compiled.textContent).toContain('Welcome Back');
+      expect(compiled.textContent).toContain('Sign in to your account to continue');
+    });
+
+    it('should have email input field', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const emailInput = compiled.querySelector('#email') as HTMLInputElement;
+
+      expect(emailInput).toBeTruthy();
+      expect(emailInput.type).toBe('email');
+    });
+
+    it('should have password input field', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const passwordInput = compiled.querySelector('#password') as HTMLInputElement;
+
+      expect(passwordInput).toBeTruthy();
+      expect(passwordInput.type).toBe('password');
+    });
+
+    it('should have submit button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitButton = compiled.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+      expect(submitButton).toBeTruthy();
+      expect(submitButton.textContent).toContain('Sign In');
+    });
+
+    it('should display link to register page', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const registerLink = compiled.querySelector('a[routerLink="/register"]');
+
+      expect(registerLink).toBeTruthy();
+      expect(registerLink?.textContent).toContain('Sign up here');
+    });
+
+    it('should display error message when present', () => {
+      component.errorMessage = 'Invalid credentials';
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errorAlert = compiled.querySelector('.alert-error');
+
+      expect(errorAlert?.textContent).toContain('Invalid credentials');
+    });
+
+    it('should show loading text when submitting', () => {
+      component.isLoading = true;
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitButton = compiled.querySelector('button[type="submit"]');
+
+      expect(submitButton?.textContent).toContain('Signing In...');
+    });
+
+    it('should disable button when loading', () => {
+      component.isLoading = true;
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitButton = compiled.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+      expect(submitButton.disabled).toBeTruthy();
+    });
+
+    it('should show validation errors in UI', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const email = component.loginForm.get('email');
+
+      email?.setValue('invalid');
+      email?.markAsTouched();
+      fixture.detectChanges();
+
+      const errorSpan = compiled.querySelector('.form-group .error');
+      expect(errorSpan?.textContent).toBeTruthy();
+    });
+
+    it('should apply loading class to card when submitting', () => {
+      component.isLoading = true;
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const authCard = compiled.querySelector('.auth-card');
+
+      expect(authCard?.classList.contains('loading')).toBeTruthy();
+    });
+  });
 });
