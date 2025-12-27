@@ -227,4 +227,34 @@ describe('AuthService', () => {
       req.flush(errorResponse, { status: 409, statusText: 'Conflict' });
     });
   });
+
+  describe('logout', () => {
+    it('should clear localStorage on logout', () => {
+      service.logout();
+
+      expect(localStorageSpy.removeItem).toHaveBeenCalledWith('auth-token');
+      expect(localStorageSpy.removeItem).toHaveBeenCalledWith('auth-user');
+    });
+
+    it('should update isAuthenticated signal to false', () => {
+      service.logout();
+
+      expect(service.isAuthenticated()).toBe(false);
+    });
+
+    it('should update currentUser$ to null', done => {
+      service.logout();
+
+      service.currentUser$.subscribe(user => {
+        expect(user).toBeNull();
+        done();
+      });
+    });
+
+    it('should navigate to login page', () => {
+      service.logout();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    });
+  });
 });
