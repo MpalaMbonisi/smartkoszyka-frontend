@@ -1,0 +1,196 @@
+@use "../../../styles/variables" as v;
+
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: v.$spacing-md;
+
+  .auth-card {
+    width: 100%;
+    max-width: 450px;
+    padding: v.$spacing-lg;
+    background-color: var(--surface-color);
+    border: v.$border-width solid var(--border-color);
+    box-shadow: v.$shadow-md;
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: v.$spacing-lg;
+
+      .logo {
+        font-family: v.$font-logo;
+        font-size: 2.5rem;
+        font-weight: 400;
+        margin-bottom: v.$spacing-md;
+
+        .logo-smart {
+          color: var(--logo-smart);
+        }
+
+        .logo-koszyka {
+          color: var(--logo-koszyka);
+        }
+      }
+
+      h2 {
+        font-size: v.$font-size-xl;
+        font-weight: 500;
+        margin-bottom: v.$spacing-xs;
+        color: var(--text-color);
+      }
+
+      p {
+        color: var(--text-secondary);
+        font-size: v.$font-size-sm;
+        margin: 0;
+      }
+    }
+
+    .auth-form {
+      .form-group {
+        margin-bottom: v.$spacing-md;
+
+        label {
+          display: block;
+          margin-bottom: v.$spacing-xs;
+          font-weight: 500;
+          font-size: v.$font-size-sm;
+          color: var(--text-color);
+        }
+
+        input {
+          width: 100%;
+          padding: v.$spacing-sm;
+          border: v.$border-width solid var(--border-color);
+          border-radius: v.$border-radius;
+          font-size: v.$font-size-base;
+          font-family: v.$font-primary;
+          background-color: var(--surface-color);
+          color: var(--text-color);
+          transition: border-color v.$transition-speed v.$transition-timing;
+
+          &:focus {
+            outline: none;
+            border-color: v.$primary;
+          }
+
+          &::placeholder {
+            color: var(--text-secondary);
+          }
+        }
+
+        .error {
+          color: #d32f2f;
+          font-size: v.$font-size-sm;
+          margin-top: v.$spacing-xs;
+          display: block;
+        }
+      }
+
+      .form-actions {
+        margin-top: v.$spacing-lg;
+
+        button[type="submit"] {
+          width: 100%;
+          padding: v.$spacing-sm v.$spacing-md;
+          border: v.$border-width solid;
+          border-radius: v.$border-radius;
+          font-size: v.$font-size-base;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all v.$transition-speed v.$transition-timing;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          background-color: v.$primary;
+          border-color: v.$primary;
+          color: #ffffff;
+
+          &:hover:not(:disabled) {
+            opacity: 0.9;
+          }
+
+          &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+        }
+      }
+
+      .form-footer {
+        text-align: center;
+        margin-top: v.$spacing-md;
+        padding-top: v.$spacing-md;
+        border-top: v.$border-width solid var(--border-color);
+
+        p {
+          color: var(--text-secondary);
+          font-size: v.$font-size-sm;
+          margin: 0;
+
+          a {
+            color: v.$primary;
+            font-weight: 500;
+            cursor: pointer;
+
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+    }
+
+    .alert {
+      padding: v.$spacing-sm;
+      margin-bottom: v.$spacing-md;
+      border: v.$border-width solid;
+      border-radius: v.$border-radius;
+      font-size: v.$font-size-sm;
+
+      &.alert-error {
+        background-color: #ffebee;
+        border-color: #d32f2f;
+        color: #d32f2f;
+      }
+
+      &.alert-success {
+        background-color: #e8f5e9;
+        border-color: v.$primary;
+        color: #1b5e20;
+      }
+    }
+  }
+}
+
+// Loading state
+.loading {
+  pointer-events: none;
+  opacity: 0.6;
+
+  button {
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: 50%;
+      left: 50%;
+      margin-left: -8px;
+      margin-top: -8px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spinner 0.6s linear infinite;
+    }
+  }
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
