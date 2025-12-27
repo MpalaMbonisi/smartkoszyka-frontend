@@ -1,22 +1,34 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-
 import { RegisterComponent } from './register.component';
 import { provideRouter, Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
+import { AuthResponse, AuthService } from '../../../../core/services/auth/auth-service';
+import { of, Subject, throwError } from 'rxjs';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
   let router: Router;
+  let authService: jasmine.SpyObj<AuthService>;
+
+  const mockAuthResponse = {
+    token: 'fake-jwt-token',
+    email: 'nicolesmith@example.com',
+    firstName: 'Nicole',
+    lastName: 'Smith',
+  };
 
   beforeEach(async () => {
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['register']);
+
     await TestBed.configureTestingModule({
       imports: [RegisterComponent, ReactiveFormsModule, FooterComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), { provide: AuthService, useValue: authServiceSpy }],
     }).compileComponents();
 
     router = TestBed.inject(Router);
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
 
     spyOn(router, 'navigate');
 
@@ -190,7 +202,6 @@ describe('RegisterComponent', () => {
     });
 
     it('should clear mismatch error when passwords match', () => {
-      // First set mismatched passwords
       component.registerForm.patchValue({
         password: 'StrongStrongPassword12344',
         confirmPassword: 'StrongPassword5678',
@@ -199,7 +210,6 @@ describe('RegisterComponent', () => {
       let confirmPassword = component.registerForm.get('confirmPassword');
       expect(confirmPassword?.hasError('passwordMismatch')).toBeTruthy();
 
-      // Then make them match
       component.registerForm.patchValue({
         confirmPassword: 'StrongStrongPassword12344',
       });
@@ -215,9 +225,12 @@ describe('RegisterComponent', () => {
 
       expect(component.registerForm.touched).toBeTruthy();
       expect(component.isLoading).toBeFalsy();
+      expect(authService.register).not.toHaveBeenCalled();
     });
 
-    it('should submit when form is valid', fakeAsync(() => {
+    it('should call authService.register with form values', () => {
+      authService.register.and.returnValue(of(mockAuthResponse));
+
       component.registerForm.patchValue({
         firstName: 'Nicole',
         lastName: 'Smith',
@@ -228,31 +241,40 @@ describe('RegisterComponent', () => {
 
       component.onSubmit();
 
-      expect(component.isLoading).toBeTruthy();
-      expect(component.errorMessage).toBe('');
-      expect(component.successMessage).toBe('');
+      expect(authService.register).toHaveBeenCalledWith({
+        firstName: 'Nicole',
+        lastName: 'Smith',
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+      });
+    });
 
-      tick(1500);
+    it('should navigate to dashboard on successful registration', fakeAsync(() => {
+      authService.register.and.returnValue(of(mockAuthResponse));
+
+      component.registerForm.patchValue({
+        firstName: 'Nicole',
+        lastName: 'Smith',
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+        confirmPassword: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+      tick();
 
       expect(component.isLoading).toBeFalsy();
       expect(component.successMessage).toContain('Account created successfully');
 
       tick(2000);
 
-      expect(router.navigate).toHaveBeenCalledWith(['/login']);
+      expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
     }));
 
-    it('should mark all fields as touched on invalid submission', () => {
-      component.onSubmit();
-
-      expect(component.registerForm.get('firstName')?.touched).toBeTruthy();
-      expect(component.registerForm.get('lastName')?.touched).toBeTruthy();
-      expect(component.registerForm.get('email')?.touched).toBeTruthy();
-      expect(component.registerForm.get('password')?.touched).toBeTruthy();
-      expect(component.registerForm.get('confirmPassword')?.touched).toBeTruthy();
-    });
-
     it('should set loading state during submission', () => {
+      const registerSubject = new Subject<AuthResponse>();
+      authService.register.and.returnValue(registerSubject.asObservable());
+
       component.registerForm.patchValue({
         firstName: 'Nicole',
         lastName: 'Smith',
@@ -264,9 +286,15 @@ describe('RegisterComponent', () => {
       component.onSubmit();
 
       expect(component.isLoading).toBeTruthy();
+
+      registerSubject.next(mockAuthResponse);
+      registerSubject.complete();
     });
 
     it('should clear error and success messages on new submission', () => {
+      const registerSubject = new Subject<AuthResponse>();
+      authService.register.and.returnValue(registerSubject.asObservable());
+
       component.errorMessage = 'Previous error';
       component.successMessage = 'Previous success';
 
@@ -282,9 +310,15 @@ describe('RegisterComponent', () => {
 
       expect(component.errorMessage).toBe('');
       expect(component.successMessage).toBe('');
+
+      registerSubject.next(mockAuthResponse);
+      registerSubject.complete();
     });
 
-    it('should not include confirmPassword in submitted data', fakeAsync(() => {
+    it('should handle registration error', fakeAsync(() => {
+      const error = new Error('Email already exists');
+      authService.register.and.returnValue(throwError(() => error));
+
       component.registerForm.patchValue({
         firstName: 'Nicole',
         lastName: 'Smith',
@@ -293,17 +327,62 @@ describe('RegisterComponent', () => {
         confirmPassword: 'StrongPassword1234',
       });
 
-      spyOn(console, 'log');
       component.onSubmit();
-      tick(1500);
+      tick();
 
-      expect(console.log).toHaveBeenCalledWith('Register attempt:', {
+      expect(component.isLoading).toBeFalsy();
+      expect(component.errorMessage).toBe('Email already exists');
+      expect(router.navigate).not.toHaveBeenCalled();
+    }));
+
+    it('should show default error message when error has no message', fakeAsync(() => {
+      authService.register.and.returnValue(throwError(() => new Error()));
+
+      component.registerForm.patchValue({
+        firstName: 'Nicole',
+        lastName: 'Smith',
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+        confirmPassword: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+      tick();
+
+      expect(component.errorMessage).toBe('Registration failed. Please try again.');
+    }));
+
+    it('should not include confirmPassword in submitted data', fakeAsync(() => {
+      authService.register.and.returnValue(of(mockAuthResponse));
+
+      component.registerForm.patchValue({
+        firstName: 'Nicole',
+        lastName: 'Smith',
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+        confirmPassword: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+      tick();
+
+      expect(authService.register).toHaveBeenCalledWith({
         firstName: 'Nicole',
         lastName: 'Smith',
         email: 'nicolesmith@example.com',
         password: 'StrongPassword1234',
       });
     }));
+
+    it('should mark all fields as touched on invalid submission', () => {
+      component.onSubmit();
+
+      expect(component.registerForm.get('firstName')?.touched).toBeTruthy();
+      expect(component.registerForm.get('lastName')?.touched).toBeTruthy();
+      expect(component.registerForm.get('email')?.touched).toBeTruthy();
+      expect(component.registerForm.get('password')?.touched).toBeTruthy();
+      expect(component.registerForm.get('confirmPassword')?.touched).toBeTruthy();
+    });
   });
 
   describe('UI Rendering', () => {
@@ -445,8 +524,7 @@ describe('RegisterComponent', () => {
   describe('Password Match Validator', () => {
     it('should return null when controls are missing', () => {
       const result = component.passwordMatchValidator(component.registerForm);
-      // Initially password fields are empty but controls exist
-      expect(result).toBeNull(); // Will have mismatch since one is empty
+      expect(result).toBeNull();
     });
 
     it('should set error on confirmPassword when passwords mismatch', () => {
@@ -484,7 +562,7 @@ describe('RegisterComponent', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       const labels = compiled.querySelectorAll('label');
 
-      expect(labels.length).toBe(5); // firstName, lastName, email, password, confirmPassword
+      expect(labels.length).toBe(5);
     });
 
     it('should have proper label-input associations', () => {
