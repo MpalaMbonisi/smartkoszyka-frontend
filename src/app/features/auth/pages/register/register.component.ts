@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
+import { AuthService } from '../../../../core/services/auth/auth-service';
 
 @Component({
   selector: 'app-register',
@@ -25,6 +26,7 @@ export class RegisterComponent {
 
   private fb: FormBuilder = inject(FormBuilder);
   private router: Router = inject(Router);
+  private authService: AuthService = inject(AuthService);
 
   constructor() {
     this.registerForm = this.fb.group(
@@ -54,7 +56,6 @@ export class RegisterComponent {
       return { passwordMismatch: true };
     }
 
-    // Clear error if passwords match
     if (confirmPassword.hasError('passwordMismatch')) {
       confirmPassword.setErrors(null);
     }
@@ -92,20 +93,23 @@ export class RegisterComponent {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // TODO: Implement actual auth service call
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword: _confirmPassword, ...registerData } = this.registerForm.value;
-    console.log('Register attempt:', registerData);
 
-    // Simulate API call
-    setTimeout(() => {
-      this.isLoading = false;
-      this.successMessage = 'Account created successfully! Redirecting to login...';
+    this.authService.register(registerData).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.successMessage = 'Account created successfully! Redirecting to dashboard...';
 
-      setTimeout(() => {
-        this.router.navigate(['/login']);
-      }, 2000);
-    }, 1500);
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 2000);
+      },
+      error: error => {
+        this.isLoading = false;
+        this.errorMessage = error.message || 'Registration failed. Please try again.';
+      },
+    });
   }
 
   isFieldInvalid(fieldName: string): boolean {
