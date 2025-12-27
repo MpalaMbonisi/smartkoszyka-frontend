@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { LoginComponent } from './login.component';
 
@@ -55,7 +55,7 @@ describe('LoginComponent', () => {
 
     it('should be valid with correct email format', () => {
       const email = component.loginForm.get('email');
-      email?.setValue('test@example.com');
+      email?.setValue('nicolesmith@example.com');
 
       expect(email?.valid).toBeTruthy();
     });
@@ -96,7 +96,7 @@ describe('LoginComponent', () => {
 
     it('should be valid with 8 or more characters', () => {
       const password = component.loginForm.get('password');
-      password?.setValue('validpassword123');
+      password?.setValue('StrongPassword1234');
 
       expect(password?.valid).toBeTruthy();
     });
@@ -107,6 +107,61 @@ describe('LoginComponent', () => {
       password?.markAsTouched();
 
       expect(component.getErrorMessage('password')).toBe('Password must be at least 8 characters');
+    });
+  });
+
+  describe('Form Submission', () => {
+    it('should not submit when form is invalid', () => {
+      component.onSubmit();
+
+      expect(component.loginForm.touched).toBeTruthy();
+      expect(component.isLoading).toBeFalsy();
+    });
+
+    it('should submit when form is valid', fakeAsync(() => {
+      component.loginForm.patchValue({
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+
+      expect(component.isLoading).toBeTruthy();
+      expect(component.errorMessage).toBe('');
+
+      tick(1500);
+
+      expect(component.isLoading).toBeFalsy();
+    }));
+
+    it('should mark all fields as touched on invalid submission', () => {
+      component.onSubmit();
+
+      expect(component.loginForm.get('email')?.touched).toBeTruthy();
+      expect(component.loginForm.get('password')?.touched).toBeTruthy();
+    });
+
+    it('should set loading state during submission', () => {
+      component.loginForm.patchValue({
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+
+      expect(component.isLoading).toBeTruthy();
+    });
+
+    it('should clear error message on new submission', () => {
+      component.errorMessage = 'Previous error';
+      component.loginForm.patchValue({
+        email: 'nicolesmith@example.com',
+        password: 'StrongPassword1234',
+      });
+
+      component.onSubmit();
+
+      expect(component.errorMessage).toBe('');
     });
   });
 });
