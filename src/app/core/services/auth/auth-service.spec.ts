@@ -47,7 +47,10 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should send login request to correct endpoint', () => {
-      const credentials = { email: 'nicolesmith@example.com', password: 'StrongPassword1234' };
+      const credentials = {
+        email: 'nicolesmith@example.com',
+        password: 'StrongStrongPassword12344',
+      };
 
       service.login(credentials).subscribe();
 
@@ -58,7 +61,10 @@ describe('AuthService', () => {
     });
 
     it('should store token and user data on successful login', () => {
-      const credentials = { email: 'nicolesmith@example.com', password: 'StrongPassword1234' };
+      const credentials = {
+        email: 'nicolesmith@example.com',
+        password: 'StrongStrongPassword12344',
+      };
 
       service.login(credentials).subscribe();
 
@@ -70,7 +76,10 @@ describe('AuthService', () => {
     });
 
     it('should update isAuthenticated signal on successful login', done => {
-      const credentials = { email: 'nicolesmith@example.com', password: 'StrongPassword1234' };
+      const credentials = {
+        email: 'nicolesmith@example.com',
+        password: 'StrongStrongPassword12344',
+      };
 
       service.login(credentials).subscribe(() => {
         expect(service.isAuthenticated()).toBe(true);
@@ -82,7 +91,10 @@ describe('AuthService', () => {
     });
 
     it('should update currentUser$ observable on successful login', done => {
-      const credentials = { email: 'nicolesmith@example.com', password: 'StrongPassword1234' };
+      const credentials = {
+        email: 'nicolesmith@example.com',
+        password: 'StrongStrongPassword12344',
+      };
 
       service.login(credentials).subscribe(() => {
         service.currentUser$.subscribe(user => {
@@ -131,6 +143,88 @@ describe('AuthService', () => {
 
       const req = httpMock.expectOne(`${environment.apiUrl}${environment.apiEndpoints.auth.login}`);
       req.flush(errorResponse, { status: 401, statusText: 'Unauthorized' });
+    });
+  });
+
+  describe('register', () => {
+    it('should send register request to correct endpoint', () => {
+      const registerData = {
+        email: 'nicolesmith.new@example.com',
+        password: 'StrongPassword1234',
+        firstName: 'Nicole',
+        lastName: 'Smith',
+      };
+
+      service.register(registerData).subscribe();
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.auth.register}`
+      );
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(registerData);
+      req.flush(mockAuthResponse);
+    });
+
+    it('should store token and user data on successful registration', () => {
+      const registerData = {
+        email: 'nicolesmith.new@example.com',
+        password: 'StrongPassword1234',
+        firstName: 'Nicole',
+        lastName: 'Smith',
+      };
+
+      service.register(registerData).subscribe();
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.auth.register}`
+      );
+      req.flush(mockAuthResponse);
+
+      expect(localStorageSpy.setItem).toHaveBeenCalledWith('auth-token', mockAuthResponse.token);
+      expect(localStorageSpy.setItem).toHaveBeenCalledWith('auth-user', jasmine.any(String));
+    });
+
+    it('should update authentication state on successful registration', done => {
+      const registerData = {
+        email: 'nicolesmith.new@example.com',
+        password: 'StrongPassword1234',
+        firstName: 'Nicole',
+        lastName: 'Smith',
+      };
+
+      service.register(registerData).subscribe(() => {
+        expect(service.isAuthenticated()).toBe(true);
+        done();
+      });
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.auth.register}`
+      );
+      req.flush(mockAuthResponse);
+    });
+
+    it('should handle registration error with conflict status', done => {
+      const registerData = {
+        email: 'nicolesmith.existing@example.com',
+        password: 'StrongPassword1234',
+        firstName: 'Nicole',
+        lastName: 'Smith',
+      };
+      const errorResponse = {
+        message: 'Email already exists',
+      };
+
+      service.register(registerData).subscribe({
+        error: error => {
+          expect(error.message).toBe('Email already exists');
+          done();
+        },
+      });
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.auth.register}`
+      );
+      req.flush(errorResponse, { status: 409, statusText: 'Conflict' });
     });
   });
 });
