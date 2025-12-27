@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FooterComponent } from './footer.component';
-import { ThemeService } from '../../../core/services/theme.service';
 import { signal, WritableSignal } from '@angular/core';
+import { ThemeService } from '../../../core/services/theme/theme.service';
 
 describe('FooterComponent', () => {
   let component: FooterComponent;
