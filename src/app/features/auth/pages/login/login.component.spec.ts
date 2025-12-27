@@ -265,4 +265,36 @@ describe('LoginComponent', () => {
       expect(authCard?.classList.contains('loading')).toBeTruthy();
     });
   });
+
+  describe('Helper Methods', () => {
+    it('should return correct field validity status', () => {
+      const email = component.loginForm.get('email');
+
+      expect(component.isFieldInvalid('email')).toBeFalsy();
+
+      email?.markAsTouched();
+      expect(component.isFieldInvalid('email')).toBeTruthy();
+    });
+
+    it('should return empty string for valid field', () => {
+      const email = component.loginForm.get('email');
+      email?.setValue('nicolesmith@example.com');
+
+      expect(component.getErrorMessage('email')).toBe('');
+    });
+
+    it('should handle non-existent field gracefully', () => {
+      expect(component.isFieldInvalid('nonexistent')).toBeFalsy();
+      expect(component.getErrorMessage('nonexistent')).toBe('');
+    });
+  });
+
+  describe('Footer Integration', () => {
+    it('should render footer component', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const footer = compiled.querySelector('app-footer');
+
+      expect(footer).toBeTruthy();
+    });
+  });
 });
