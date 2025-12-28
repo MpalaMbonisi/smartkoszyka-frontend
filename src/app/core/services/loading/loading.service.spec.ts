@@ -169,4 +169,35 @@ describe('LoadingService', () => {
       expect(service.isLoading()).toBe(false);
     });
   });
+
+  describe('Signal Reactivity', () => {
+    it('should update signal when loading state changes', () => {
+      const initialState = service.isLoading();
+      expect(initialState).toBe(false);
+
+      service.show();
+      const loadingState = service.isLoading();
+      expect(loadingState).toBe(true);
+
+      service.hide();
+      const finalState = service.isLoading();
+      expect(finalState).toBe(false);
+    });
+
+    it('should be reactive to multiple subscribers', () => {
+      let subscriber1Value = service.isLoading();
+      let subscriber2Value = service.isLoading();
+
+      expect(subscriber1Value).toBe(false);
+      expect(subscriber2Value).toBe(false);
+
+      service.show();
+
+      subscriber1Value = service.isLoading();
+      subscriber2Value = service.isLoading();
+
+      expect(subscriber1Value).toBe(true);
+      expect(subscriber2Value).toBe(true);
+    });
+  });
 });
