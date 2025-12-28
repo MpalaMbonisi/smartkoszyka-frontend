@@ -225,4 +225,22 @@ describe('authGuard', () => {
       });
     });
   });
+
+  describe('Service Integration', () => {
+    it('should call isAuthenticated exactly once per guard invocation', () => {
+      authService.isAuthenticated.and.returnValue(true);
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(authService.isAuthenticated).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call isAuthenticated multiple times within single guard check', () => {
+      authService.isAuthenticated.and.returnValue(false);
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(authService.isAuthenticated).toHaveBeenCalledTimes(1);
+    });
+  });
 });
