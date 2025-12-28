@@ -81,4 +81,34 @@ describe('LoadingService', () => {
       expect(service.isLoading()).toBe(true);
     });
   });
+
+  describe('reset()', () => {
+    it('should set loading to false immediately', () => {
+      service.show();
+      service.show();
+      service.show();
+
+      service.reset();
+
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should reset internal counter', () => {
+      service.show();
+      service.show();
+      service.reset();
+
+      service.show();
+      service.hide();
+
+      // Should be false because counter was reset
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should work when already at zero', () => {
+      service.reset();
+
+      expect(service.isLoading()).toBe(false);
+    });
+  });
 });
