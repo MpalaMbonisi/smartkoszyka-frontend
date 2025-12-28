@@ -308,4 +308,25 @@ describe('loadingInterceptor', () => {
       expect(loadingService.isLoading()).toBe(false);
     });
   });
+
+  describe('Performance', () => {
+    it('should handle large number of concurrent requests efficiently', () => {
+      const requestCount = 50;
+
+      // Start many requests
+      for (let i = 0; i < requestCount; i++) {
+        httpClient.get(`/api/test${i}`).subscribe();
+      }
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      // Complete all requests
+      for (let i = 0; i < requestCount; i++) {
+        const req = httpMock.expectOne(`/api/test${i}`);
+        req.flush({});
+      }
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+  });
 });
