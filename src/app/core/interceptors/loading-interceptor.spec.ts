@@ -292,4 +292,20 @@ describe('loadingInterceptor', () => {
       expect(loadingService.isLoading()).toBe(false);
     });
   });
+
+  describe('Integration with Other Interceptors', () => {
+    it('should work independently of request/response modifications', () => {
+      // This test ensures loading interceptor works even if other
+      // interceptors modify the request or response
+
+      httpClient.get('/api/test').subscribe();
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test');
+      req.flush({ modified: 'data' });
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+  });
 });
