@@ -89,4 +89,23 @@ describe('DashboardComponent', () => {
       expect(userName?.textContent).toContain('VeryLongFirstName VeryLongLastName');
     });
   });
+
+  describe('Logo Display', () => {
+    it('should display SmartKoszyka logo', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logo = compiled.querySelector('.logo');
+
+      expect(logo?.textContent).toContain('Smart');
+      expect(logo?.textContent).toContain('Koszyka');
+    });
+
+    it('should have separate spans for logo parts', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logoSmart = compiled.querySelector('.logo-smart');
+      const logoKoszyka = compiled.querySelector('.logo-koszyka');
+
+      expect(logoSmart?.textContent).toBe('Smart');
+      expect(logoKoszyka?.textContent).toBe('Koszyka');
+    });
+  });
 });
