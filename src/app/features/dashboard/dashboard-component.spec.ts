@@ -168,4 +168,34 @@ describe('DashboardComponent', () => {
       expect(features[0].textContent).toContain('Shopping Lists');
     });
   });
+
+  describe('Responsive Layout', () => {
+    it('should have dashboard-header element', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const header = compiled.querySelector('.dashboard-header');
+
+      expect(header).toBeTruthy();
+    });
+
+    it('should have dashboard-content element', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const content = compiled.querySelector('.dashboard-content');
+
+      expect(content).toBeTruthy();
+    });
+
+    it('should have container for content', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const container = compiled.querySelector('.container');
+
+      expect(container).toBeTruthy();
+    });
+
+    it('should have welcome card', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const welcomeCard = compiled.querySelector('.welcome-card');
+
+      expect(welcomeCard).toBeTruthy();
+    });
+  });
 });
