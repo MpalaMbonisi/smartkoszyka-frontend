@@ -180,4 +180,46 @@ describe('LoadingSpinner', () => {
       expect(compiled.querySelector('.loading-overlay')).toBeFalsy();
     });
   });
+
+  describe('CSS Classes', () => {
+    it('should apply loading-overlay class', () => {
+      loadingService.show();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const overlay = compiled.querySelector('.loading-overlay');
+
+      expect(overlay?.classList.contains('loading-overlay')).toBe(true);
+    });
+
+    it('should apply spinner-container class', () => {
+      loadingService.show();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const container = compiled.querySelector('.spinner-container');
+
+      expect(container?.classList.contains('spinner-container')).toBe(true);
+    });
+
+    it('should apply spinner class', () => {
+      loadingService.show();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const spinner = compiled.querySelector('.spinner');
+
+      expect(spinner?.classList.contains('spinner')).toBe(true);
+    });
+
+    it('should apply loading-text class', () => {
+      loadingService.show();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const text = compiled.querySelector('.loading-text');
+
+      expect(text?.classList.contains('loading-text')).toBe(true);
+    });
+  });
 });
