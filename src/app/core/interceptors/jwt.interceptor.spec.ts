@@ -117,4 +117,72 @@ describe('jwtInterceptor', () => {
       req.flush({});
     });
   });
+
+  describe('Protected Endpoints', () => {
+    it('should add token to shopping list endpoints', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.get('/api/shopping-lists/active').subscribe();
+
+      const req = httpMock.expectOne('/api/shopping-lists/active');
+      expect(req.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      req.flush([]);
+    });
+
+    it('should add token to product endpoints', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.get('/api/products').subscribe();
+
+      const req = httpMock.expectOne('/api/products');
+      expect(req.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      req.flush([]);
+    });
+
+    it('should add token to category endpoints', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.get('/api/categories').subscribe();
+
+      const req = httpMock.expectOne('/api/categories');
+      expect(req.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      req.flush([]);
+    });
+
+    it('should add token to POST requests', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.post('/api/shopping-lists', { title: 'New List' }).subscribe();
+
+      const req = httpMock.expectOne('/api/shopping-lists');
+      expect(req.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      req.flush({});
+    });
+
+    it('should add token to PUT requests', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.put('/api/shopping-lists/1', { title: 'Updated' }).subscribe();
+
+      const req = httpMock.expectOne('/api/shopping-lists/1');
+      expect(req.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      req.flush({});
+    });
+
+    it('should add token to DELETE requests', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.delete('/api/shopping-lists/1').subscribe();
+
+      const req = httpMock.expectOne('/api/shopping-lists/1');
+      expect(req.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      req.flush({});
+    });
+  });
 });
