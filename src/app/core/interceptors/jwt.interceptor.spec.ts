@@ -62,4 +62,59 @@ describe('jwtInterceptor', () => {
       req.flush({});
     });
   });
+
+  describe('Auth Endpoint Exclusion', () => {
+    it('should not add token to login endpoint', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient
+        .post('/auth/login', { email: 'nicolesmith@example.com', password: 'StrongPassword12345' })
+        .subscribe();
+
+      const req = httpMock.expectOne('/auth/login');
+      expect(req.request.headers.has('Authorization')).toBe(false);
+      req.flush({});
+    });
+
+    it('should not add token to register endpoint', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient
+        .post('/auth/register', {
+          email: 'nicolesmith@example.com',
+          password: 'StrongPassword12345',
+          firstName: 'Nicole',
+          lastName: 'Smith',
+        })
+        .subscribe();
+
+      const req = httpMock.expectOne('/auth/register');
+      expect(req.request.headers.has('Authorization')).toBe(false);
+      req.flush({});
+    });
+
+    it('should not add token when URL contains /auth/login', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.post('http://localhost:8080/auth/login', {}).subscribe();
+
+      const req = httpMock.expectOne('http://localhost:8080/auth/login');
+      expect(req.request.headers.has('Authorization')).toBe(false);
+      req.flush({});
+    });
+
+    it('should not add token when URL contains /auth/register', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.post('http://localhost:8080/auth/register', {}).subscribe();
+
+      const req = httpMock.expectOne('http://localhost:8080/auth/register');
+      expect(req.request.headers.has('Authorization')).toBe(false);
+      req.flush({});
+    });
+  });
 });
