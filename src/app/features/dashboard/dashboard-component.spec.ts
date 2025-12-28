@@ -138,4 +138,34 @@ describe('DashboardComponent', () => {
       expect(authService.logout).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('Dashboard Content', () => {
+    it('should display dashboard title', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const title = compiled.querySelector('h1');
+
+      expect(title?.textContent).toContain('Dashboard');
+    });
+
+    it('should display welcome message', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+
+      expect(compiled.textContent).toContain('Welcome to SmartKoszyka!');
+    });
+
+    it('should display coming soon section', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const comingSoon = compiled.querySelector('.coming-soon');
+
+      expect(comingSoon).toBeTruthy();
+    });
+
+    it('should list coming soon features', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const features = compiled.querySelectorAll('.coming-soon li');
+
+      expect(features.length).toBeGreaterThan(0);
+      expect(features[0].textContent).toContain('Shopping Lists');
+    });
+  });
 });
