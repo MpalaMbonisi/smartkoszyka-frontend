@@ -193,4 +193,46 @@ describe('loadingInterceptor', () => {
       expect(loadingService.isLoading()).toBe(false);
     });
   });
+
+  describe('Request Lifecycle', () => {
+    it('should show loading immediately when request starts', () => {
+      expect(loadingService.isLoading()).toBe(false);
+
+      httpClient.get('/api/test').subscribe();
+
+      // Should be true immediately
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test');
+      req.flush({});
+    });
+
+    it('should hide loading only after all operations complete', () => {
+      let responseReceived = false;
+
+      httpClient.get('/api/test').subscribe(() => {
+        responseReceived = true;
+      });
+
+      const req = httpMock.expectOne('/api/test');
+      req.flush({ data: 'test' });
+
+      expect(responseReceived).toBe(true);
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle request cancellation', () => {
+      const subscription = httpClient.get('/api/test').subscribe();
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test');
+
+      // Cancel the request
+      subscription.unsubscribe();
+
+      expect(loadingService.isLoading()).toBe(false);
+      expect(req.cancelled).toBe(true);
+    });
+  });
 });
