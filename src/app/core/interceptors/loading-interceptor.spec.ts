@@ -136,4 +136,61 @@ describe('loadingInterceptor', () => {
       expect(loadingService.isLoading()).toBe(false);
     });
   });
+
+  describe('Different HTTP Methods', () => {
+    it('should handle GET requests', () => {
+      httpClient.get('/api/test').subscribe();
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test');
+      req.flush({});
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle POST requests', () => {
+      httpClient.post('/api/test', { data: 'test' }).subscribe();
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test');
+      req.flush({});
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle PUT requests', () => {
+      httpClient.put('/api/test/1', { data: 'updated' }).subscribe();
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test/1');
+      req.flush({});
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle DELETE requests', () => {
+      httpClient.delete('/api/test/1').subscribe();
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test/1');
+      req.flush({});
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle PATCH requests', () => {
+      httpClient.patch('/api/test/1', { field: 'value' }).subscribe();
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test/1');
+      req.flush({});
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+  });
 });
