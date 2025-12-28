@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
-  // let authService: jasmine.SpyObj<AuthService>;
+  let authService: jasmine.SpyObj<AuthService>;
   // let router: jasmine.SpyObj<Router>;
   let currentUserSubject: BehaviorSubject<User | null>;
 
@@ -32,6 +32,8 @@ describe('DashboardComponent', () => {
         { provide: Router, useValue: routerSpy },
       ],
     }).compileComponents();
+
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
 
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
@@ -106,6 +108,34 @@ describe('DashboardComponent', () => {
 
       expect(logoSmart?.textContent).toBe('Smart');
       expect(logoKoszyka?.textContent).toBe('Koszyka');
+    });
+  });
+
+  describe('Logout Functionality', () => {
+    it('should call authService.logout when logout button clicked', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logoutButton = compiled.querySelector('.btn-logout') as HTMLButtonElement;
+
+      logoutButton.click();
+
+      expect(authService.logout).toHaveBeenCalled();
+    });
+
+    it('should have logout button in user menu', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logoutButton = compiled.querySelector('.btn-logout');
+
+      expect(logoutButton).toBeTruthy();
+      expect(logoutButton?.textContent?.trim()).toBe('Logout');
+    });
+
+    it('should call logout only once per click', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logoutButton = compiled.querySelector('.btn-logout') as HTMLButtonElement;
+
+      logoutButton.click();
+
+      expect(authService.logout).toHaveBeenCalledTimes(1);
     });
   });
 });
