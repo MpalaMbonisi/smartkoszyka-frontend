@@ -271,4 +271,44 @@ describe('jwtInterceptor', () => {
       expect(errorReceived).toBe(true);
     });
   });
+
+  describe('Multiple Requests', () => {
+    it('should add token to multiple concurrent requests', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.get('/api/products').subscribe();
+      httpClient.get('/api/categories').subscribe();
+      httpClient.get('/api/shopping-lists').subscribe();
+
+      const req1 = httpMock.expectOne('/api/products');
+      const req2 = httpMock.expectOne('/api/categories');
+      const req3 = httpMock.expectOne('/api/shopping-lists');
+
+      expect(req1.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      expect(req2.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      expect(req3.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+
+      req1.flush([]);
+      req2.flush([]);
+      req3.flush([]);
+    });
+
+    it('should handle mix of auth and protected endpoints', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.post('/auth/login', {}).subscribe();
+      httpClient.get('/api/products').subscribe();
+
+      const loginReq = httpMock.expectOne('/auth/login');
+      const productsReq = httpMock.expectOne('/api/products');
+
+      expect(loginReq.request.headers.has('Authorization')).toBe(false);
+      expect(productsReq.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+
+      loginReq.flush({});
+      productsReq.flush([]);
+    });
+  });
 });
