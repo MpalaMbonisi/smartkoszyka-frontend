@@ -200,4 +200,40 @@ describe('LoadingService', () => {
       expect(subscriber2Value).toBe(true);
     });
   });
+
+  describe('Edge Cases', () => {
+    it('should handle show after reset', () => {
+      service.show();
+      service.reset();
+      service.show();
+
+      expect(service.isLoading()).toBe(true);
+
+      service.hide();
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should handle multiple resets', () => {
+      service.show();
+      service.reset();
+      service.reset();
+      service.reset();
+
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should maintain correct state after error scenarios', () => {
+      service.show();
+      service.show();
+
+      // Simulate error - only one hide called
+      service.hide();
+
+      expect(service.isLoading()).toBe(true);
+
+      // Recovery with reset
+      service.reset();
+      expect(service.isLoading()).toBe(false);
+    });
+  });
 });
