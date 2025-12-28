@@ -235,4 +235,61 @@ describe('loadingInterceptor', () => {
       expect(req.cancelled).toBe(true);
     });
   });
+
+  describe('Error Scenarios', () => {
+    it('should handle 400 Bad Request', () => {
+      httpClient.post('/api/test', {}).subscribe({ error: () => {} });
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test');
+      req.flush({ message: 'Bad Request' }, { status: 400, statusText: 'Bad Request' });
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle 401 Unauthorized', () => {
+      httpClient.get('/api/protected').subscribe({ error: () => {} });
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/protected');
+      req.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle 404 Not Found', () => {
+      httpClient.get('/api/nonexistent').subscribe({ error: () => {} });
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/nonexistent');
+      req.flush({ message: 'Not Found' }, { status: 404, statusText: 'Not Found' });
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle 500 Internal Server Error', () => {
+      httpClient.get('/api/test').subscribe({ error: () => {} });
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/test');
+      req.flush({ message: 'Server Error' }, { status: 500, statusText: 'Internal Server Error' });
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle timeout errors', () => {
+      httpClient.get('/api/slow').subscribe({ error: () => {} });
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      const req = httpMock.expectOne('/api/slow');
+      req.error(new ProgressEvent('timeout'));
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+  });
 });
