@@ -239,4 +239,30 @@ describe('DashboardComponent', () => {
       expect(welcomeCard).toBeFalsy();
     });
   });
+
+  describe('Header Structure', () => {
+    it('should have header-content wrapper', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const headerContent = compiled.querySelector('.header-content');
+
+      expect(headerContent).toBeTruthy();
+    });
+
+    it('should have user-menu section', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const userMenu = compiled.querySelector('.user-menu');
+
+      expect(userMenu).toBeTruthy();
+    });
+
+    it('should display logo and user menu in same header', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const header = compiled.querySelector('.dashboard-header');
+      const logo = header?.querySelector('.logo');
+      const userMenu = header?.querySelector('.user-menu');
+
+      expect(logo).toBeTruthy();
+      expect(userMenu).toBeTruthy();
+    });
+  });
 });
