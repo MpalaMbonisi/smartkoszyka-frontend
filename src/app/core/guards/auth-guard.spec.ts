@@ -190,4 +190,39 @@ describe('authGuard', () => {
       expect(router.navigate).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('Edge Cases', () => {
+    it('should handle empty URL', () => {
+      authService.isAuthenticated.and.returnValue(false);
+      mockState = { url: '' } as RouterStateSnapshot;
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '' },
+      });
+    });
+
+    it('should handle URL with hash', () => {
+      authService.isAuthenticated.and.returnValue(false);
+      mockState = { url: '/dashboard#section1' } as RouterStateSnapshot;
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '/dashboard#section1' },
+      });
+    });
+
+    it('should handle complex URL with multiple query params', () => {
+      authService.isAuthenticated.and.returnValue(false);
+      mockState = { url: '/shopping-lists?sort=date&filter=active&page=2' } as RouterStateSnapshot;
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '/shopping-lists?sort=date&filter=active&page=2' },
+      });
+    });
+  });
 });
