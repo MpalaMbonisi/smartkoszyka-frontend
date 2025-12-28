@@ -85,4 +85,69 @@ describe('authGuard', () => {
       expect(result).toBe(true);
     });
   });
+
+  describe('Unauthenticated User', () => {
+    it('should deny access when user is not authenticated', () => {
+      authService.isAuthenticated.and.returnValue(false);
+
+      const result = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(result).toBe(false);
+    });
+
+    it('should redirect to login when user is not authenticated', () => {
+      authService.isAuthenticated.and.returnValue(false);
+      mockState = { url: '/dashboard' } as RouterStateSnapshot;
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '/dashboard' },
+      });
+    });
+
+    it('should store attempted URL in query params', () => {
+      authService.isAuthenticated.and.returnValue(false);
+      mockState = { url: '/shopping-lists' } as RouterStateSnapshot;
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '/shopping-lists' },
+      });
+    });
+
+    it('should handle root path attempt', () => {
+      authService.isAuthenticated.and.returnValue(false);
+      mockState = { url: '/' } as RouterStateSnapshot;
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '/' },
+      });
+    });
+
+    it('should handle nested route attempts', () => {
+      authService.isAuthenticated.and.returnValue(false);
+      mockState = { url: '/shopping-lists/1/items' } as RouterStateSnapshot;
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '/shopping-lists/1/items' },
+      });
+    });
+
+    it('should handle routes with query parameters', () => {
+      authService.isAuthenticated.and.returnValue(false);
+      mockState = { url: '/dashboard?tab=active' } as RouterStateSnapshot;
+
+      TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(router.navigate).toHaveBeenCalledWith(['/login'], {
+        queryParams: { returnUrl: '/dashboard?tab=active' },
+      });
+    });
+  });
 });
