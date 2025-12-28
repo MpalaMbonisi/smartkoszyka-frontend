@@ -1,4 +1,9 @@
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  provideHttpClient,
+  withInterceptors,
+} from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AuthService } from '../services/auth/auth-service';
 import { jwtInterceptor } from './jwt.interceptor';
@@ -183,6 +188,87 @@ describe('jwtInterceptor', () => {
       const req = httpMock.expectOne('/api/shopping-lists/1');
       expect(req.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
       req.flush({});
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should call logout on 401 Unauthorized error', () => {
+      const mockToken = 'mock-expired-jwt-token-123';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.get('/api/shopping-lists').subscribe({
+        error: (error: HttpErrorResponse) => {
+          expect(error.status).toBe(401);
+          expect(authService.logout).toHaveBeenCalled();
+        },
+      });
+
+      const req = httpMock.expectOne('/api/shopping-lists');
+      req.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+    });
+
+    it('should not call logout on 400 Bad Request error', () => {
+      const mockToken = 'mock-valid-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.post('/api/shopping-lists', {}).subscribe({
+        error: (error: HttpErrorResponse) => {
+          expect(error.status).toBe(400);
+          expect(authService.logout).not.toHaveBeenCalled();
+        },
+      });
+
+      const req = httpMock.expectOne('/api/shopping-lists');
+      req.flush({ message: 'Bad Request' }, { status: 400, statusText: 'Bad Request' });
+    });
+
+    it('should not call logout on 404 Not Found error', () => {
+      const mockToken = 'mock-valid-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.get('/api/shopping-lists/999').subscribe({
+        error: (error: HttpErrorResponse) => {
+          expect(error.status).toBe(404);
+          expect(authService.logout).not.toHaveBeenCalled();
+        },
+      });
+
+      const req = httpMock.expectOne('/api/shopping-lists/999');
+      req.flush({ message: 'Not Found' }, { status: 404, statusText: 'Not Found' });
+    });
+
+    it('should not call logout on 500 Internal Server Error', () => {
+      const mockToken = 'mock-valid-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.get('/api/shopping-lists').subscribe({
+        error: (error: HttpErrorResponse) => {
+          expect(error.status).toBe(500);
+          expect(authService.logout).not.toHaveBeenCalled();
+        },
+      });
+
+      const req = httpMock.expectOne('/api/shopping-lists');
+      req.flush({ message: 'Server Error' }, { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should propagate error after handling 401', () => {
+      const mockToken = 'mock-expired-jwt-token-123';
+      authService.getToken.and.returnValue(mockToken);
+
+      let errorReceived = false;
+
+      httpClient.get('/api/shopping-lists').subscribe({
+        error: (error: HttpErrorResponse) => {
+          errorReceived = true;
+          expect(error.status).toBe(401);
+        },
+      });
+
+      const req = httpMock.expectOne('/api/shopping-lists');
+      req.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+
+      expect(errorReceived).toBe(true);
     });
   });
 });
