@@ -44,4 +44,41 @@ describe('LoadingService', () => {
       expect(service.isLoading()).toBe(true);
     });
   });
+
+  describe('hide()', () => {
+    it('should set loading to false when count reaches zero', () => {
+      service.show();
+      service.hide();
+
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should not set loading to false if count is still positive', () => {
+      service.show();
+      service.show();
+      service.hide();
+
+      expect(service.isLoading()).toBe(true);
+
+      service.hide();
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should not go below zero when called more than show', () => {
+      service.hide();
+      service.hide();
+      service.hide();
+
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should handle hide before show gracefully', () => {
+      service.hide();
+
+      expect(service.isLoading()).toBe(false);
+
+      service.show();
+      expect(service.isLoading()).toBe(true);
+    });
+  });
 });
