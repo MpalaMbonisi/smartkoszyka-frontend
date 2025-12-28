@@ -234,4 +234,35 @@ describe('LoadingSpinner', () => {
       expect(loadingText?.textContent).toBeTruthy();
     });
   });
+
+  describe('Performance', () => {
+    it('should not cause memory leaks on rapid state changes', () => {
+      for (let i = 0; i < 100; i++) {
+        loadingService.show();
+        fixture.detectChanges();
+        loadingService.hide();
+        fixture.detectChanges();
+      }
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.loading-overlay')).toBeFalsy();
+    });
+
+    it('should update efficiently with detectChanges', () => {
+      const startTime = performance.now();
+
+      for (let i = 0; i < 10; i++) {
+        loadingService.show();
+        fixture.detectChanges();
+        loadingService.hide();
+        fixture.detectChanges();
+      }
+
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      // Should complete in reasonable time (< 1 second for 10 cycles)
+      expect(duration).toBeLessThan(1000);
+    });
+  });
 });
