@@ -116,4 +116,68 @@ describe('LoadingSpinner', () => {
       expect(text).toBeTruthy();
     });
   });
+
+  describe('LoadingService Integration', () => {
+    it('should have access to loadingService', () => {
+      expect(component.loadingService).toBeTruthy();
+      expect(component.loadingService).toBe(loadingService);
+    });
+
+    it('should react to loadingService state changes', () => {
+      loadingService.reset();
+      fixture.detectChanges();
+
+      let compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.loading-overlay')).toBeFalsy();
+
+      loadingService.show();
+      fixture.detectChanges();
+
+      compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.loading-overlay')).toBeTruthy();
+
+      loadingService.hide();
+      fixture.detectChanges();
+
+      compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.loading-overlay')).toBeFalsy();
+    });
+
+    it('should handle multiple show/hide cycles', () => {
+      for (let i = 0; i < 3; i++) {
+        loadingService.show();
+        fixture.detectChanges();
+
+        const compiled = fixture.nativeElement as HTMLElement;
+        expect(compiled.querySelector('.loading-overlay')).toBeTruthy();
+
+        loadingService.hide();
+        fixture.detectChanges();
+
+        const compiledAfter = fixture.nativeElement as HTMLElement;
+        expect(compiledAfter.querySelector('.loading-overlay')).toBeFalsy();
+      }
+    });
+
+    it('should remain visible during concurrent operations', () => {
+      loadingService.show(); // Operation 1
+      loadingService.show(); // Operation 2
+      fixture.detectChanges();
+
+      let compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.loading-overlay')).toBeTruthy();
+
+      loadingService.hide(); // Operation 1 completes
+      fixture.detectChanges();
+
+      compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.loading-overlay')).toBeTruthy();
+
+      loadingService.hide(); // Operation 2 completes
+      fixture.detectChanges();
+
+      compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('.loading-overlay')).toBeFalsy();
+    });
+  });
 });
