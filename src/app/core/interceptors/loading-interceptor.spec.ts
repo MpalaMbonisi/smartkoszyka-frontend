@@ -76,4 +76,64 @@ describe('loadingInterceptor', () => {
       expect(loadingService.isLoading()).toBe(false);
     });
   });
+
+  describe('Multiple Concurrent Requests', () => {
+    it('should keep loading true while any request is pending', () => {
+      // Start 3 requests
+      httpClient.get('/api/test1').subscribe();
+      httpClient.get('/api/test2').subscribe();
+      httpClient.get('/api/test3').subscribe();
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      // Complete first request
+      const req1 = httpMock.expectOne('/api/test1');
+      req1.flush({});
+      expect(loadingService.isLoading()).toBe(true); // Still 2 pending
+
+      // Complete second request
+      const req2 = httpMock.expectOne('/api/test2');
+      req2.flush({});
+      expect(loadingService.isLoading()).toBe(true); // Still 1 pending
+
+      // Complete third request
+      const req3 = httpMock.expectOne('/api/test3');
+      req3.flush({});
+      expect(loadingService.isLoading()).toBe(false); // All done
+    });
+
+    it('should handle mixed success and error responses', () => {
+      httpClient.get('/api/success').subscribe();
+      httpClient.get('/api/error').subscribe({ error: () => {} });
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      // Complete success request
+      const successReq = httpMock.expectOne('/api/success');
+      successReq.flush({});
+      expect(loadingService.isLoading()).toBe(true);
+
+      // Complete error request
+      const errorReq = httpMock.expectOne('/api/error');
+      errorReq.flush('Error', { status: 500, statusText: 'Server Error' });
+      expect(loadingService.isLoading()).toBe(false);
+    });
+
+    it('should handle rapid sequential requests', () => {
+      // Fire 5 requests rapidly
+      for (let i = 0; i < 5; i++) {
+        httpClient.get(`/api/test${i}`).subscribe();
+      }
+
+      expect(loadingService.isLoading()).toBe(true);
+
+      // Complete all requests
+      for (let i = 0; i < 5; i++) {
+        const req = httpMock.expectOne(`/api/test${i}`);
+        req.flush({});
+      }
+
+      expect(loadingService.isLoading()).toBe(false);
+    });
+  });
 });
