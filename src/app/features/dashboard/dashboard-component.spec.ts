@@ -198,4 +198,23 @@ describe('DashboardComponent', () => {
       expect(welcomeCard).toBeTruthy();
     });
   });
+
+  describe('Component Integration', () => {
+    it('should have user$ observable', done => {
+      component.user$.subscribe(user => {
+        expect(user).toEqual(mockUser);
+        done();
+      });
+    });
+
+    it('should call onLogout method', () => {
+      spyOn(component, 'onLogout');
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logoutButton = compiled.querySelector('.btn-logout') as HTMLButtonElement;
+
+      logoutButton.click();
+
+      expect(component.onLogout).toHaveBeenCalled();
+    });
+  });
 });
