@@ -150,4 +150,44 @@ describe('authGuard', () => {
       });
     });
   });
+
+  describe('Multiple Guard Invocations', () => {
+    it('should consistently allow authenticated user', () => {
+      authService.isAuthenticated.and.returnValue(true);
+
+      const result1 = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+      const result2 = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+      const result3 = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(result1).toBe(true);
+      expect(result2).toBe(true);
+      expect(result3).toBe(true);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should consistently deny unauthenticated user', () => {
+      authService.isAuthenticated.and.returnValue(false);
+
+      const result1 = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+      const result2 = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(result1).toBe(false);
+      expect(result2).toBe(false);
+      expect(router.navigate).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle authentication state changes', () => {
+      // First call - not authenticated
+      authService.isAuthenticated.and.returnValue(false);
+      const result1 = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      // Second call - now authenticated
+      authService.isAuthenticated.and.returnValue(true);
+      const result2 = TestBed.runInInjectionContext(() => authGuard(mockRoute, mockState));
+
+      expect(result1).toBe(false);
+      expect(result2).toBe(true);
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+    });
+  });
 });
