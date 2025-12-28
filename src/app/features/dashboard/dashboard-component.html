@@ -1,0 +1,39 @@
+<div class="dashboard">
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="logo"><span class="logo-smart">Smart</span><span class="logo-koszyka">Koszyka</span></div>
+
+      @if (user$ | async; as user) {
+      <div class="user-menu">
+        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+        <button class="btn btn-logout" (click)="onLogout()">Logout</button>
+      </div>
+      }
+    </div>
+  </header>
+
+  <main class="dashboard-content">
+    <div class="container">
+      <h1>Dashboard</h1>
+      <p>Welcome to SmartKoszyka!</p>
+
+      @if (user$ | async; as user) {
+      <div class="welcome-card">
+        <h2>Hello, {{ user.firstName }}! 👋</h2>
+        <p>Your shopping lists and products will appear here.</p>
+      </div>
+      }
+
+      <div class="coming-soon">
+        <h3>Coming Soon:</h3>
+        <ul>
+          <li>📝 Shopping Lists</li>
+          <li>🛒 Product Catalog</li>
+          <li>📊 Shopping Statistics</li>
+          <li>💰 Price Tracking</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+  <app-footer></app-footer>
+</div>
