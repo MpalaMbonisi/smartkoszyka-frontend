@@ -111,4 +111,62 @@ describe('LoadingService', () => {
       expect(service.isLoading()).toBe(false);
     });
   });
+
+  describe('Complex Scenarios', () => {
+    it('should handle multiple show/hide cycles', () => {
+      // First cycle
+      service.show();
+      expect(service.isLoading()).toBe(true);
+      service.hide();
+      expect(service.isLoading()).toBe(false);
+
+      // Second cycle
+      service.show();
+      expect(service.isLoading()).toBe(true);
+      service.hide();
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should handle overlapping requests', () => {
+      // Simulate 3 concurrent requests
+      service.show(); // Request 1 starts
+      service.show(); // Request 2 starts
+      service.show(); // Request 3 starts
+
+      expect(service.isLoading()).toBe(true);
+
+      service.hide(); // Request 1 completes
+      expect(service.isLoading()).toBe(true); // Still 2 pending
+
+      service.hide(); // Request 2 completes
+      expect(service.isLoading()).toBe(true); // Still 1 pending
+
+      service.hide(); // Request 3 completes
+      expect(service.isLoading()).toBe(false); // All done
+    });
+
+    it('should handle rapid show/hide sequences', () => {
+      for (let i = 0; i < 10; i++) {
+        service.show();
+      }
+      expect(service.isLoading()).toBe(true);
+
+      for (let i = 0; i < 10; i++) {
+        service.hide();
+      }
+      expect(service.isLoading()).toBe(false);
+    });
+
+    it('should handle unbalanced show/hide with reset', () => {
+      service.show();
+      service.show();
+      service.show();
+
+      service.hide();
+      expect(service.isLoading()).toBe(true);
+
+      service.reset();
+      expect(service.isLoading()).toBe(false);
+    });
+  });
 });
