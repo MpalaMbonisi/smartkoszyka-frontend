@@ -222,4 +222,16 @@ describe('LoadingSpinner', () => {
       expect(text?.classList.contains('loading-text')).toBe(true);
     });
   });
+
+  describe('Accessibility', () => {
+    it('should be visible to screen readers when active', () => {
+      loadingService.show();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const loadingText = compiled.querySelector('.loading-text');
+
+      expect(loadingText?.textContent).toBeTruthy();
+    });
+  });
 });
