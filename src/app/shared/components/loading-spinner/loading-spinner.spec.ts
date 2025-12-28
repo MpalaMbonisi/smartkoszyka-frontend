@@ -77,4 +77,43 @@ describe('LoadingSpinner', () => {
       expect(overlay).toBeTruthy();
     });
   });
+
+  describe('Spinner Elements', () => {
+    it('should contain spinner element when loading', () => {
+      loadingService.show();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const spinner = compiled.querySelector('.spinner');
+
+      expect(spinner).toBeTruthy();
+    });
+
+    it('should contain loading text when loading', () => {
+      loadingService.show();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const loadingText = compiled.querySelector('.loading-text');
+
+      expect(loadingText).toBeTruthy();
+      expect(loadingText?.textContent).toBe('Loading...');
+    });
+
+    it('should have spinner container with correct structure', () => {
+      loadingService.show();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const spinnerContainer = compiled.querySelector('.spinner-container');
+
+      expect(spinnerContainer).toBeTruthy();
+
+      const spinner = spinnerContainer?.querySelector('.spinner');
+      const text = spinnerContainer?.querySelector('.loading-text');
+
+      expect(spinner).toBeTruthy();
+      expect(text).toBeTruthy();
+    });
+  });
 });
