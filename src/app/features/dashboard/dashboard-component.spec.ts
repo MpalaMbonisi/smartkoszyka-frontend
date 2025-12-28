@@ -217,4 +217,26 @@ describe('DashboardComponent', () => {
       expect(component.onLogout).toHaveBeenCalled();
     });
   });
+
+  describe('Null User Handling', () => {
+    it('should handle null user gracefully', () => {
+      currentUserSubject.next(null);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const userMenu = compiled.querySelector('.user-menu');
+
+      expect(userMenu).toBeFalsy();
+    });
+
+    it('should not display welcome card when user is null', () => {
+      currentUserSubject.next(null);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const welcomeCard = compiled.querySelector('.welcome-card');
+
+      expect(welcomeCard).toBeFalsy();
+    });
+  });
 });
