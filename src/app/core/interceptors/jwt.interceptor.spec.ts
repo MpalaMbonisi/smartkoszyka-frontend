@@ -311,4 +311,40 @@ describe('jwtInterceptor', () => {
       productsReq.flush([]);
     });
   });
+
+  describe('Request Cloning', () => {
+    it('should not modify original request object', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient.get('/api/shopping-lists').subscribe();
+
+      const req = httpMock.expectOne('/api/shopping-lists');
+
+      // Interceptor should clone the request, not modify original
+      expect(req.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      req.flush({});
+    });
+
+    it('should preserve existing headers when adding Authorization', () => {
+      const mockToken = 'mock-jwt-token-12345';
+      authService.getToken.and.returnValue(mockToken);
+
+      httpClient
+        .get('/api/shopping-lists', {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Custom-Header': 'custom-value',
+          },
+        })
+        .subscribe();
+
+      const req = httpMock.expectOne('/api/shopping-lists');
+
+      expect(req.request.headers.get('Authorization')).toBe(`Bearer ${mockToken}`);
+      expect(req.request.headers.get('Content-Type')).toBe('application/json');
+      expect(req.request.headers.get('X-Custom-Header')).toBe('custom-value');
+      req.flush({});
+    });
+  });
 });
