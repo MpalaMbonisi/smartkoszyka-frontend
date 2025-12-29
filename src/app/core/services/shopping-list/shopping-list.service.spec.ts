@@ -250,4 +250,32 @@ describe('ShoppingListService', () => {
       req.flush('Shopping list not found', { status: 404, statusText: 'Not Found' });
     });
   });
+
+  describe('archiveShoppingList', () => {
+    it('should archive shopping list', () => {
+      const listId = 1;
+
+      service.archiveShoppingList(listId).subscribe(response => {
+        expect(response).toBeNull();
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}/archive`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({});
+      req.flush(null);
+    });
+
+    it('should handle 404 when list not found', () => {
+      const listId = 999;
+
+      service.archiveShoppingList(listId).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}/archive`);
+      req.flush('Shopping list not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
 });
