@@ -3,7 +3,11 @@ import { TestBed } from '@angular/core/testing';
 import { ShoppingListService } from './shopping-list.service';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { environment } from '../../../environments/environment.prod';
-import { ShoppingList, CreateShoppingListRequest } from '../../models/shopping-list.model';
+import {
+  ShoppingList,
+  CreateShoppingListRequest,
+  UpdateShoppingListRequest,
+} from '../../models/shopping-list.model';
 import { provideHttpClient } from '@angular/common/http';
 
 describe('ShoppingListService', () => {
@@ -187,6 +191,56 @@ describe('ShoppingListService', () => {
       const listId = 999;
 
       service.getShoppingListById(listId).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}`);
+      req.flush('Shopping list not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
+
+  describe('updateShoppingListTitle', () => {
+    it('should update shopping list title', () => {
+      const listId = 1;
+      const request: UpdateShoppingListRequest = {
+        title: 'Updated Weekly Groceries',
+      };
+
+      service.updateShoppingListTitle(listId, request).subscribe(list => {
+        expect(list.title).toBe(request.title);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual(request);
+      req.flush({ ...mockShoppingList, title: request.title });
+    });
+
+    it('should handle validation error for empty title', () => {
+      const listId = 1;
+      const request: UpdateShoppingListRequest = {
+        title: '',
+      };
+
+      service.updateShoppingListTitle(listId, request).subscribe({
+        error: error => {
+          expect(error.status).toBe(400);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}`);
+      req.flush({ message: 'Title cannot be empty' }, { status: 400, statusText: 'Bad Request' });
+    });
+
+    it('should handle 404 when list not found', () => {
+      const listId = 999;
+      const request: UpdateShoppingListRequest = {
+        title: 'Updated Title',
+      };
+
+      service.updateShoppingListTitle(listId, request).subscribe({
         error: error => {
           expect(error.status).toBe(404);
         },
