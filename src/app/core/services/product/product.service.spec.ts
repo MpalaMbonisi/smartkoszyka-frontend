@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { ProductService } from './product.service';
-import { Product } from '../../models/product.model';
+import { Category, Product } from '../../models/product.model';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment.prod';
@@ -32,6 +32,23 @@ describe('ProductService', () => {
       brand: 'Tropical',
       categoryId: 2,
       categoryName: 'Owoce',
+      createdAt: '2025-01-01T10:00:00',
+      updatedAt: '2025-01-01T10:00:00',
+    },
+  ];
+
+  const mockCategories: Category[] = [
+    {
+      id: 1,
+      name: 'Warzywa',
+      description: 'Fresh vegetables',
+      createdAt: '2025-01-01T10:00:00',
+      updatedAt: '2025-01-01T10:00:00',
+    },
+    {
+      id: 2,
+      name: 'Owoce',
+      description: 'Fresh fruits',
       createdAt: '2025-01-01T10:00:00',
       updatedAt: '2025-01-01T10:00:00',
     },
@@ -223,6 +240,39 @@ describe('ProductService', () => {
         `${environment.apiUrl}${environment.apiEndpoints.products}/category/${categoryId}`
       );
       req.flush('Invalid category', { status: 400, statusText: 'Bad Request' });
+    });
+  });
+
+  describe('getAllCategories', () => {
+    it('should fetch all categories', () => {
+      service.getAllCategories().subscribe(categories => {
+        expect(categories).toEqual(mockCategories);
+        expect(categories.length).toBe(2);
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}${environment.apiEndpoints.categories}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockCategories);
+    });
+
+    it('should return empty array when no categories exist', () => {
+      service.getAllCategories().subscribe(categories => {
+        expect(categories).toEqual([]);
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}${environment.apiEndpoints.categories}`);
+      req.flush([]);
+    });
+
+    it('should handle server error', () => {
+      service.getAllCategories().subscribe({
+        error: error => {
+          expect(error.status).toBe(500);
+        },
+      });
+
+      const req = httpMock.expectOne(`${environment.apiUrl}${environment.apiEndpoints.categories}`);
+      req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
     });
   });
 });
