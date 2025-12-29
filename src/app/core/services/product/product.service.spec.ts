@@ -118,4 +118,66 @@ describe('ProductService', () => {
       req.flush('Product not found', { status: 404, statusText: 'Not Found' });
     });
   });
+
+  describe('searchProducts', () => {
+    it('should search products by query', () => {
+      const query = 'pomidor';
+
+      service.searchProducts(query).subscribe(products => {
+        expect(products).toEqual([mockProducts[0]]);
+        expect(products.length).toBe(1);
+      });
+
+      const req = httpMock.expectOne(
+        req =>
+          req.url === `${environment.apiUrl}${environment.apiEndpoints.products}/search` &&
+          req.params.get('query') === query
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush([mockProducts[0]]);
+    });
+
+    it('should return empty array when no matches found', () => {
+      const query = 'nonexistent';
+
+      service.searchProducts(query).subscribe(products => {
+        expect(products).toEqual([]);
+      });
+
+      const req = httpMock.expectOne(
+        req =>
+          req.url === `${environment.apiUrl}${environment.apiEndpoints.products}/search` &&
+          req.params.get('query') === query
+      );
+      req.flush([]);
+    });
+
+    it('should handle empty query string', () => {
+      const query = '';
+
+      service.searchProducts(query).subscribe(products => {
+        expect(products).toBeDefined();
+      });
+
+      const req = httpMock.expectOne(
+        req =>
+          req.url === `${environment.apiUrl}${environment.apiEndpoints.products}/search` &&
+          req.params.get('query') === ''
+      );
+      req.flush([]);
+    });
+
+    it('should handle special characters in query', () => {
+      const query = 'test & special';
+
+      service.searchProducts(query).subscribe();
+
+      const req = httpMock.expectOne(
+        req =>
+          req.url === `${environment.apiUrl}${environment.apiEndpoints.products}/search` &&
+          req.params.get('query') === query
+      );
+      req.flush([]);
+    });
+  });
 });
