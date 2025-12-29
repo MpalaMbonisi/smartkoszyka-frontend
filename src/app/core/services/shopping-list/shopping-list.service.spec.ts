@@ -278,4 +278,31 @@ describe('ShoppingListService', () => {
       req.flush('Shopping list not found', { status: 404, statusText: 'Not Found' });
     });
   });
+
+  describe('deleteShoppingList', () => {
+    it('should delete shopping list', () => {
+      const listId = 1;
+
+      service.deleteShoppingList(listId).subscribe(response => {
+        expect(response).toBeNull();
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}`);
+      expect(req.request.method).toBe('DELETE');
+      req.flush(null);
+    });
+
+    it('should handle 404 when list not found', () => {
+      const listId = 999;
+
+      service.deleteShoppingList(listId).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}`);
+      req.flush('Shopping list not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
 });
