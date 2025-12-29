@@ -168,4 +168,32 @@ describe('ShoppingListService', () => {
       req.flush([]);
     });
   });
+
+  describe('getShoppingListById', () => {
+    it('should fetch shopping list by id', () => {
+      const listId = 1;
+
+      service.getShoppingListById(listId).subscribe(list => {
+        expect(list).toEqual(mockShoppingList);
+        expect(list.listId).toBe(listId);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockShoppingList);
+    });
+
+    it('should handle 404 when list not found', () => {
+      const listId = 999;
+
+      service.getShoppingListById(listId).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}`);
+      req.flush('Shopping list not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
 });
