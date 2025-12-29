@@ -180,4 +180,49 @@ describe('ProductService', () => {
       req.flush([]);
     });
   });
+
+  describe('getProductsByCategory', () => {
+    it('should fetch products by category id', () => {
+      const categoryId = 1;
+
+      service.getProductsByCategory(categoryId).subscribe(products => {
+        expect(products).toEqual([mockProducts[0]]);
+        expect(products[0].categoryId).toBe(categoryId);
+      });
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.products}/category/${categoryId}`
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush([mockProducts[0]]);
+    });
+
+    it('should return empty array when category has no products', () => {
+      const categoryId = 999;
+
+      service.getProductsByCategory(categoryId).subscribe(products => {
+        expect(products).toEqual([]);
+      });
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.products}/category/${categoryId}`
+      );
+      req.flush([]);
+    });
+
+    it('should handle invalid category id', () => {
+      const categoryId = -1;
+
+      service.getProductsByCategory(categoryId).subscribe({
+        error: error => {
+          expect(error.status).toBe(400);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.products}/category/${categoryId}`
+      );
+      req.flush('Invalid category', { status: 400, statusText: 'Bad Request' });
+    });
+  });
 });
