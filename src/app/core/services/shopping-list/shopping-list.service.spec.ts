@@ -20,6 +20,18 @@ describe('ShoppingListService', () => {
     updatedAt: '2025-01-01T10:00:00',
   };
 
+  const mockShoppingLists: ShoppingList[] = [
+    mockShoppingList,
+    {
+      listId: 2,
+      title: 'Party Supplies',
+      description: 'Items for birthday party',
+      isArchived: false,
+      createdAt: '2025-01-02T10:00:00',
+      updatedAt: '2025-01-02T10:00:00',
+    },
+  ];
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [ShoppingListService, provideHttpClient(), provideHttpClientTesting()],
@@ -96,6 +108,40 @@ describe('ShoppingListService', () => {
 
       const req = httpMock.expectOne(baseUrl);
       req.flush({ message: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized' });
+    });
+  });
+
+  describe('getActiveShoppingLists', () => {
+    it('should fetch all active shopping lists', () => {
+      service.getActiveShoppingLists().subscribe(lists => {
+        expect(lists).toEqual(mockShoppingLists);
+        expect(lists.length).toBe(2);
+        expect(lists.every(list => !list.isArchived)).toBe(true);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/active`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockShoppingLists);
+    });
+
+    it('should return empty array when no active lists exist', () => {
+      service.getActiveShoppingLists().subscribe(lists => {
+        expect(lists).toEqual([]);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/active`);
+      req.flush([]);
+    });
+
+    it('should handle server error', () => {
+      service.getActiveShoppingLists().subscribe({
+        error: error => {
+          expect(error.status).toBe(500);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/active`);
+      req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
     });
   });
 });
