@@ -275,4 +275,36 @@ describe('ProductService', () => {
       req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
     });
   });
+
+  describe('getCategoryById', () => {
+    it('should fetch category by id', () => {
+      const categoryId = 1;
+
+      service.getCategoryById(categoryId).subscribe(category => {
+        expect(category).toEqual(mockCategories[0]);
+        expect(category.id).toBe(categoryId);
+      });
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.categories}/${categoryId}`
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(mockCategories[0]);
+    });
+
+    it('should handle 404 when category not found', () => {
+      const categoryId = 999;
+
+      service.getCategoryById(categoryId).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.categories}/${categoryId}`
+      );
+      req.flush('Category not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
 });
