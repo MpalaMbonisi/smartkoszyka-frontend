@@ -144,4 +144,28 @@ describe('ShoppingListService', () => {
       req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
     });
   });
+
+  describe('getAllShoppingLists', () => {
+    it('should fetch all shopping lists including archived', () => {
+      const allLists = [...mockShoppingLists, { ...mockShoppingList, listId: 3, isArchived: true }];
+
+      service.getAllShoppingLists().subscribe(lists => {
+        expect(lists).toEqual(allLists);
+        expect(lists.length).toBe(3);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/all`);
+      expect(req.request.method).toBe('GET');
+      req.flush(allLists);
+    });
+
+    it('should return empty array when no lists exist', () => {
+      service.getAllShoppingLists().subscribe(lists => {
+        expect(lists).toEqual([]);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/all`);
+      req.flush([]);
+    });
+  });
 });
