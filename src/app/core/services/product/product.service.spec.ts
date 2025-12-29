@@ -307,4 +307,24 @@ describe('ProductService', () => {
       req.flush('Category not found', { status: 404, statusText: 'Not Found' });
     });
   });
+
+  describe('Multiple Concurrent Requests', () => {
+    it('should handle multiple product requests simultaneously', () => {
+      service.getAllProducts().subscribe();
+      service.getProductById(1).subscribe();
+      service.searchProducts('test').subscribe();
+
+      const req1 = httpMock.expectOne(`${environment.apiUrl}${environment.apiEndpoints.products}`);
+      const req2 = httpMock.expectOne(
+        `${environment.apiUrl}${environment.apiEndpoints.products}/1`
+      );
+      const req3 = httpMock.expectOne(
+        req => req.url === `${environment.apiUrl}${environment.apiEndpoints.products}/search`
+      );
+
+      req1.flush(mockProducts);
+      req2.flush(mockProducts[0]);
+      req3.flush([mockProducts[0]]);
+    });
+  });
 });
