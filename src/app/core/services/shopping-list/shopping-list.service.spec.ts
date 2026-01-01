@@ -7,6 +7,8 @@ import {
   ShoppingList,
   CreateShoppingListRequest,
   UpdateShoppingListRequest,
+  ShoppingListItem,
+  AddProductToListRequest,
 } from '../../models/shopping-list.model';
 import { provideHttpClient } from '@angular/common/http';
 
@@ -35,6 +37,17 @@ describe('ShoppingListService', () => {
       updatedAt: '2025-01-02T10:00:00',
     },
   ];
+
+  const mockShoppingListItem: ShoppingListItem = {
+    listItemId: 1,
+    productId: 1,
+    productName: 'Tomatoes',
+    quantity: 3,
+    unit: 'kg',
+    priceAtAddition: 5.99,
+    isChecked: false,
+    addedAt: '2025-01-01T10:00:00',
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -303,6 +316,81 @@ describe('ShoppingListService', () => {
 
       const req = httpMock.expectOne(`${baseUrl}/${listId}`);
       req.flush('Shopping list not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
+
+  describe('addProductToList', () => {
+    it('should add product to shopping list', () => {
+      const listId = 1;
+      const request: AddProductToListRequest = {
+        productId: 1,
+        quantity: 3,
+      };
+
+      service.addProductToList(listId, request).subscribe(item => {
+        expect(item).toEqual(mockShoppingListItem);
+        expect(item.productId).toBe(request.productId);
+        expect(item.quantity).toBe(request.quantity);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}/items`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(request);
+      req.flush(mockShoppingListItem);
+    });
+
+    it('should handle validation error for invalid quantity', () => {
+      const listId = 1;
+      const request: AddProductToListRequest = {
+        productId: 1,
+        quantity: 0,
+      };
+
+      service.addProductToList(listId, request).subscribe({
+        error: error => {
+          expect(error.status).toBe(400);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}/items`);
+      req.flush(
+        { message: 'Quantity must be at least 1' },
+        { status: 400, statusText: 'Bad Request' }
+      );
+    });
+
+    it('should handle error when product already in list', () => {
+      const listId = 1;
+      const request: AddProductToListRequest = {
+        productId: 1,
+        quantity: 2,
+      };
+
+      service.addProductToList(listId, request).subscribe({
+        error: error => {
+          expect(error.status).toBe(400);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}/items`);
+      req.flush({ message: 'Product already in list' }, { status: 400, statusText: 'Bad Request' });
+    });
+
+    it('should handle non-existent product', () => {
+      const listId = 1;
+      const request: AddProductToListRequest = {
+        productId: 999,
+        quantity: 1,
+      };
+
+      service.addProductToList(listId, request).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}/items`);
+      req.flush('Product not found', { status: 404, statusText: 'Not Found' });
     });
   });
 });
