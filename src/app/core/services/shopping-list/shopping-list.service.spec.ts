@@ -528,4 +528,31 @@ describe('ShoppingListService', () => {
       req.flush('Item not found', { status: 404, statusText: 'Not Found' });
     });
   });
+
+  describe('removeItemFromList', () => {
+    it('should remove item from list', () => {
+      const itemId = 1;
+
+      service.removeItemFromList(itemId).subscribe(response => {
+        expect(response).toBeNull();
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/items/${itemId}`);
+      expect(req.request.method).toBe('DELETE');
+      req.flush(null);
+    });
+
+    it('should handle non-existent item', () => {
+      const itemId = 999;
+
+      service.removeItemFromList(itemId).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/items/${itemId}`);
+      req.flush('Item not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
 });
