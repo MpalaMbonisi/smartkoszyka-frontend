@@ -41,13 +41,27 @@ describe('ShoppingListService', () => {
   const mockShoppingListItem: ShoppingListItem = {
     listItemId: 1,
     productId: 1,
-    productName: 'Tomatoes',
+    productName: 'Pomidory',
     quantity: 3,
     unit: 'kg',
     priceAtAddition: 5.99,
     isChecked: false,
     addedAt: '2025-01-01T10:00:00',
   };
+
+  const mockShoppingListItems: ShoppingListItem[] = [
+    mockShoppingListItem,
+    {
+      listItemId: 2,
+      productId: 2,
+      productName: 'Banany',
+      quantity: 2,
+      unit: 'kg',
+      priceAtAddition: 4.99,
+      isChecked: true,
+      addedAt: '2025-01-01T10:05:00',
+    },
+  ];
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -391,6 +405,45 @@ describe('ShoppingListService', () => {
 
       const req = httpMock.expectOne(`${baseUrl}/${listId}/items`);
       req.flush('Product not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
+
+  describe('getShoppingListItems', () => {
+    it('should fetch all items in shopping list', () => {
+      const listId = 1;
+
+      service.getShoppingListItems(listId).subscribe(items => {
+        expect(items).toEqual(mockShoppingListItems);
+        expect(items.length).toBe(2);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}/items`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockShoppingListItems);
+    });
+
+    it('should return empty array when list has no items', () => {
+      const listId = 1;
+
+      service.getShoppingListItems(listId).subscribe(items => {
+        expect(items).toEqual([]);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}/items`);
+      req.flush([]);
+    });
+
+    it('should handle non-existent list', () => {
+      const listId = 999;
+
+      service.getShoppingListItems(listId).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/${listId}/items`);
+      req.flush('Shopping list not found', { status: 404, statusText: 'Not Found' });
     });
   });
 });
