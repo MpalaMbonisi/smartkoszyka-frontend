@@ -500,4 +500,32 @@ describe('ShoppingListService', () => {
       req.flush('Item not found', { status: 404, statusText: 'Not Found' });
     });
   });
+
+  describe('toggleItemChecked', () => {
+    it('should toggle item checked status', () => {
+      const itemId = 1;
+
+      service.toggleItemChecked(itemId).subscribe(response => {
+        expect(response).toBeNull();
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/items/${itemId}/toggle`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({});
+      req.flush(null);
+    });
+
+    it('should handle non-existent item', () => {
+      const itemId = 999;
+
+      service.toggleItemChecked(itemId).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/items/${itemId}/toggle`);
+      req.flush('Item not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
 });
