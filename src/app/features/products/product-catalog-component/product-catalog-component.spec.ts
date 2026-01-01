@@ -69,6 +69,12 @@ describe('ProductCatalogComponent', () => {
     }).compileComponents();
 
     productService = TestBed.inject(ProductService) as jasmine.SpyObj<ProductService>;
+
+    productService.getAllProducts.and.returnValue(of([]));
+    productService.getAllCategories.and.returnValue(of([]));
+    productService.searchProducts.and.returnValue(of([]));
+    productService.getProductsByCategory.and.returnValue(of([]));
+
     fixture = TestBed.createComponent(ProductCatalogComponent);
     component = fixture.componentInstance;
   });
@@ -496,6 +502,53 @@ describe('ProductCatalogComponent', () => {
       tick(300);
 
       expect(productService.searchProducts).toHaveBeenCalledWith('tomato');
+    }));
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle empty categories list', () => {
+      productService.getAllProducts.and.returnValue(of(mockProducts));
+      productService.getAllCategories.and.returnValue(of([]));
+
+      fixture.detectChanges();
+
+      expect(component.categories()).toEqual([]);
+    });
+
+    it('should handle empty products list', () => {
+      productService.getAllProducts.and.returnValue(of([]));
+      productService.getAllCategories.and.returnValue(of(mockCategories));
+
+      fixture.detectChanges();
+
+      expect(component.products()).toEqual([]);
+      expect(component.filteredProducts()).toEqual([]);
+    });
+
+    it('should handle rapid category switching', () => {
+      productService.getProductsByCategory.and.returnValue(of([mockProducts[0]]));
+
+      component.filterByCategory(1);
+      component.filterByCategory(2);
+      component.filterByCategory(null);
+
+      expect(component.selectedCategory()).toBeNull();
+    });
+
+    it('should handle search while category is selected', fakeAsync(() => {
+      productService.getProductsByCategory.and.returnValue(of([mockProducts[0]]));
+      productService.searchProducts.and.returnValue(of([mockProducts[0]]));
+      component.filterByCategory(1);
+      tick();
+
+      fixture.detectChanges();
+
+      component.searchControl.setValue('pomidor');
+      tick(300);
+
+      fixture.detectChanges();
+
+      expect(productService.searchProducts).toHaveBeenCalled();
     }));
   });
 });
