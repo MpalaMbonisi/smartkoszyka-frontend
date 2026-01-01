@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { ProductCatalogComponent } from './product-catalog-component';
 import { Category, Product } from '../../../core/models/product.model';
@@ -130,5 +130,71 @@ describe('ProductCatalogComponent', () => {
 
       expect(console.error).toHaveBeenCalled();
     });
+  });
+
+  describe('Search Functionality', () => {
+    beforeEach(() => {
+      productService.getAllProducts.and.returnValue(of(mockProducts));
+      productService.getAllCategories.and.returnValue(of(mockCategories));
+      fixture.detectChanges();
+    });
+
+    it('should search products with debounce', fakeAsync(() => {
+      productService.searchProducts.and.returnValue(of([mockProducts[0]]));
+
+      component.searchControl.setValue('pomidor');
+      tick(300);
+
+      expect(productService.searchProducts).toHaveBeenCalledWith('pomidor');
+      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+    }));
+
+    it('should not search with empty query', fakeAsync(() => {
+      component.searchControl.setValue('   ');
+      tick(300);
+
+      expect(productService.searchProducts).not.toHaveBeenCalled();
+    }));
+
+    it('should trim search query', fakeAsync(() => {
+      productService.searchProducts.and.returnValue(of([mockProducts[0]]));
+
+      component.searchControl.setValue('  pomidor  ');
+      tick(300);
+
+      expect(productService.searchProducts).toHaveBeenCalledWith('pomidor');
+    }));
+
+    it('should handle search error', fakeAsync(() => {
+      const error = new Error('Search failed');
+      productService.searchProducts.and.returnValue(throwError(() => error));
+
+      component.searchControl.setValue('pomidor');
+      tick(300);
+
+      expect(component.errorMessage()).toBe('Search failed. Please try again.');
+      expect(component.isLoading()).toBe(false);
+    }));
+
+    it('should not trigger duplicate searches', fakeAsync(() => {
+      productService.searchProducts.and.returnValue(of([mockProducts[0]]));
+
+      component.searchControl.setValue('pomidor');
+      tick(150);
+      component.searchControl.setValue('pomidor');
+      tick(300);
+
+      expect(productService.searchProducts).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should clear error message before new search', fakeAsync(() => {
+      component.errorMessage.set('Previous error');
+      productService.searchProducts.and.returnValue(of([mockProducts[0]]));
+
+      component.searchControl.setValue('pomidor');
+      tick(300);
+
+      expect(component.errorMessage()).toBe('');
+    }));
   });
 });
