@@ -9,6 +9,7 @@ import {
   UpdateShoppingListRequest,
   ShoppingListItem,
   AddProductToListRequest,
+  UpdateQuantityRequest,
 } from '../../models/shopping-list.model';
 import { provideHttpClient } from '@angular/common/http';
 
@@ -444,6 +445,59 @@ describe('ShoppingListService', () => {
 
       const req = httpMock.expectOne(`${baseUrl}/${listId}/items`);
       req.flush('Shopping list not found', { status: 404, statusText: 'Not Found' });
+    });
+  });
+
+  describe('updateItemQuantity', () => {
+    it('should update item quantity', () => {
+      const itemId = 1;
+      const request: UpdateQuantityRequest = {
+        quantity: 5,
+      };
+
+      service.updateItemQuantity(itemId, request).subscribe(item => {
+        expect(item.quantity).toBe(request.quantity);
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/items/${itemId}/quantity`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual(request);
+      req.flush({ ...mockShoppingListItem, quantity: request.quantity });
+    });
+
+    it('should handle validation error for invalid quantity', () => {
+      const itemId = 1;
+      const request: UpdateQuantityRequest = {
+        quantity: 0,
+      };
+
+      service.updateItemQuantity(itemId, request).subscribe({
+        error: error => {
+          expect(error.status).toBe(400);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/items/${itemId}/quantity`);
+      req.flush(
+        { message: 'Quantity must be at least 1' },
+        { status: 400, statusText: 'Bad Request' }
+      );
+    });
+
+    it('should handle non-existent item', () => {
+      const itemId = 999;
+      const request: UpdateQuantityRequest = {
+        quantity: 5,
+      };
+
+      service.updateItemQuantity(itemId, request).subscribe({
+        error: error => {
+          expect(error.status).toBe(404);
+        },
+      });
+
+      const req = httpMock.expectOne(`${baseUrl}/items/${itemId}/quantity`);
+      req.flush('Item not found', { status: 404, statusText: 'Not Found' });
     });
   });
 });
