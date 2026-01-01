@@ -389,5 +389,61 @@ describe('ProductCatalogComponent', () => {
       expect(emptyState).toBeTruthy();
       expect(emptyState?.textContent).toContain('No products found');
     });
+
+    it('should show clear filters button when filters are active', () => {
+      component.selectedCategory.set(1);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const clearButton = compiled.querySelector('.clear-filters');
+
+      expect(clearButton).toBeTruthy();
+    });
+
+    it('should not show clear filters button when no filters active', () => {
+      component.selectedCategory.set(null);
+      component.searchControl.setValue('', { emitEvent: false });
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const clearButton = compiled.querySelector('.clear-filters');
+
+      expect(clearButton).toBeFalsy();
+    });
+
+    it('should highlight active category', () => {
+      component.selectedCategory.set(1);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const filterChips = compiled.querySelectorAll('.filter-chip');
+      const activeChip = Array.from(filterChips).find(chip => chip.classList.contains('active'));
+
+      expect(activeChip).toBeTruthy();
+    });
+
+    it('should display product images', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const images = compiled.querySelectorAll(
+        '.product-image img'
+      ) as NodeListOf<HTMLImageElement>;
+
+      expect(images.length).toBe(mockProducts.length);
+      expect(images[0].src).toContain('pomidory.jpg');
+    });
+
+    it('should display product brand', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const brand = compiled.querySelector('.product-brand');
+
+      expect(brand?.textContent).toContain('Biedronka');
+    });
+
+    it('should display product unit', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const unit = compiled.querySelector('.unit');
+
+      expect(unit?.textContent).toContain('kg');
+    });
   });
 });
