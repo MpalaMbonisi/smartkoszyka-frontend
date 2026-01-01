@@ -252,4 +252,46 @@ describe('ProductCatalogComponent', () => {
       expect(component.isLoading()).toBe(false);
     });
   });
+
+  describe('Clear Filters', () => {
+    beforeEach(() => {
+      productService.getAllProducts.and.returnValue(of(mockProducts));
+      productService.getAllCategories.and.returnValue(of(mockCategories));
+      productService.searchProducts.and.returnValue(of([]));
+      productService.getProductsByCategory.and.returnValue(of([]));
+      fixture.detectChanges();
+    });
+
+    it('should clear all filters', () => {
+      component.selectedCategory.set(1);
+      component.searchControl.setValue('tomato');
+
+      component.clearFilters();
+
+      expect(component.selectedCategory()).toBeNull();
+      expect(component.searchControl.value).toBe('');
+      expect(component.filteredProducts()).toEqual(mockProducts);
+    });
+
+    it('should reset to all products', () => {
+      component.filteredProducts.set([mockProducts[0]]);
+
+      component.clearFilters();
+
+      expect(component.filteredProducts()).toEqual(mockProducts);
+    });
+
+    it('should not trigger search when clearing', fakeAsync(() => {
+      productService.searchProducts.and.returnValue(of([]));
+      component.searchControl.setValue('tomato');
+      tick(300);
+
+      productService.searchProducts.calls.reset();
+
+      component.clearFilters();
+      tick(300);
+
+      expect(productService.searchProducts).not.toHaveBeenCalled();
+    }));
+  });
 });
