@@ -446,4 +446,56 @@ describe('ProductCatalogComponent', () => {
       expect(unit?.textContent).toContain('kg');
     });
   });
+
+  describe('User Interactions', () => {
+    beforeEach(() => {
+      productService.getAllProducts.and.returnValue(of(mockProducts));
+      productService.getAllCategories.and.returnValue(of(mockCategories));
+      fixture.detectChanges();
+    });
+
+    it('should filter when category chip clicked', () => {
+      productService.getProductsByCategory.and.returnValue(of([mockProducts[0]]));
+      const compiled = fixture.nativeElement as HTMLElement;
+      const filterChip = compiled.querySelectorAll('.filter-chip')[1] as HTMLButtonElement;
+
+      filterChip.click();
+
+      expect(productService.getProductsByCategory).toHaveBeenCalled();
+    });
+
+    it('should clear filters when clear button clicked', () => {
+      component.selectedCategory.set(1);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const clearButton = compiled.querySelector('.clear-filters') as HTMLButtonElement;
+
+      clearButton.click();
+
+      expect(component.selectedCategory()).toBeNull();
+    });
+
+    it('should trigger product selection when card clicked', () => {
+      spyOn(component, 'onProductSelect');
+      const compiled = fixture.nativeElement as HTMLElement;
+      const productCard = compiled.querySelector('.product-card') as HTMLElement;
+
+      productCard.click();
+
+      expect(component.onProductSelect).toHaveBeenCalled();
+    });
+
+    it('should search when typing in search input', fakeAsync(() => {
+      productService.searchProducts.and.returnValue(of([mockProducts[0]]));
+      const compiled = fixture.nativeElement as HTMLElement;
+      const searchInput = compiled.querySelector('.search-input') as HTMLInputElement;
+
+      searchInput.value = 'tomato';
+      searchInput.dispatchEvent(new Event('input'));
+      tick(300);
+
+      expect(productService.searchProducts).toHaveBeenCalledWith('tomato');
+    }));
+  });
 });
