@@ -197,4 +197,59 @@ describe('ProductCatalogComponent', () => {
       expect(component.errorMessage()).toBe('');
     }));
   });
+
+  describe('Category Filtering', () => {
+    beforeEach(() => {
+      productService.getAllProducts.and.returnValue(of(mockProducts));
+      productService.getAllCategories.and.returnValue(of(mockCategories));
+      productService.searchProducts.and.returnValue(of([]));
+      productService.getProductsByCategory.and.returnValue(of([]));
+      fixture.detectChanges();
+    });
+
+    it('should filter products by category', () => {
+      productService.getProductsByCategory.and.returnValue(of([mockProducts[0]]));
+
+      component.filterByCategory(1);
+
+      expect(productService.getProductsByCategory).toHaveBeenCalledWith(1);
+      expect(component.selectedCategory()).toBe(1);
+      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+    });
+
+    it('should show all products when category is null', () => {
+      component.filterByCategory(null);
+
+      expect(component.selectedCategory()).toBeNull();
+      expect(component.filteredProducts()).toEqual(mockProducts);
+      expect(productService.getProductsByCategory).not.toHaveBeenCalled();
+    });
+
+    it('should clear search when filtering by category', () => {
+      component.searchControl.setValue('tomato');
+      productService.getProductsByCategory.and.returnValue(of([mockProducts[0]]));
+
+      component.filterByCategory(1);
+
+      expect(component.searchControl.value).toBe('');
+    });
+
+    it('should handle category filter error', () => {
+      const error = new Error('Filter failed');
+      productService.getProductsByCategory.and.returnValue(throwError(() => error));
+
+      component.filterByCategory(1);
+
+      expect(component.errorMessage()).toBe('Failed to filter products. Please try again.');
+      expect(component.isLoading()).toBe(false);
+    });
+
+    it('should update loading state during category filter', () => {
+      productService.getProductsByCategory.and.returnValue(of([mockProducts[0]]));
+
+      component.filterByCategory(1);
+
+      expect(component.isLoading()).toBe(false);
+    });
+  });
 });
