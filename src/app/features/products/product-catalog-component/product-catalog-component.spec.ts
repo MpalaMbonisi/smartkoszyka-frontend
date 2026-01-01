@@ -310,4 +310,84 @@ describe('ProductCatalogComponent', () => {
       expect(console.log).toHaveBeenCalledWith('Product selected:', mockProducts[0]);
     });
   });
+
+  describe('UI Rendering', () => {
+    beforeEach(() => {
+      productService.getAllProducts.and.returnValue(of(mockProducts));
+      productService.getAllCategories.and.returnValue(of(mockCategories));
+      fixture.detectChanges();
+    });
+
+    it('should display product catalog title', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const title = compiled.querySelector('.catalog-header h2');
+
+      expect(title?.textContent).toBe('Product Catalog');
+    });
+
+    it('should display search input', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const searchInput = compiled.querySelector('.search-input') as HTMLInputElement;
+
+      expect(searchInput).toBeTruthy();
+      expect(searchInput.placeholder).toContain('Search products');
+    });
+
+    it('should display category filter chips', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const filterChips = compiled.querySelectorAll('.filter-chip');
+
+      expect(filterChips.length).toBe(mockCategories.length + 1); // +1 for "All Products"
+    });
+
+    it('should display products in grid', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const productCards = compiled.querySelectorAll('.product-card');
+
+      expect(productCards.length).toBe(mockProducts.length);
+    });
+
+    it('should display product details', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const firstCard = compiled.querySelector('.product-card');
+      const productName = firstCard?.querySelector('.product-name');
+      const productPrice = firstCard?.querySelector('.price');
+
+      expect(productName?.textContent).toContain('Pomidory');
+      expect(productPrice?.textContent).toContain('5.99');
+    });
+
+    it('should show loading state', () => {
+      component.isLoading.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const loadingState = compiled.querySelector('.loading-state');
+
+      expect(loadingState).toBeTruthy();
+      expect(loadingState?.textContent).toContain('Loading products');
+    });
+
+    it('should show error banner', () => {
+      component.errorMessage.set('Test error');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errorBanner = compiled.querySelector('.error-banner');
+
+      expect(errorBanner).toBeTruthy();
+      expect(errorBanner?.textContent).toContain('Test error');
+    });
+
+    it('should show empty state when no products', () => {
+      component.filteredProducts.set([]);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const emptyState = compiled.querySelector('.empty-state');
+
+      expect(emptyState).toBeTruthy();
+      expect(emptyState?.textContent).toContain('No products found');
+    });
+  });
 });
