@@ -294,4 +294,20 @@ describe('ProductCatalogComponent', () => {
       expect(productService.searchProducts).not.toHaveBeenCalled();
     }));
   });
+
+  describe('Product Selection', () => {
+    beforeEach(() => {
+      productService.getAllProducts.and.returnValue(of(mockProducts));
+      productService.getAllCategories.and.returnValue(of(mockCategories));
+      fixture.detectChanges();
+    });
+
+    it('should handle product selection', () => {
+      spyOn(console, 'log');
+
+      component.onProductSelect(mockProducts[0]);
+
+      expect(console.log).toHaveBeenCalledWith('Product selected:', mockProducts[0]);
+    });
+  });
 });
