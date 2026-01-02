@@ -30,6 +30,15 @@ describe('ShoppingListManagementComponent', () => {
     },
   ];
 
+  const mockArchivedList: ShoppingList = {
+    listId: 3,
+    title: 'Old List',
+    description: 'Archived list',
+    isArchived: true,
+    createdAt: '2024-12-01T10:00:00',
+    updatedAt: '2024-12-01T10:00:00',
+  };
+
   beforeEach(async () => {
     const shoppingListServiceSpy = jasmine.createSpyObj('ShoppingListService', [
       'getActiveShoppingLists',
@@ -118,6 +127,40 @@ describe('ShoppingListManagementComponent', () => {
       component.loadActiveLists();
 
       expect(component.errorMessage()).toBe('');
+    });
+  });
+
+  describe('Loading Archived Lists', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+    });
+
+    it('should load archived lists', () => {
+      shoppingListService.getAllShoppingLists.and.returnValue(of([...mockLists, mockArchivedList]));
+
+      component.loadArchivedLists();
+
+      expect(shoppingListService.getAllShoppingLists).toHaveBeenCalled();
+      expect(component.archivedLists()).toEqual([mockArchivedList]);
+    });
+
+    it('should filter only archived lists', () => {
+      shoppingListService.getAllShoppingLists.and.returnValue(of([...mockLists, mockArchivedList]));
+
+      component.loadArchivedLists();
+
+      expect(component.archivedLists().every(list => list.isArchived)).toBe(true);
+    });
+
+    it('should handle error when loading archived lists fails', () => {
+      const error = new Error('Failed');
+      shoppingListService.getAllShoppingLists.and.returnValue(throwError(() => error));
+
+      component.loadArchivedLists();
+
+      expect(component.errorMessage()).toBe('Failed to load archived lists.');
+      expect(component.isLoading()).toBe(false);
     });
   });
 });
