@@ -202,4 +202,40 @@ describe('ShoppingListManagementComponent', () => {
       expect(shoppingListService.getAllShoppingLists).not.toHaveBeenCalled();
     });
   });
+
+  describe('Toggle Create Form', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+    });
+
+    it('should toggle showCreateForm flag', () => {
+      expect(component.showCreateForm()).toBe(false);
+
+      component.toggleCreateForm();
+
+      expect(component.showCreateForm()).toBe(true);
+    });
+
+    it('should reset form when closing', () => {
+      component.createListForm.patchValue({ title: 'Test', description: 'Description' });
+
+      component.toggleCreateForm();
+      component.toggleCreateForm();
+
+      expect(component.createListForm.value).toEqual({
+        title: null,
+        description: null,
+      });
+    });
+
+    it('should clear error message when closing', () => {
+      component.errorMessage.set('Error message');
+
+      component.toggleCreateForm();
+      component.toggleCreateForm();
+
+      expect(component.errorMessage()).toBe('');
+    });
+  });
 });
