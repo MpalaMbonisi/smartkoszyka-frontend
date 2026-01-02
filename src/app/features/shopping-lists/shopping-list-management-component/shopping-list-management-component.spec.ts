@@ -97,4 +97,27 @@ describe('ShoppingListManagementComponent', () => {
       });
     });
   });
+
+  describe('Loading Active Lists', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+    });
+
+    it('should display active lists count', () => {
+      expect(component.activeLists().length).toBe(2);
+    });
+
+    it('should set loading state', () => {
+      expect(component.isLoading()).toBe(false);
+    });
+
+    it('should clear error message', () => {
+      component.errorMessage.set('Previous error');
+
+      component.loadActiveLists();
+
+      expect(component.errorMessage()).toBe('');
+    });
+  });
 });
