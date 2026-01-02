@@ -1,11 +1,11 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { ShoppingListService } from '../../../core/services/shopping-list/shopping-list.service';
 import { ShoppingList } from '../../../core/models/shopping-list.model';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-shopping-list-management-component',
-  imports: [],
+  imports: [ReactiveFormsModule],
   templateUrl: './shopping-list-management-component.html',
   styleUrl: './shopping-list-management-component.scss',
 })
@@ -60,6 +60,21 @@ export class ShoppingListManagementComponent implements OnInit {
         console.error('Failed to load archived lists:', error);
       },
     });
+  }
+
+  toggleArchived(): void {
+    this.showArchived.update(val => !val);
+    if (this.showArchived()) {
+      this.loadArchivedLists();
+    }
+  }
+
+  toggleCreateForm(): void {
+    this.showCreateForm.update(val => !val);
+    if (!this.showCreateForm()) {
+      this.createListForm.reset();
+      this.errorMessage.set('');
+    }
   }
 
   getErrorMessage(fieldName: string): string {
