@@ -48,6 +48,10 @@ describe('ShoppingListManagementComponent', () => {
       'deleteShoppingList',
     ]);
 
+    // Safety mocks to prevent 'subscribe' errors during auto-initialization
+    shoppingListServiceSpy.getActiveShoppingLists.and.returnValue(of([]));
+    shoppingListServiceSpy.getAllShoppingLists.and.returnValue(of([]));
+
     await TestBed.configureTestingModule({
       imports: [ShoppingListManagementComponent, ReactiveFormsModule],
       providers: [{ provide: ShoppingListService, useValue: shoppingListServiceSpy }],
@@ -56,6 +60,7 @@ describe('ShoppingListManagementComponent', () => {
     shoppingListService = TestBed.inject(
       ShoppingListService
     ) as jasmine.SpyObj<ShoppingListService>;
+
     fixture = TestBed.createComponent(ShoppingListManagementComponent);
     component = fixture.componentInstance;
   });
@@ -161,6 +166,40 @@ describe('ShoppingListManagementComponent', () => {
 
       expect(component.errorMessage()).toBe('Failed to load archived lists.');
       expect(component.isLoading()).toBe(false);
+    });
+  });
+
+  describe('Toggle Archived', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+    });
+
+    it('should load archived lists when toggled on', () => {
+      shoppingListService.getAllShoppingLists.and.returnValue(of([mockArchivedList]));
+
+      component.toggleArchived();
+
+      expect(shoppingListService.getAllShoppingLists).toHaveBeenCalled();
+    });
+
+    it('should toggle showArchived flag', () => {
+      expect(component.showArchived()).toBe(false);
+
+      component.toggleArchived();
+
+      expect(component.showArchived()).toBe(true);
+    });
+
+    it('should not reload archived lists when toggled off', () => {
+      shoppingListService.getAllShoppingLists.and.returnValue(of([mockArchivedList]));
+
+      component.toggleArchived();
+      shoppingListService.getAllShoppingLists.calls.reset();
+
+      component.toggleArchived();
+
+      expect(shoppingListService.getAllShoppingLists).not.toHaveBeenCalled();
     });
   });
 });
