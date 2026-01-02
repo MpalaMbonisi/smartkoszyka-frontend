@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { ShoppingListManagementComponent } from './shopping-list-management-component';
 import { ShoppingListService } from '../../../core/services/shopping-list/shopping-list.service';
@@ -236,6 +236,123 @@ describe('ShoppingListManagementComponent', () => {
       component.toggleCreateForm();
 
       expect(component.errorMessage()).toBe('');
+    });
+  });
+
+  describe('Create Shopping List', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+    });
+
+    it('should create new shopping list', () => {
+      const newList: ShoppingList = {
+        listId: 3,
+        title: 'New List',
+        description: 'New description',
+        isArchived: false,
+        createdAt: '2025-01-03T10:00:00',
+        updatedAt: '2025-01-03T10:00:00',
+      };
+
+      shoppingListService.createShoppingList.and.returnValue(of(newList));
+      component.createListForm.patchValue({ title: 'New List', description: 'New description' });
+
+      component.onCreateList();
+
+      expect(shoppingListService.createShoppingList).toHaveBeenCalledWith({
+        title: 'New List',
+        description: 'New description',
+      });
+    });
+
+    it('should add new list to active lists', () => {
+      const newList: ShoppingList = { ...mockLists[0], listId: 3, title: 'New List' };
+      shoppingListService.createShoppingList.and.returnValue(of(newList));
+      component.createListForm.patchValue({ title: 'New List' });
+
+      const initialCount = component.activeLists().length;
+
+      component.onCreateList();
+
+      expect(component.activeLists().length).toBe(initialCount + 1);
+      expect(component.activeLists()[0]).toEqual(newList);
+    });
+
+    it('should show success message after creation', fakeAsync(() => {
+      const newList: ShoppingList = { ...mockLists[0], listId: 3, title: 'New List' };
+      shoppingListService.createShoppingList.and.returnValue(of(newList));
+      component.createListForm.patchValue({ title: 'New List' });
+
+      component.onCreateList();
+
+      expect(component.successMessage()).toBe('Shopping list created successfully!');
+
+      tick(3000);
+
+      expect(component.successMessage()).toBe('');
+    }));
+
+    it('should reset form after successful creation', () => {
+      const newList: ShoppingList = { ...mockLists[0], listId: 3, title: 'New List' };
+      shoppingListService.createShoppingList.and.returnValue(of(newList));
+      component.createListForm.patchValue({ title: 'New List', description: 'Description' });
+
+      component.onCreateList();
+
+      expect(component.createListForm.value).toEqual({
+        title: null,
+        description: null,
+      });
+    });
+
+    it('should hide create form after successful creation', () => {
+      const newList: ShoppingList = { ...mockLists[0], listId: 3, title: 'New List' };
+      shoppingListService.createShoppingList.and.returnValue(of(newList));
+      component.createListForm.patchValue({ title: 'New List' });
+      component.showCreateForm.set(true);
+
+      component.onCreateList();
+
+      expect(component.showCreateForm()).toBe(false);
+    });
+
+    it('should not submit invalid form', () => {
+      component.createListForm.patchValue({ title: '' });
+
+      component.onCreateList();
+
+      expect(shoppingListService.createShoppingList).not.toHaveBeenCalled();
+      expect(component.createListForm.touched).toBe(true);
+    });
+
+    it('should handle creation error', () => {
+      const error = { message: 'Title already exists' };
+      shoppingListService.createShoppingList.and.returnValue(throwError(() => error));
+      component.createListForm.patchValue({ title: 'New List' });
+
+      component.onCreateList();
+
+      expect(component.errorMessage()).toBe('Title already exists');
+      expect(component.isLoading()).toBe(false);
+    });
+
+    it('should create list without description', () => {
+      const newList: ShoppingList = {
+        ...mockLists[0],
+        listId: 3,
+        title: 'New List',
+        description: '',
+      };
+      shoppingListService.createShoppingList.and.returnValue(of(newList));
+      component.createListForm.patchValue({ title: 'New List', description: '' });
+
+      component.onCreateList();
+
+      expect(shoppingListService.createShoppingList).toHaveBeenCalledWith({
+        title: 'New List',
+        description: undefined,
+      });
     });
   });
 });
