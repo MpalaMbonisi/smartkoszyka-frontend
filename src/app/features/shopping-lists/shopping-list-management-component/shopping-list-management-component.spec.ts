@@ -482,4 +482,19 @@ describe('ShoppingListManagementComponent', () => {
       expect(component.errorMessage()).toBe('Failed to delete list. Please try again.');
     });
   });
+
+  describe('View Shopping List', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+    });
+
+    it('should trigger view list action', () => {
+      spyOn(console, 'log');
+
+      component.onViewList(1);
+
+      expect(console.log).toHaveBeenCalledWith('View list:', 1);
+    });
+  });
 });
