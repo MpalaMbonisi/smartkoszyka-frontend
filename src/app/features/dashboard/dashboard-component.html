@@ -37,3 +37,96 @@
   </main>
   <app-footer></app-footer>
 </div>
+<div class="dashboard">
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="logo"><span class="logo-smart">Smart</span><span class="logo-koszyka">Koszyka</span></div>
+
+      @if (user$ | async; as user) {
+      <div class="user-menu">
+        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
+        <button class="btn btn-logout" (click)="onLogout()">Logout</button>
+      </div>
+      }
+    </div>
+
+    <nav class="dashboard-nav">
+      <button class="nav-item" [class.active]="activeView === 'overview'" (click)="setActiveView('overview')">
+        Overview
+      </button>
+      <button class="nav-item" [class.active]="activeView === 'products'" (click)="setActiveView('products')">
+        Products
+      </button>
+      <button class="nav-item" [class.active]="activeView === 'lists'" (click)="setActiveView('lists')">
+        Shopping Lists
+      </button>
+    </nav>
+  </header>
+
+  <main class="dashboard-content">
+    @if (activeView === 'overview') {
+    <div class="container">
+      @if (user$ | async; as user) {
+      <div class="welcome-section">
+        <h1>Hello, {{ user.firstName }}! 👋</h1>
+        <p class="subtitle">Welcome back to SmartKoszyka</p>
+      </div>
+      }
+
+      <div class="overview-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📝</div>
+          <div class="stat-info">
+            <h3>Active Lists</h3>
+            <p class="stat-value">0</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🛒</div>
+          <div class="stat-info">
+            <h3>Total Items</h3>
+            <p class="stat-value">0</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">✓</div>
+          <div class="stat-info">
+            <h3>Completed Items</h3>
+            <p class="stat-value">0</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-cards">
+          <button class="action-card" (click)="setActiveView('products')">
+            <span class="action-icon">🔍</span>
+            <h3>Browse Products</h3>
+            <p>Explore our product catalog</p>
+          </button>
+          <button class="action-card" (click)="setActiveView('lists')">
+            <span class="action-icon">➕</span>
+            <h3>Create List</h3>
+            <p>Start a new shopping list</p>
+          </button>
+        </div>
+      </div>
+    </div>
+    } @if (activeView === 'products') {
+    <app-product-catalog-component></app-product-catalog-component>
+    } @if (activeView === 'lists') {
+    <div class="container">
+      <div class="coming-soon-section">
+        <h2>Shopping Lists</h2>
+        <p>Shopping list management coming soon...</p>
+        <button class="btn-secondary" (click)="setActiveView('products')">Browse Products Instead</button>
+      </div>
+    </div>
+    }
+  </main>
+
+  <app-footer></app-footer>
+</div>

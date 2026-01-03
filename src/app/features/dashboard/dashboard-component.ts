@@ -1,22 +1,26 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../core/services/auth/auth-service';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { ProductCatalogComponent } from '../products/product-catalog-component/product-catalog-component';
 
 @Component({
   selector: 'app-dashboard-component',
-  imports: [CommonModule, FooterComponent],
+  imports: [CommonModule, FooterComponent, ProductCatalogComponent],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.scss',
 })
 export class DashboardComponent {
   private authService = inject(AuthService);
-  private router = inject(Router);
 
   user$ = this.authService.currentUser$;
+  activeView = 'products'; // 'products' | 'lists' | 'overview'
 
   onLogout(): void {
     this.authService.logout();
+  }
+
+  setActiveView(view: string): void {
+    this.activeView = view;
   }
 }
