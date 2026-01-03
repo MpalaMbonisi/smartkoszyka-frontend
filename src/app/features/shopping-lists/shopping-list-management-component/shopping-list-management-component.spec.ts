@@ -497,4 +497,75 @@ describe('ShoppingListManagementComponent', () => {
       expect(console.log).toHaveBeenCalledWith('View list:', 1);
     });
   });
+
+  describe('Form Validation', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of([]));
+      fixture.detectChanges();
+    });
+
+    it('should validate required title', () => {
+      const title = component.createListForm.get('title');
+
+      expect(title?.valid).toBeFalsy();
+      expect(title?.hasError('required')).toBeTruthy();
+    });
+
+    it('should validate minimum title length', () => {
+      const title = component.createListForm.get('title');
+      title?.setValue('ab');
+
+      expect(title?.valid).toBeFalsy();
+      expect(title?.hasError('minlength')).toBeTruthy();
+    });
+
+    it('should accept valid title', () => {
+      const title = component.createListForm.get('title');
+      title?.setValue('Valid Title');
+
+      expect(title?.valid).toBeTruthy();
+    });
+
+    it('should make description optional', () => {
+      const description = component.createListForm.get('description');
+
+      expect(description?.valid).toBeTruthy();
+    });
+
+    it('should return true for invalid touched field', () => {
+      const title = component.createListForm.get('title');
+      title?.markAsTouched();
+
+      expect(component.isFieldInvalid('title')).toBe(true);
+    });
+
+    it('should return false for valid field', () => {
+      const title = component.createListForm.get('title');
+      title?.setValue('Valid Title');
+
+      expect(component.isFieldInvalid('title')).toBe(false);
+    });
+
+    it('should return correct error message for required field', () => {
+      const title = component.createListForm.get('title');
+      title?.markAsTouched();
+
+      expect(component.getErrorMessage('title')).toBe('Title is required');
+    });
+
+    it('should return correct error message for minlength', () => {
+      const title = component.createListForm.get('title');
+      title?.setValue('ab');
+      title?.markAsTouched();
+
+      expect(component.getErrorMessage('title')).toBe('Title must be at least 3 characters');
+    });
+
+    it('should return empty string for valid field', () => {
+      const title = component.createListForm.get('title');
+      title?.setValue('Valid Title');
+
+      expect(component.getErrorMessage('title')).toBe('');
+    });
+  });
 });
