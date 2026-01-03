@@ -355,4 +355,63 @@ describe('ShoppingListManagementComponent', () => {
       });
     });
   });
+
+  describe('Archive Shopping List', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+    });
+
+    it('should archive shopping list', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.archiveShoppingList.and.returnValue(of(undefined));
+
+      component.onArchiveList(1);
+
+      expect(shoppingListService.archiveShoppingList).toHaveBeenCalledWith(1);
+    });
+
+    it('should remove list from active lists after archiving', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.archiveShoppingList.and.returnValue(of(undefined));
+
+      const initialCount = component.activeLists().length;
+
+      component.onArchiveList(1);
+
+      expect(component.activeLists().length).toBe(initialCount - 1);
+      expect(component.activeLists().find(l => l.listId === 1)).toBeUndefined();
+    });
+
+    it('should show success message after archiving', fakeAsync(() => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.archiveShoppingList.and.returnValue(of(undefined));
+
+      component.onArchiveList(1);
+
+      expect(component.successMessage()).toBe('List archived successfully!');
+
+      tick(3000);
+
+      expect(component.successMessage()).toBe('');
+    }));
+
+    it('should not archive if user cancels confirmation', () => {
+      spyOn(window, 'confirm').and.returnValue(false);
+
+      component.onArchiveList(1);
+
+      expect(shoppingListService.archiveShoppingList).not.toHaveBeenCalled();
+    });
+
+    it('should handle archive error', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      const error = new Error('Failed');
+      shoppingListService.archiveShoppingList.and.returnValue(throwError(() => error));
+
+      component.onArchiveList(1);
+
+      expect(component.errorMessage()).toBe('Failed to archive list. Please try again.');
+    });
+  });
 });
