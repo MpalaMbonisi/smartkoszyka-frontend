@@ -1,0 +1,132 @@
+<div class="shopping-list-management">
+  <div class="management-header">
+    <h2>Shopping Lists</h2>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="toggleCreateForm()">
+        @if (showCreateForm()) {
+        <span>Cancel</span>
+        } @else {
+        <span>+ Create New List</span>
+        }
+      </button>
+      <button class="btn-secondary" (click)="toggleArchived()">
+        @if (showArchived()) {
+        <span>Hide Archived</span>
+        } @else {
+        <span>Show Archived</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+  <div class="success-banner">{{ successMessage() }}</div>
+  } @if (errorMessage()) {
+  <div class="error-banner">{{ errorMessage() }}</div>
+  } @if (showCreateForm()) {
+  <div class="create-form-card">
+    <h3>Create New Shopping List</h3>
+    <form [formGroup]="createListForm" (ngSubmit)="onCreateList()">
+      <div class="form-group">
+        <label for="title">List Title *</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          placeholder="e.g., Weekly Groceries"
+          [class.invalid]="isFieldInvalid('title')"
+        />
+        @if (isFieldInvalid('title')) {
+        <span class="error">{{ getErrorMessage('title') }}</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description (Optional)</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          placeholder="Add a description for your list..."
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="isLoading()">
+          @if (isLoading()) {
+          <span>Creating...</span>
+          } @else {
+          <span>Create List</span>
+          }
+        </button>
+        <button type="button" class="btn-secondary" (click)="toggleCreateForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
+  } @if (isLoading()) {
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading lists...</p>
+  </div>
+  } @else {
+  <div class="lists-section">
+    @if (!showArchived()) {
+    <h3 class="section-title">Active Lists ({{ activeLists().length }})</h3>
+
+    @if (activeLists().length === 0) {
+    <div class="empty-state">
+      <p>No active shopping lists yet.</p>
+      <button class="btn-primary" (click)="toggleCreateForm()">Create Your First List</button>
+    </div>
+    } @else {
+    <div class="lists-grid">
+      @for (list of activeLists(); track list.listId) {
+      <div class="list-card">
+        <div class="list-header">
+          <h4 class="list-title">{{ list.title }}</h4>
+          <span class="list-date">{{ list.createdAt | date: 'MMM d, y' }}</span>
+        </div>
+
+        @if (list.description) {
+        <p class="list-description">{{ list.description }}</p>
+        }
+
+        <div class="list-actions">
+          <button class="action-btn view-btn" (click)="onViewList(list.listId)">View Items</button>
+          <button class="action-btn archive-btn" (click)="onArchiveList(list.listId)">Archive</button>
+          <button class="action-btn delete-btn" (click)="onDeleteList(list.listId)">Delete</button>
+        </div>
+      </div>
+      }
+    </div>
+    } } @else {
+    <h3 class="section-title">Archived Lists ({{ archivedLists().length }})</h3>
+
+    @if (archivedLists().length === 0) {
+    <div class="empty-state">
+      <p>No archived lists.</p>
+    </div>
+    } @else {
+    <div class="lists-grid">
+      @for (list of archivedLists(); track list.listId) {
+      <div class="list-card archived">
+        <div class="list-header">
+          <h4 class="list-title">{{ list.title }}</h4>
+          <span class="archived-badge">Archived</span>
+        </div>
+
+        @if (list.description) {
+        <p class="list-description">{{ list.description }}</p>
+        }
+
+        <div class="list-actions">
+          <button class="action-btn view-btn" (click)="onViewList(list.listId)">View Items</button>
+          <button class="action-btn delete-btn" (click)="onDeleteList(list.listId)">Delete</button>
+        </div>
+      </div>
+      }
+    </div>
+    } }
+  </div>
+  }
+</div>
