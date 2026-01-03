@@ -414,4 +414,72 @@ describe('ShoppingListManagementComponent', () => {
       expect(component.errorMessage()).toBe('Failed to archive list. Please try again.');
     });
   });
+
+  describe('Delete Shopping List', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+    });
+
+    it('should delete shopping list', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.deleteShoppingList.and.returnValue(of(undefined));
+
+      component.onDeleteList(1);
+
+      expect(shoppingListService.deleteShoppingList).toHaveBeenCalledWith(1);
+    });
+
+    it('should remove list from active lists after deletion', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.deleteShoppingList.and.returnValue(of(undefined));
+
+      const initialCount = component.activeLists().length;
+
+      component.onDeleteList(1);
+
+      expect(component.activeLists().length).toBe(initialCount - 1);
+    });
+
+    it('should remove list from archived lists after deletion', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.deleteShoppingList.and.returnValue(of(undefined));
+      component.archivedLists.set([mockArchivedList]);
+
+      component.onDeleteList(3);
+
+      expect(component.archivedLists().length).toBe(0);
+    });
+
+    it('should show success message after deletion', fakeAsync(() => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.deleteShoppingList.and.returnValue(of(undefined));
+
+      component.onDeleteList(1);
+
+      expect(component.successMessage()).toBe('List deleted successfully!');
+
+      tick(3000);
+
+      expect(component.successMessage()).toBe('');
+    }));
+
+    it('should not delete if user cancels confirmation', () => {
+      spyOn(window, 'confirm').and.returnValue(false);
+
+      component.onDeleteList(1);
+
+      expect(shoppingListService.deleteShoppingList).not.toHaveBeenCalled();
+    });
+
+    it('should handle delete error', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      const error = new Error('Failed');
+      shoppingListService.deleteShoppingList.and.returnValue(throwError(() => error));
+
+      component.onDeleteList(1);
+
+      expect(component.errorMessage()).toBe('Failed to delete list. Please try again.');
+    });
+  });
 });
