@@ -2,10 +2,11 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { ShoppingListService } from '../../../core/services/shopping-list/shopping-list.service';
 import { ShoppingList } from '../../../core/models/shopping-list.model';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-shopping-list-management-component',
-  imports: [ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, DatePipe],
   templateUrl: './shopping-list-management-component.html',
   styleUrl: './shopping-list-management-component.scss',
 })
@@ -126,6 +127,35 @@ export class ShoppingListManagementComponent implements OnInit {
         console.error('Failed to archive:', error);
       },
     });
+  }
+
+  onDeleteList(listId: number): void {
+    if (!confirm('Are you sure you want to permanently delete this list?')) {
+      return;
+    }
+
+    this.shoppingListService.deleteShoppingList(listId).subscribe({
+      next: () => {
+        this.activeLists.update(lists => lists.filter(list => list.listId !== listId));
+        this.archivedLists.update(lists => lists.filter(list => list.listId !== listId));
+        this.successMessage.set('List deleted successfully!');
+        setTimeout(() => this.successMessage.set(''), 3000);
+      },
+      error: error => {
+        this.errorMessage.set('Failed to delete list. Please try again.');
+        console.error('Failed to delete:', error);
+      },
+    });
+  }
+
+  onViewList(listId: number): void {
+    // This will be implemented for navigation to detail view
+    console.log('View list:', listId);
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.createListForm.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
   }
 
   getErrorMessage(fieldName: string): string {
