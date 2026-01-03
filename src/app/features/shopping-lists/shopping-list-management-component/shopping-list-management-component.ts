@@ -77,6 +77,57 @@ export class ShoppingListManagementComponent implements OnInit {
     }
   }
 
+  onCreateList(): void {
+    if (this.createListForm.invalid) {
+      this.createListForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    const formValue = this.createListForm.value;
+    const request = {
+      title: formValue.title!,
+      description: formValue.description || undefined,
+    };
+
+    this.shoppingListService.createShoppingList(request).subscribe({
+      next: newList => {
+        this.activeLists.update(lists => [newList, ...lists]);
+        this.successMessage.set('Shopping list created successfully!');
+        this.createListForm.reset();
+        this.showCreateForm.set(false);
+        this.isLoading.set(false);
+
+        setTimeout(() => this.successMessage.set(''), 3000);
+      },
+      error: error => {
+        this.errorMessage.set(error.message || 'Failed to create list. Please try again.');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  onArchiveList(listId: number): void {
+    if (!confirm('Are you sure you want to archive this list?')) {
+      return;
+    }
+
+    this.shoppingListService.archiveShoppingList(listId).subscribe({
+      next: () => {
+        this.activeLists.update(lists => lists.filter(list => list.listId !== listId));
+        this.successMessage.set('List archived successfully!');
+        setTimeout(() => this.successMessage.set(''), 3000);
+      },
+      error: error => {
+        this.errorMessage.set('Failed to archive list. Please try again.');
+        console.error('Failed to archive:', error);
+      },
+    });
+  }
+
   getErrorMessage(fieldName: string): string {
     const field = this.createListForm.get(fieldName);
 
