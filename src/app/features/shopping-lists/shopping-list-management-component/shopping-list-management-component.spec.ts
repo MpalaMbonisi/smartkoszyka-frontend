@@ -568,4 +568,162 @@ describe('ShoppingListManagementComponent', () => {
       expect(component.getErrorMessage('title')).toBe('');
     });
   });
+
+  describe('UI Rendering', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+    });
+
+    it('should display component title', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const title = compiled.querySelector('.management-header h2');
+
+      expect(title?.textContent).toBe('Shopping Lists');
+    });
+
+    it('should display create new list button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const createBtn = compiled.querySelector('.btn-primary') as HTMLButtonElement;
+
+      expect(createBtn).toBeTruthy();
+      expect(createBtn.textContent).toContain('Create New List');
+    });
+
+    it('should display show archived button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const buttons = compiled.querySelectorAll('.header-actions button');
+      const archivedBtn = buttons[1] as HTMLButtonElement;
+
+      expect(archivedBtn.textContent).toContain('Show Archived');
+    });
+
+    it('should display active lists count', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const sectionTitle = compiled.querySelector('.section-title');
+
+      expect(sectionTitle?.textContent).toContain(`Active Lists (${mockLists.length})`);
+    });
+
+    it('should display list cards', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const listCards = compiled.querySelectorAll('.list-card');
+
+      expect(listCards.length).toBe(mockLists.length);
+    });
+
+    it('should display list title and date', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const firstCard = compiled.querySelector('.list-card');
+      const title = firstCard?.querySelector('.list-title');
+      const date = firstCard?.querySelector('.list-date');
+
+      expect(title?.textContent).toBe('Weekly Groceries');
+      expect(date).toBeTruthy();
+    });
+
+    it('should display list description', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const firstCard = compiled.querySelector('.list-card');
+      const description = firstCard?.querySelector('.list-description');
+
+      expect(description?.textContent).toBe('Shopping for the week');
+    });
+
+    it('should display list action buttons', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const firstCard = compiled.querySelector('.list-card');
+      const actionButtons = firstCard?.querySelectorAll('.action-btn');
+
+      expect(actionButtons?.length).toBe(3);
+    });
+
+    it('should show create form when toggled', () => {
+      component.toggleCreateForm();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const createForm = compiled.querySelector('.create-form-card');
+
+      expect(createForm).toBeTruthy();
+    });
+
+    it('should show empty state when no lists', () => {
+      component.activeLists.set([]);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const emptyState = compiled.querySelector('.empty-state');
+
+      expect(emptyState).toBeTruthy();
+      expect(emptyState?.textContent).toContain('No active shopping lists yet');
+    });
+
+    it('should show loading state', () => {
+      component.isLoading.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const loadingState = compiled.querySelector('.loading-state');
+
+      expect(loadingState).toBeTruthy();
+      expect(loadingState?.textContent).toContain('Loading lists');
+    });
+
+    it('should show success banner', () => {
+      component.successMessage.set('Success!');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const successBanner = compiled.querySelector('.success-banner');
+
+      expect(successBanner).toBeTruthy();
+      expect(successBanner?.textContent).toContain('Success!');
+    });
+
+    it('should show error banner', () => {
+      component.errorMessage.set('Error!');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errorBanner = compiled.querySelector('.error-banner');
+
+      expect(errorBanner).toBeTruthy();
+      expect(errorBanner?.textContent).toContain('Error!');
+    });
+
+    it('should change button text when create form is shown', () => {
+      component.toggleCreateForm();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const createBtn = compiled.querySelector('.btn-primary') as HTMLButtonElement;
+
+      expect(createBtn.textContent).toContain('Cancel');
+    });
+
+    it('should display archived badge on archived lists', () => {
+      component.showArchived.set(true);
+      component.archivedLists.set([mockArchivedList]);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const archivedBadge = compiled.querySelector('.archived-badge');
+
+      expect(archivedBadge).toBeTruthy();
+      expect(archivedBadge?.textContent).toBe('Archived');
+    });
+
+    it('should not show archive button for archived lists', () => {
+      component.showArchived.set(true);
+      component.archivedLists.set([mockArchivedList]);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const archivedCard = compiled.querySelector('.list-card.archived');
+      const archiveBtn = archivedCard?.querySelector('.archive-btn');
+
+      expect(archiveBtn).toBeFalsy();
+    });
+  });
 });
