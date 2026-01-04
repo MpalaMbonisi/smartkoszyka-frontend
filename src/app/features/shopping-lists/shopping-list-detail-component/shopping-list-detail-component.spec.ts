@@ -198,4 +198,20 @@ describe('ShoppingListDetailComponent', () => {
       expect(component.totalPrice()).toBeCloseTo(29.95, 2);
     });
   });
+
+  describe('Calculate Checked/Unchecked Items', () => {
+    it('should count checked items correctly', () => {
+      expect(component.checkedCount()).toBe(1);
+    });
+
+    it('should count unchecked items correctly', () => {
+      expect(component.uncheckedCount()).toBe(1);
+    });
+
+    it('should return 0 for empty list', () => {
+      component.items.set([]);
+      expect(component.checkedCount()).toBe(0);
+      expect(component.uncheckedCount()).toBe(0);
+    });
+  });
 });
