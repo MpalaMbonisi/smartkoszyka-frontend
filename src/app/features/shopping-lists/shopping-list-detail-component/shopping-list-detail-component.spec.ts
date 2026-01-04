@@ -468,4 +468,58 @@ describe('ShoppingListDetailComponent', () => {
       expect(component.successMessage()).toBe('');
     }));
   });
+
+  describe('Update List Title', () => {
+    it('should enable edit mode', () => {
+      component.enableEditTitle();
+
+      expect(component.isEditingTitle()).toBe(true);
+      expect(component.editTitleControl.value).toBe(mockList.title);
+    });
+
+    it('should cancel edit and restore original title', () => {
+      component.enableEditTitle();
+      component.editTitleControl.setValue('New Title');
+
+      component.cancelEditTitle();
+
+      expect(component.isEditingTitle()).toBe(false);
+      expect(component.editTitleControl.value).toBe(mockList.title);
+    });
+
+    it('should save new title', () => {
+      const updatedList = { ...mockList, title: 'New Title' };
+      shoppingListService.updateShoppingListTitle.and.returnValue(of(updatedList));
+
+      component.enableEditTitle();
+      component.editTitleControl.setValue('New Title');
+      component.saveTitle();
+
+      expect(shoppingListService.updateShoppingListTitle).toHaveBeenCalledWith(1, {
+        title: 'New Title',
+      });
+      expect(component.shoppingList()).toEqual(updatedList);
+      expect(component.isEditingTitle()).toBe(false);
+    });
+
+    it('should not save empty title', () => {
+      component.enableEditTitle();
+      component.editTitleControl.setValue('');
+
+      component.saveTitle();
+
+      expect(shoppingListService.updateShoppingListTitle).not.toHaveBeenCalled();
+    });
+
+    it('should handle save title error', () => {
+      const error = new Error('Update failed');
+      shoppingListService.updateShoppingListTitle.and.returnValue(throwError(() => error));
+
+      component.enableEditTitle();
+      component.editTitleControl.setValue('New Title');
+      component.saveTitle();
+
+      expect(component.errorMessage()).toBe('Failed to update list title.');
+    });
+  });
 });
