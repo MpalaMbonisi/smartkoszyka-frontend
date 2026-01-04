@@ -146,4 +146,40 @@ describe('ListSelectorModal', () => {
       expect(component.selectedProduct).toEqual(mockProduct);
     });
   });
+
+  describe('Form Validation', () => {
+    beforeEach(() => {
+      productSelectionService.selectProduct(mockProduct);
+      fixture.detectChanges();
+    });
+
+    it('should require list selection', () => {
+      const listId = component.addToListForm.get('listId');
+
+      expect(listId?.valid).toBeFalsy();
+      expect(listId?.hasError('required')).toBeTruthy();
+    });
+
+    it('should require quantity', () => {
+      const quantity = component.addToListForm.get('quantity');
+
+      component.addToListForm.patchValue({ quantity: null });
+
+      expect(quantity?.hasError('required')).toBeTruthy();
+    });
+
+    it('should require minimum quantity of 1', () => {
+      const quantity = component.addToListForm.get('quantity');
+
+      component.addToListForm.patchValue({ quantity: 0 });
+
+      expect(quantity?.hasError('min')).toBeTruthy();
+    });
+
+    it('should be valid with list and quantity', () => {
+      component.addToListForm.patchValue({ listId: 1, quantity: 3 });
+
+      expect(component.addToListForm.valid).toBeTruthy();
+    });
+  });
 });
