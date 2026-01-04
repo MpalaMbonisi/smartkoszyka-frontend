@@ -522,4 +522,12 @@ describe('ShoppingListDetailComponent', () => {
       expect(component.errorMessage()).toBe('Failed to update list title.');
     });
   });
+
+  describe('Navigation', () => {
+    it('should navigate back to lists', () => {
+      component.goBack();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    });
+  });
 });
