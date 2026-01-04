@@ -437,4 +437,31 @@ describe('ListSelectorModal', () => {
       expect(submitBtn.disabled).toBeFalsy();
     });
   });
+
+  describe('Loading State', () => {
+    beforeEach(() => {
+      productSelectionService.selectProduct(mockProduct);
+      fixture.detectChanges();
+    });
+
+    it('should show loading state while fetching lists', () => {
+      component.isLoading.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const loadingState = compiled.querySelector('.loading-state');
+
+      expect(loadingState).toBeTruthy();
+    });
+
+    it('should hide loading state after lists are loaded', () => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const loadingState = compiled.querySelector('.loading-state');
+
+      expect(loadingState).toBeFalsy();
+    });
+  });
 });
