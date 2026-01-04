@@ -14,6 +14,7 @@ describe('ListSelectorModal', () => {
   let fixture: ComponentFixture<ListSelectorModal>;
   let productSelectionService: ProductSelectionService;
   let shoppingListService: jasmine.SpyObj<ShoppingListService>;
+  let router: jasmine.SpyObj<Router>;
 
   const mockProduct: Product = {
     id: 1,
@@ -78,6 +79,7 @@ describe('ListSelectorModal', () => {
     shoppingListService = TestBed.inject(
       ShoppingListService
     ) as jasmine.SpyObj<ShoppingListService>;
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
 
     shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
 
@@ -326,6 +328,27 @@ describe('ListSelectorModal', () => {
       content.click();
 
       expect(component.onClose).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Create New List Action', () => {
+    beforeEach(() => {
+      productSelectionService.selectProduct(mockProduct);
+      fixture.detectChanges();
+    });
+
+    it('should navigate to shopping lists page', () => {
+      component.onCreateNewList();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists']);
+    });
+
+    it('should close modal after navigation', () => {
+      spyOn(component, 'onClose');
+
+      component.onCreateNewList();
+
+      expect(component.onClose).toHaveBeenCalled();
     });
   });
 });
