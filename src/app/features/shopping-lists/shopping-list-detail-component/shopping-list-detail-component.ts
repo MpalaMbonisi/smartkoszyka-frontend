@@ -215,4 +215,37 @@ export class ShoppingListDetailComponent implements OnInit {
       },
     });
   }
+
+  enableEditTitle(): void {
+    this.isEditingTitle.set(true);
+  }
+
+  cancelEditTitle(): void {
+    this.isEditingTitle.set(false);
+    this.editTitleControl.setValue(this.shoppingList()?.title || '');
+  }
+
+  saveTitle(): void {
+    if (this.editTitleControl.invalid) {
+      return;
+    }
+
+    const newTitle = this.editTitleControl.value?.trim();
+    if (!newTitle) return;
+
+    this.shoppingListService.updateShoppingListTitle(this.listId, { title: newTitle }).subscribe({
+      next: updatedList => {
+        this.shoppingList.set(updatedList);
+        this.isEditingTitle.set(false);
+      },
+      error: error => {
+        this.errorMessage.set('Failed to update list title.');
+        console.error('Update title failed:', error);
+      },
+    });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/dashboard']);
+  }
 }
