@@ -3,6 +3,7 @@ import { ShoppingListService } from '../../../core/services/shopping-list/shoppi
 import { ShoppingList } from '../../../core/models/shopping-list.model';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-shopping-list-management-component',
@@ -12,6 +13,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 })
 export class ShoppingListManagementComponent implements OnInit {
   private shoppingListService = inject(ShoppingListService);
+  private router = inject(Router);
 
   activeLists = signal<ShoppingList[]>([]);
   archivedLists = signal<ShoppingList[]>([]);
@@ -149,8 +151,11 @@ export class ShoppingListManagementComponent implements OnInit {
   }
 
   onViewList(listId: number): void {
-    // This will be implemented for navigation to detail view
-    console.log('View list:', listId);
+    this.router.navigate(['/shopping-lists', listId]);
+  }
+
+  goBackToDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 
   isFieldInvalid(fieldName: string): boolean {
