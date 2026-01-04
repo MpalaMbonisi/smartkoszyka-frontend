@@ -4,12 +4,13 @@ import { ProductService } from '../../../core/services/product/product.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ShoppingList, ShoppingListItem } from '../../../core/models/shopping-list.model';
 import { Product } from '../../../core/models/product.model';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-shopping-list-detail-component',
-  imports: [],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './shopping-list-detail-component.html',
   styleUrl: './shopping-list-detail-component.scss',
 })
