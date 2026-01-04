@@ -530,4 +530,85 @@ describe('ShoppingListDetailComponent', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
     });
   });
+
+  describe('UI Rendering', () => {
+    it('should display list title', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const title = compiled.querySelector('.list-header h2');
+
+      expect(title?.textContent).toContain('Weekly Groceries');
+    });
+
+    it('should display list description', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const description = compiled.querySelector('.list-description');
+
+      expect(description?.textContent).toContain('Shopping for the week');
+    });
+
+    it('should display items count', () => {
+      fixture.detectChanges();
+      const compiled = fixture.nativeElement as HTMLElement;
+
+      expect(compiled.textContent).toContain('Total Items:2');
+    });
+
+    it('should display total price', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const total = compiled.querySelector('.total-price');
+
+      expect(total?.textContent).toContain('27.95');
+    });
+
+    it('should display all items', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const itemCards = compiled.querySelectorAll('.item-card');
+
+      expect(itemCards.length).toBe(2);
+    });
+
+    it('should display item details', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const firstItem = compiled.querySelector('.item-card');
+
+      expect(firstItem?.textContent).toContain('Pomidory');
+      expect(firstItem?.textContent).toContain('3');
+      expect(firstItem?.textContent).toContain('5.99');
+    });
+
+    it('should show checked state', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const items = compiled.querySelectorAll('.item-card');
+      const checkedItem = items[1];
+
+      expect(checkedItem.classList.contains('checked')).toBe(true);
+    });
+
+    it('should display add product button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const addBtn = compiled.querySelector('.btn-add-product');
+
+      expect(addBtn?.textContent).toContain('Add Product');
+    });
+
+    it('should show add product form when toggled', () => {
+      component.toggleAddProduct();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const addForm = compiled.querySelector('.add-product-section');
+
+      expect(addForm).toBeTruthy();
+    });
+
+    it('should display empty state when no items', () => {
+      component.items.set([]);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const emptyState = compiled.querySelector('.empty-state');
+
+      expect(emptyState).toBeTruthy();
+    });
+  });
 });
