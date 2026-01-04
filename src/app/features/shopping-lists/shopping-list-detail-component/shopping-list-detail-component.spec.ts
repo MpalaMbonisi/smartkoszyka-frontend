@@ -214,4 +214,25 @@ describe('ShoppingListDetailComponent', () => {
       expect(component.uncheckedCount()).toBe(0);
     });
   });
+
+  describe('Toggle Add Product View', () => {
+    it('should toggle showAddProduct flag', () => {
+      expect(component.showAddProduct()).toBe(false);
+
+      component.toggleAddProduct();
+      expect(component.showAddProduct()).toBe(true);
+
+      component.toggleAddProduct();
+      expect(component.showAddProduct()).toBe(false);
+    });
+
+    it('should reset search when closing', () => {
+      component.productSearchControl.setValue('test');
+      component.showAddProduct.set(true);
+
+      component.toggleAddProduct();
+
+      expect(component.productSearchControl.value).toBe('');
+    });
+  });
 });
