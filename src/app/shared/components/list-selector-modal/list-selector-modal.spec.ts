@@ -7,11 +7,26 @@ import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
 import { ShoppingList } from '../../../core/models/shopping-list.model';
+import { Product } from '../../../core/models/product.model';
 
 describe('ListSelectorModal', () => {
   let component: ListSelectorModal;
   let fixture: ComponentFixture<ListSelectorModal>;
+  let productSelectionService: ProductSelectionService;
   let shoppingListService: jasmine.SpyObj<ShoppingListService>;
+
+  const mockProduct: Product = {
+    id: 1,
+    name: 'Pomidory',
+    price: 5.99,
+    unit: 'kg',
+    imageUrl: 'https://example.com/pomidory.jpg',
+    brand: 'Biedronka',
+    categoryId: 1,
+    categoryName: 'Warzywa',
+    createdAt: '2025-01-01T10:00:00',
+    updatedAt: '2025-01-01T10:00:00',
+  };
 
   const mockLists: ShoppingList[] = [
     {
@@ -48,6 +63,7 @@ describe('ListSelectorModal', () => {
       ],
     }).compileComponents();
 
+    productSelectionService = TestBed.inject(ProductSelectionService);
     shoppingListService = TestBed.inject(
       ShoppingListService
     ) as jasmine.SpyObj<ShoppingListService>;
@@ -87,6 +103,28 @@ describe('ListSelectorModal', () => {
 
       expect(component.errorMessage()).toBe('Failed to load shopping lists.');
       expect(component.isLoading()).toBe(false);
+    });
+  });
+
+  describe('Modal Visibility', () => {
+    it('should show modal when product is selected', () => {
+      productSelectionService.selectProduct(mockProduct);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const modal = compiled.querySelector('.modal-overlay');
+
+      expect(modal).toBeTruthy();
+    });
+
+    it('should hide modal when showListSelector is false', () => {
+      productSelectionService.clearSelection();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const modal = compiled.querySelector('.modal-overlay');
+
+      expect(modal).toBeFalsy();
     });
   });
 });
