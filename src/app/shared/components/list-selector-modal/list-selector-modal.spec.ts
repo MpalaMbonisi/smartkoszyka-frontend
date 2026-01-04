@@ -351,4 +351,31 @@ describe('ListSelectorModal', () => {
       expect(component.onClose).toHaveBeenCalled();
     });
   });
+
+  describe('Empty State', () => {
+    beforeEach(() => {
+      shoppingListService.getActiveShoppingLists.and.returnValue(of([]));
+      productSelectionService.selectProduct(mockProduct);
+    });
+
+    it('should show empty state when no lists exist', () => {
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const emptyState = compiled.querySelector('.empty-state');
+
+      expect(emptyState).toBeTruthy();
+      expect(emptyState?.textContent).toContain("You don't have any active shopping lists");
+    });
+
+    it('should show create list button in empty state', () => {
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const createBtn = compiled.querySelector('.empty-state button');
+
+      expect(createBtn).toBeTruthy();
+      expect(createBtn?.textContent).toContain('Create New List');
+    });
+  });
 });
