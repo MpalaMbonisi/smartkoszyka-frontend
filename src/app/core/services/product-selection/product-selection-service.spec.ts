@@ -86,4 +86,58 @@ describe('ProductSelectionService', () => {
       expect(service.showListSelector()).toBe(false);
     });
   });
+
+  describe('Signal Reactivity', () => {
+    it('should update showListSelector signal reactively', () => {
+      const initialValue = service.showListSelector();
+      expect(initialValue).toBe(false);
+
+      service.selectProduct(mockProduct);
+      const updatedValue = service.showListSelector();
+      expect(updatedValue).toBe(true);
+    });
+
+    it('should maintain selected product state across multiple operations', () => {
+      service.selectProduct(mockProduct);
+      const product1 = service.getSelectedProduct();
+
+      expect(product1).toEqual(mockProduct);
+
+      const product2 = service.getSelectedProduct();
+      expect(product2).toEqual(product1);
+    });
+  });
+
+  describe('Use Case Scenarios', () => {
+    it('should handle typical user flow: select, clear, select again', () => {
+      // First selection
+      service.selectProduct(mockProduct);
+      expect(service.getSelectedProduct()).toEqual(mockProduct);
+      expect(service.showListSelector()).toBe(true);
+
+      // Clear
+      service.clearSelection();
+      expect(service.getSelectedProduct()).toBeNull();
+      expect(service.showListSelector()).toBe(false);
+
+      // Second selection
+      service.selectProduct(mockProduct);
+      expect(service.getSelectedProduct()).toEqual(mockProduct);
+      expect(service.showListSelector()).toBe(true);
+    });
+
+    it('should handle rapid product selections', () => {
+      const products: Product[] = [
+        mockProduct,
+        { ...mockProduct, id: 2, name: 'Banany' },
+        { ...mockProduct, id: 3, name: 'Mleko' },
+      ];
+
+      products.forEach(product => {
+        service.selectProduct(product);
+        expect(service.getSelectedProduct()).toEqual(product);
+        expect(service.showListSelector()).toBe(true);
+      });
+    });
+  });
 });
