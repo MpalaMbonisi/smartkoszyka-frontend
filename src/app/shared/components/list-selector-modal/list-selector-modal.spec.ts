@@ -127,4 +127,23 @@ describe('ListSelectorModal', () => {
       expect(modal).toBeFalsy();
     });
   });
+
+  describe('Product Preview', () => {
+    it('should display selected product information', () => {
+      productSelectionService.selectProduct(mockProduct);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const productPreview = compiled.querySelector('.product-preview');
+
+      expect(productPreview?.textContent).toContain('Pomidory');
+      expect(productPreview?.textContent).toContain('5.99');
+    });
+
+    it('should get selected product from service', () => {
+      productSelectionService.selectProduct(mockProduct);
+
+      expect(component.selectedProduct).toEqual(mockProduct);
+    });
+  });
 });
