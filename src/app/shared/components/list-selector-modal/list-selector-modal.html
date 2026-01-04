@@ -1,0 +1,75 @@
+@if (productSelectionService.showListSelector()) {
+<div
+  class="modal-overlay"
+  (click)="onClose()"
+  (keydown.enter)="onClose()"
+  (keydown.escape)="onClose()"
+  tabindex="0"
+  role="button"
+  aria-label="Close modal overlay"
+>
+  <div
+    class="modal-content"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div class="modal-header">
+      <h3>Add Product to List</h3>
+      <button class="btn-close" (click)="onClose()" aria-label="Close modal">✕</button>
+    </div>
+
+    @if (selectedProduct) {
+    <div class="product-preview">
+      <h4>{{ selectedProduct.name }}</h4>
+      <p class="product-price">{{ selectedProduct.price | number: '1.2-2' }} zł / {{ selectedProduct.unit }}</p>
+    </div>
+    } @if (errorMessage()) {
+    <div class="error-banner">{{ errorMessage() }}</div>
+    } @if (successMessage()) {
+    <div class="success-banner">{{ successMessage() }}</div>
+    } @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading lists...</p>
+    </div>
+    } @else {
+    <form [formGroup]="addToListForm" (ngSubmit)="onAddToList()">
+      <div class="form-group">
+        <label for="listId">Select Shopping List *</label>
+        <select id="listId" formControlName="listId" class="list-select">
+          <option [value]="null">-- Choose a list --</option>
+          @for (list of activeLists(); track list.listId) {
+          <option [value]="list.listId">{{ list.title }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="quantity">Quantity *</label>
+        <input id="quantity" type="number" formControlName="quantity" min="1" class="quantity-input" />
+      </div>
+
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary" [disabled]="addToListForm.invalid || isSubmitting()">
+          @if (isSubmitting()) {
+          <span>Adding...</span>
+          } @else {
+          <span>Add to List</span>
+          }
+        </button>
+        <button type="button" class="btn-secondary" (click)="onClose()">Cancel</button>
+      </div>
+    </form>
+
+    @if (activeLists().length === 0) {
+    <div class="empty-state">
+      <p>You don't have any active shopping lists yet.</p>
+      <button class="btn-primary" (click)="onCreateNewList()">Create New List</button>
+    </div>
+    } }
+  </div>
+</div>
+}
