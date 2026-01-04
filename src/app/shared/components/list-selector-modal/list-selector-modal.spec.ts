@@ -464,4 +464,31 @@ describe('ListSelectorModal', () => {
       expect(loadingState).toBeFalsy();
     });
   });
+
+  describe('Message Display', () => {
+    beforeEach(() => {
+      productSelectionService.selectProduct(mockProduct);
+      fixture.detectChanges();
+    });
+
+    it('should display error message', () => {
+      component.errorMessage.set('Test error');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const errorBanner = compiled.querySelector('.error-banner');
+
+      expect(errorBanner?.textContent).toContain('Test error');
+    });
+
+    it('should display success message', () => {
+      component.successMessage.set('Test success');
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const successBanner = compiled.querySelector('.success-banner');
+
+      expect(successBanner?.textContent).toContain('Test success');
+    });
+  });
 });
