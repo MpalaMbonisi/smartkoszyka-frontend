@@ -351,4 +351,40 @@ describe('ShoppingListDetailComponent', () => {
       expect(component.successMessage()).toBe('');
     }));
   });
+
+  describe('Update Item Quantity', () => {
+    it('should update item quantity', () => {
+      const updatedItem = { ...mockItems[0], quantity: 5 };
+      shoppingListService.updateItemQuantity.and.returnValue(of(updatedItem));
+
+      component.onUpdateQuantity(1, 5);
+
+      expect(shoppingListService.updateItemQuantity).toHaveBeenCalledWith(1, { quantity: 5 });
+    });
+
+    it('should update item in list after successful update', () => {
+      const updatedItem = { ...mockItems[0], quantity: 5 };
+      shoppingListService.updateItemQuantity.and.returnValue(of(updatedItem));
+
+      component.onUpdateQuantity(1, 5);
+
+      const item = component.items().find(i => i.listItemId === 1);
+      expect(item?.quantity).toBe(5);
+    });
+
+    it('should handle update quantity error', () => {
+      const error = new Error('Update failed');
+      shoppingListService.updateItemQuantity.and.returnValue(throwError(() => error));
+
+      component.onUpdateQuantity(1, 5);
+
+      expect(component.errorMessage()).toBe('Failed to update quantity.');
+    });
+
+    it('should not update with invalid quantity', () => {
+      component.onUpdateQuantity(1, 0);
+
+      expect(shoppingListService.updateItemQuantity).not.toHaveBeenCalled();
+    });
+  });
 });
