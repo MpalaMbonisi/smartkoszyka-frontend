@@ -44,12 +44,7 @@
   } @else {
   <div class="product-grid">
     @for (product of filteredProducts(); track product.id) {
-    <button
-      class="product-card"
-      (click)="onProductSelect(product)"
-      (keydown.enter)="onProductSelect(product)"
-      type="button"
-    >
+    <div class="product-card">
       <div class="product-image">
         <img [src]="product.imageUrl" [alt]="product.name" loading="lazy" />
       </div>
@@ -61,9 +56,13 @@
           <span class="unit">/ {{ product.unit }}</span>
         </div>
         <p class="product-category">{{ product.categoryName }}</p>
+        <button class="btn-add-to-list" (click)="onProductSelect(product)">+ Add to List</button>
       </div>
-    </button>
+    </div>
     }
   </div>
   } }
+
+  <!-- List Selector Modal -->
+  <app-list-selector-modal></app-list-selector-modal>
 </div>

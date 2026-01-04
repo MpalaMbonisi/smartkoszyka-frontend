@@ -4,15 +4,18 @@ import { Category, Product } from '../../../core/models/product.model';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { ListSelectorModal } from '../../../shared/components/list-selector-modal/list-selector-modal';
+import { ProductSelectionService } from '../../../core/services/product-selection/product-selection-service';
 
 @Component({
   selector: 'app-product-catalog-component',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ListSelectorModal],
   templateUrl: './product-catalog-component.html',
   styleUrl: './product-catalog-component.scss',
 })
 export class ProductCatalogComponent implements OnInit {
   private productService = inject(ProductService);
+  private productSelectionService = inject(ProductSelectionService);
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
@@ -117,7 +120,6 @@ export class ProductCatalogComponent implements OnInit {
   }
 
   onProductSelect(product: Product): void {
-    // TODO: This will be implemented when shopping list is ready for integration
-    console.log('Product selected:', product);
+    this.productSelectionService.selectProduct(product);
   }
 }

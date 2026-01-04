@@ -5,11 +5,13 @@ import { Category, Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product/product.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
+import { ShoppingListService } from '../../../core/services/shopping-list/shopping-list.service';
 
 describe('ProductCatalogComponent', () => {
   let component: ProductCatalogComponent;
   let fixture: ComponentFixture<ProductCatalogComponent>;
   let productService: jasmine.SpyObj<ProductService>;
+  let shoppingListService: jasmine.SpyObj<ShoppingListService>;
 
   const mockProducts: Product[] = [
     {
@@ -63,17 +65,29 @@ describe('ProductCatalogComponent', () => {
       'getProductsByCategory',
     ]);
 
+    const shoppingListServiceSpy = jasmine.createSpyObj('ShoppingListService', [
+      'getActiveShoppingLists',
+      'addProductToList',
+    ]);
+
     await TestBed.configureTestingModule({
       imports: [ProductCatalogComponent, ReactiveFormsModule],
-      providers: [{ provide: ProductService, useValue: productServiceSpy }],
+      providers: [
+        { provide: ProductService, useValue: productServiceSpy },
+        { provide: ShoppingListService, useValue: shoppingListServiceSpy },
+      ],
     }).compileComponents();
 
     productService = TestBed.inject(ProductService) as jasmine.SpyObj<ProductService>;
+    shoppingListService = TestBed.inject(
+      ShoppingListService
+    ) as jasmine.SpyObj<ShoppingListService>;
 
     productService.getAllProducts.and.returnValue(of([]));
     productService.getAllCategories.and.returnValue(of([]));
     productService.searchProducts.and.returnValue(of([]));
     productService.getProductsByCategory.and.returnValue(of([]));
+    shoppingListService.getActiveShoppingLists.and.returnValue(of([]));
 
     fixture = TestBed.createComponent(ProductCatalogComponent);
     component = fixture.componentInstance;
@@ -309,11 +323,13 @@ describe('ProductCatalogComponent', () => {
     });
 
     it('should handle product selection', () => {
-      spyOn(console, 'log');
+      spyOn(component['productSelectionService'], 'selectProduct'); // Changed from console.log
 
       component.onProductSelect(mockProducts[0]);
 
-      expect(console.log).toHaveBeenCalledWith('Product selected:', mockProducts[0]);
+      expect(component['productSelectionService'].selectProduct).toHaveBeenCalledWith(
+        mockProducts[0]
+      );
     });
   });
 
@@ -485,9 +501,9 @@ describe('ProductCatalogComponent', () => {
     it('should trigger product selection when card clicked', () => {
       spyOn(component, 'onProductSelect');
       const compiled = fixture.nativeElement as HTMLElement;
-      const productCard = compiled.querySelector('.product-card') as HTMLElement;
+      const addButton = compiled.querySelector('.btn-add-to-list') as HTMLButtonElement; // Changed from .product-card
 
-      productCard.click();
+      addButton.click();
 
       expect(component.onProductSelect).toHaveBeenCalled();
     });
@@ -538,15 +554,14 @@ describe('ProductCatalogComponent', () => {
     it('should handle search while category is selected', fakeAsync(() => {
       productService.getProductsByCategory.and.returnValue(of([mockProducts[0]]));
       productService.searchProducts.and.returnValue(of([mockProducts[0]]));
+
+      fixture.detectChanges();
+
       component.filterByCategory(1);
       tick();
 
-      fixture.detectChanges();
-
       component.searchControl.setValue('pomidor');
       tick(300);
-
-      fixture.detectChanges();
 
       expect(productService.searchProducts).toHaveBeenCalled();
     }));
