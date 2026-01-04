@@ -272,4 +272,60 @@ describe('ListSelectorModal', () => {
       expect(component.isSubmitting()).toBe(false); // After completion
     });
   });
+
+  describe('Modal Actions', () => {
+    beforeEach(() => {
+      productSelectionService.selectProduct(mockProduct);
+      fixture.detectChanges();
+    });
+
+    it('should close modal when close button clicked', () => {
+      spyOn(productSelectionService, 'clearSelection');
+
+      component.onClose();
+
+      expect(productSelectionService.clearSelection).toHaveBeenCalled();
+    });
+
+    it('should reset form when closing', () => {
+      component.addToListForm.patchValue({ listId: 1, quantity: 5 });
+
+      component.onClose();
+
+      expect(component.addToListForm.value).toEqual({
+        listId: null,
+        quantity: 1,
+      });
+    });
+
+    it('should clear messages when closing', () => {
+      component.errorMessage.set('Error');
+      component.successMessage.set('Success');
+
+      component.onClose();
+
+      expect(component.errorMessage()).toBe('');
+      expect(component.successMessage()).toBe('');
+    });
+
+    it('should close modal on overlay click', () => {
+      spyOn(component, 'onClose');
+      const compiled = fixture.nativeElement as HTMLElement;
+      const overlay = compiled.querySelector('.modal-overlay') as HTMLElement;
+
+      overlay.click();
+
+      expect(component.onClose).toHaveBeenCalled();
+    });
+
+    it('should not close modal on content click', () => {
+      spyOn(component, 'onClose');
+      const compiled = fixture.nativeElement as HTMLElement;
+      const content = compiled.querySelector('.modal-content') as HTMLElement;
+
+      content.click();
+
+      expect(component.onClose).not.toHaveBeenCalled();
+    });
+  });
 });
