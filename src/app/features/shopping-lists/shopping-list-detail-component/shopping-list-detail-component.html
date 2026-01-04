@@ -1,0 +1,148 @@
+<div class="shopping-list-detail">
+  <div class="detail-header">
+    <button class="btn-back" (click)="goBack()">← Back to Lists</button>
+  </div>
+
+  @if (successMessage()) {
+  <div class="success-banner">{{ successMessage() }}</div>
+  } @if (errorMessage()) {
+  <div class="error-banner">{{ errorMessage() }}</div>
+  } @if (isLoading()) {
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+  } @else if (shoppingList()) {
+  <div class="list-content">
+    <div class="list-header">
+      @if (!isEditingTitle()) {
+      <div class="title-section">
+        <h2>{{ shoppingList()!.title }}</h2>
+        <button class="btn-icon" (click)="enableEditTitle()" aria-label="Edit title">✏️</button>
+      </div>
+      } @else {
+      <div class="title-edit-section">
+        <input type="text" [formControl]="editTitleControl" class="title-input" placeholder="Enter list title" />
+        <div class="edit-actions">
+          <button class="btn-icon-save" (click)="saveTitle()">✓</button>
+          <button class="btn-icon-cancel" (click)="cancelEditTitle()">✕</button>
+        </div>
+      </div>
+      } @if (shoppingList()!.description) {
+      <p class="list-description">{{ shoppingList()!.description }}</p>
+      }
+
+      <div class="list-stats">
+        <div class="stat">
+          <span class="stat-label">Total Items:</span>
+          <span class="stat-value">{{ items().length }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Checked:</span>
+          <span class="stat-value">{{ checkedCount() }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Remaining:</span>
+          <span class="stat-value">{{ uncheckedCount() }}</span>
+        </div>
+        <div class="stat total">
+          <span class="stat-label">Total:</span>
+          <span class="stat-value total-price">{{ totalPrice() | number: '1.2-2' }} zł</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-actions-bar">
+      <button class="btn-primary btn-add-product" (click)="toggleAddProduct()">
+        @if (showAddProduct()) {
+        <span>Cancel</span>
+        } @else {
+        <span>+ Add Product</span>
+        }
+      </button>
+    </div>
+
+    @if (showAddProduct()) {
+    <div class="add-product-section">
+      <h3>Add Product to List</h3>
+
+      <div class="product-search">
+        <input type="text" [formControl]="productSearchControl" placeholder="Search products..." class="search-input" />
+      </div>
+
+      <form [formGroup]="addProductForm" (ngSubmit)="onAddProduct()">
+        <div class="form-group">
+          <label for="product">Select Product *</label>
+          <select id="product" formControlName="productId" class="product-select">
+            <option [value]="null">-- Choose a product --</option>
+            @for (product of filteredProducts(); track product.id) {
+            <option [value]="product.id">
+              {{ product.name }} - {{ product.price | number: '1.2-2' }} zł/{{ product.unit }}
+            </option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="quantity">Quantity *</label>
+          <input id="quantity" type="number" formControlName="quantity" min="1" class="quantity-input" />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary" [disabled]="addProductForm.invalid">Add to List</button>
+          <button type="button" class="btn-secondary" (click)="toggleAddProduct()">Cancel</button>
+        </div>
+      </form>
+    </div>
+    } @if (items().length === 0) {
+    <div class="empty-state">
+      <p>No items in this list yet.</p>
+      <button class="btn-primary" (click)="toggleAddProduct()">Add Your First Product</button>
+    </div>
+    } @else {
+    <div class="items-list">
+      @for (item of items(); track item.listItemId) {
+      <div class="item-card" [class.checked]="item.isChecked">
+        <div class="item-checkbox">
+          <input
+            type="checkbox"
+            [checked]="item.isChecked"
+            (change)="onToggleChecked(item.listItemId)"
+            [id]="'item-' + item.listItemId"
+          />
+          <label [for]="'item-' + item.listItemId"></label>
+        </div>
+
+        <div class="item-details">
+          <h4 class="item-name">{{ item.productName }}</h4>
+          <div class="item-meta">
+            <span class="item-price">{{ item.priceAtAddition | number: '1.2-2' }} zł / {{ item.unit }}</span>
+            <span class="item-date">Added {{ item.addedAt | date: 'MMM d, y' }}</span>
+          </div>
+        </div>
+
+        <div class="item-quantity">
+          <button
+            class="qty-btn"
+            (click)="onUpdateQuantity(item.listItemId, item.quantity - 1)"
+            [disabled]="item.quantity <= 1"
+          >
+            -
+          </button>
+          <span class="qty-value">{{ item.quantity }}</span>
+          <button class="qty-btn" (click)="onUpdateQuantity(item.listItemId, item.quantity + 1)">+</button>
+        </div>
+
+        <div class="item-total">
+          <span class="total-label">Total:</span>
+          <span class="total-value">{{ (item.quantity * item.priceAtAddition) | number: '1.2-2' }} zł</span>
+        </div>
+
+        <button class="btn-remove" (click)="onRemoveItem(item.listItemId)" aria-label="Remove item">🗑️</button>
+      </div>
+      }
+    </div>
+    }
+  </div>
+  }
+</div>
