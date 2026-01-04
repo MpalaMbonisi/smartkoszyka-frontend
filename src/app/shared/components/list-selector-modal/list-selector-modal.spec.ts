@@ -378,4 +378,63 @@ describe('ListSelectorModal', () => {
       expect(createBtn?.textContent).toContain('Create New List');
     });
   });
+
+  describe('UI Rendering', () => {
+    beforeEach(() => {
+      productSelectionService.selectProduct(mockProduct);
+      fixture.detectChanges();
+    });
+
+    it('should display modal header', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const header = compiled.querySelector('.modal-header h3');
+
+      expect(header?.textContent).toBe('Add Product to List');
+    });
+
+    it('should display list dropdown', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const select = compiled.querySelector('#listId');
+
+      expect(select).toBeTruthy();
+    });
+
+    it('should display quantity input', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const input = compiled.querySelector('#quantity');
+
+      expect(input).toBeTruthy();
+    });
+
+    it('should display submit button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitBtn = compiled.querySelector('button[type="submit"]');
+
+      expect(submitBtn).toBeTruthy();
+    });
+
+    it('should display cancel button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const cancelBtn = compiled.querySelector('button[type="button"]');
+
+      expect(cancelBtn).toBeTruthy();
+    });
+
+    it('should disable submit button when form is invalid', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitBtn = compiled.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+      expect(submitBtn.disabled).toBeTruthy();
+    });
+
+    it('should enable submit button when form is valid', () => {
+      component.addToListForm.patchValue({ listId: 1, quantity: 3 });
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const submitBtn = compiled.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+      expect(submitBtn.disabled).toBeFalsy();
+    });
+  });
 });
