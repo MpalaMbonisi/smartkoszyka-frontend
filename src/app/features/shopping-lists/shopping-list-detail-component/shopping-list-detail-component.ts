@@ -165,4 +165,54 @@ export class ShoppingListDetailComponent implements OnInit {
       },
     });
   }
+
+  onUpdateQuantity(itemId: number, quantity: number): void {
+    if (quantity < 1) return;
+
+    this.shoppingListService.updateItemQuantity(itemId, { quantity }).subscribe({
+      next: updatedItem => {
+        this.items.update(items =>
+          items.map(item => (item.listItemId === itemId ? updatedItem : item))
+        );
+      },
+      error: error => {
+        this.errorMessage.set('Failed to update quantity.');
+        console.error('Update quantity failed:', error);
+      },
+    });
+  }
+
+  onToggleChecked(itemId: number): void {
+    this.shoppingListService.toggleItemChecked(itemId).subscribe({
+      next: () => {
+        this.items.update(items =>
+          items.map(item =>
+            item.listItemId === itemId ? { ...item, isChecked: !item.isChecked } : item
+          )
+        );
+      },
+      error: error => {
+        this.errorMessage.set('Failed to update item status.');
+        console.error('Toggle checked failed:', error);
+      },
+    });
+  }
+
+  onRemoveItem(itemId: number): void {
+    if (!confirm('Are you sure you want to remove this item?')) {
+      return;
+    }
+
+    this.shoppingListService.removeItemFromList(itemId).subscribe({
+      next: () => {
+        this.items.update(items => items.filter(item => item.listItemId !== itemId));
+        this.successMessage.set('Item removed successfully!');
+        setTimeout(() => this.successMessage.set(''), 3000);
+      },
+      error: error => {
+        this.errorMessage.set('Failed to remove item.');
+        console.error('Remove item failed:', error);
+      },
+    });
+  }
 }
