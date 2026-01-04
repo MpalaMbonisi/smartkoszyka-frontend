@@ -131,4 +131,38 @@ export class ShoppingListDetailComponent implements OnInit {
       },
     });
   }
+
+  toggleAddProduct(): void {
+    this.showAddProduct.update(val => !val);
+    if (!this.showAddProduct()) {
+      this.productSearchControl.setValue('');
+      this.addProductForm.reset({ quantity: 1 });
+    }
+  }
+
+  onAddProduct(): void {
+    if (this.addProductForm.invalid) {
+      this.addProductForm.markAllAsTouched();
+      return;
+    }
+
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    const { productId, quantity } = this.addProductForm.value;
+    if (!productId || !quantity) return;
+
+    this.shoppingListService.addProductToList(this.listId, { productId, quantity }).subscribe({
+      next: newItem => {
+        this.items.update(items => [newItem, ...items]);
+        this.successMessage.set('Product added successfully!');
+        this.addProductForm.reset({ quantity: 1 });
+        this.showAddProduct.set(false);
+        setTimeout(() => this.successMessage.set(''), 3000);
+      },
+      error: error => {
+        this.errorMessage.set(error.message || 'Failed to add product.');
+      },
+    });
+  }
 }
