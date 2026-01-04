@@ -6,7 +6,7 @@ import { ShoppingListService } from '../../../core/services/shopping-list/shoppi
 import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
-import { ShoppingList } from '../../../core/models/shopping-list.model';
+import { ShoppingList, ShoppingListItem } from '../../../core/models/shopping-list.model';
 import { Product } from '../../../core/models/product.model';
 
 describe('ListSelectorModal', () => {
@@ -46,6 +46,17 @@ describe('ListSelectorModal', () => {
       updatedAt: '2025-01-02T10:00:00',
     },
   ];
+
+  const mockNewItem: ShoppingListItem = {
+    listItemId: 1,
+    productId: 1,
+    productName: 'Pomidory',
+    quantity: 3,
+    unit: 'kg',
+    priceAtAddition: 5.99,
+    isChecked: false,
+    addedAt: '2025-01-01T10:00:00',
+  };
 
   beforeEach(async () => {
     const shoppingListServiceSpy = jasmine.createSpyObj('ShoppingListService', [
@@ -180,6 +191,85 @@ describe('ListSelectorModal', () => {
       component.addToListForm.patchValue({ listId: 1, quantity: 3 });
 
       expect(component.addToListForm.valid).toBeTruthy();
+    });
+  });
+
+  describe('Adding Product to List', () => {
+    beforeEach(() => {
+      productSelectionService.selectProduct(mockProduct);
+      fixture.detectChanges();
+    });
+
+    it('should add product to selected list', () => {
+      shoppingListService.addProductToList.and.returnValue(of(mockNewItem));
+      component.addToListForm.patchValue({ listId: 1, quantity: 3 });
+
+      component.onAddToList();
+
+      expect(shoppingListService.addProductToList).toHaveBeenCalledWith(1, {
+        productId: 1,
+        quantity: 3,
+      });
+    });
+
+    it('should show success message after adding', () => {
+      shoppingListService.addProductToList.and.returnValue(of(mockNewItem));
+      component.addToListForm.patchValue({ listId: 1, quantity: 3 });
+
+      component.onAddToList();
+
+      expect(component.successMessage()).toBe('Product added successfully!');
+    });
+
+    it('should close modal after successful add', done => {
+      shoppingListService.addProductToList.and.returnValue(of(mockNewItem));
+      component.addToListForm.patchValue({ listId: 1, quantity: 3 });
+
+      spyOn(component, 'onClose');
+
+      component.onAddToList();
+
+      setTimeout(() => {
+        expect(component.onClose).toHaveBeenCalled();
+        done();
+      }, 1600);
+    });
+
+    it('should reset form after adding', () => {
+      shoppingListService.addProductToList.and.returnValue(of(mockNewItem));
+      component.addToListForm.patchValue({ listId: 1, quantity: 5 });
+
+      component.onAddToList();
+
+      expect(component.addToListForm.value.quantity).toBe(1);
+    });
+
+    it('should not add with invalid form', () => {
+      component.addToListForm.patchValue({ listId: null, quantity: 0 });
+
+      component.onAddToList();
+
+      expect(shoppingListService.addProductToList).not.toHaveBeenCalled();
+    });
+
+    it('should handle error when adding fails', () => {
+      const error = { message: 'Product already in list' };
+      shoppingListService.addProductToList.and.returnValue(throwError(() => error));
+      component.addToListForm.patchValue({ listId: 1, quantity: 3 });
+
+      component.onAddToList();
+
+      expect(component.errorMessage()).toBe('Product already in list');
+      expect(component.isSubmitting()).toBe(false);
+    });
+
+    it('should set submitting state during add operation', () => {
+      shoppingListService.addProductToList.and.returnValue(of(mockNewItem));
+      component.addToListForm.patchValue({ listId: 1, quantity: 3 });
+
+      component.onAddToList();
+
+      expect(component.isSubmitting()).toBe(false); // After completion
     });
   });
 });
