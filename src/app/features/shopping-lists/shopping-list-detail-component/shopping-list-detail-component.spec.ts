@@ -387,4 +387,33 @@ describe('ShoppingListDetailComponent', () => {
       expect(shoppingListService.updateItemQuantity).not.toHaveBeenCalled();
     });
   });
+
+  describe('Toggle Item Checked', () => {
+    it('should toggle item checked status', () => {
+      shoppingListService.toggleItemChecked.and.returnValue(of(undefined));
+
+      component.onToggleChecked(1);
+
+      expect(shoppingListService.toggleItemChecked).toHaveBeenCalledWith(1);
+    });
+
+    it('should update item checked status in list', () => {
+      shoppingListService.toggleItemChecked.and.returnValue(of(undefined));
+      const initialStatus = mockItems[0].isChecked;
+
+      component.onToggleChecked(1);
+
+      const item = component.items().find(i => i.listItemId === 1);
+      expect(item?.isChecked).toBe(!initialStatus);
+    });
+
+    it('should handle toggle error', () => {
+      const error = new Error('Toggle failed');
+      shoppingListService.toggleItemChecked.and.returnValue(throwError(() => error));
+
+      component.onToggleChecked(1);
+
+      expect(component.errorMessage()).toBe('Failed to update item status.');
+    });
+  });
 });
