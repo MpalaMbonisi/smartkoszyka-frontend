@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { ShoppingListDetailComponent } from './shopping-list-detail-component';
 import { ShoppingListService } from '../../../core/services/shopping-list/shopping-list.service';
@@ -234,5 +234,33 @@ describe('ShoppingListDetailComponent', () => {
 
       expect(component.productSearchControl.value).toBe('');
     });
+  });
+
+  describe('Search Products', () => {
+    it('should filter products by search query', fakeAsync(() => {
+      productService.searchProducts.and.returnValue(of([mockProducts[0]]));
+
+      component.productSearchControl.setValue('pomidor');
+      tick(300);
+
+      expect(productService.searchProducts).toHaveBeenCalledWith('pomidor');
+      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+    }));
+
+    it('should show all products when search is empty', fakeAsync(() => {
+      component.productSearchControl.setValue('');
+      tick(300);
+
+      expect(component.filteredProducts()).toEqual(mockProducts);
+    }));
+
+    it('should handle search error', fakeAsync(() => {
+      productService.searchProducts.and.returnValue(throwError(() => new Error('Search failed')));
+
+      component.productSearchControl.setValue('test');
+      tick(300);
+
+      expect(component.errorMessage()).toBe('Failed to search products.');
+    }));
   });
 });
