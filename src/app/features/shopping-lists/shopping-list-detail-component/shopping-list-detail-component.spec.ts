@@ -263,4 +263,92 @@ describe('ShoppingListDetailComponent', () => {
       expect(component.errorMessage()).toBe('Failed to search products.');
     }));
   });
+
+  describe('Add Product to List', () => {
+    it('should add product with valid quantity', () => {
+      const newItem: ShoppingListItem = {
+        listItemId: 3,
+        productId: 3,
+        productName: 'Mleko',
+        quantity: 2,
+        unit: 'l',
+        priceAtAddition: 3.99,
+        isChecked: false,
+        addedAt: '2025-01-02T10:00:00',
+      };
+
+      shoppingListService.addProductToList.and.returnValue(of(newItem));
+      component.addProductForm.patchValue({ productId: 3, quantity: 2 });
+
+      component.onAddProduct();
+
+      expect(shoppingListService.addProductToList).toHaveBeenCalledWith(1, {
+        productId: 3,
+        quantity: 2,
+      });
+    });
+
+    it('should add new item to items list', () => {
+      const newItem: ShoppingListItem = { ...mockItems[0], listItemId: 3 };
+      shoppingListService.addProductToList.and.returnValue(of(newItem));
+      component.addProductForm.patchValue({ productId: 3, quantity: 2 });
+
+      const initialCount = component.items().length;
+      component.onAddProduct();
+
+      expect(component.items().length).toBe(initialCount + 1);
+    });
+
+    it('should reset form after adding product', () => {
+      shoppingListService.addProductToList.and.returnValue(of(mockItems[0]));
+      component.addProductForm.patchValue({ productId: 1, quantity: 2 });
+
+      component.onAddProduct();
+
+      expect(component.addProductForm.value).toEqual({
+        productId: null,
+        quantity: 1,
+      });
+    });
+
+    it('should close add product view after adding', () => {
+      shoppingListService.addProductToList.and.returnValue(of(mockItems[0]));
+      component.addProductForm.patchValue({ productId: 1, quantity: 2 });
+      component.showAddProduct.set(true);
+
+      component.onAddProduct();
+
+      expect(component.showAddProduct()).toBe(false);
+    });
+
+    it('should not add product with invalid form', () => {
+      component.addProductForm.patchValue({ productId: null, quantity: 0 });
+
+      component.onAddProduct();
+
+      expect(shoppingListService.addProductToList).not.toHaveBeenCalled();
+    });
+
+    it('should handle add product error', () => {
+      const error = new Error('Product already in list');
+      shoppingListService.addProductToList.and.returnValue(throwError(() => error));
+      component.addProductForm.patchValue({ productId: 1, quantity: 2 });
+
+      component.onAddProduct();
+
+      expect(component.errorMessage()).toBe('Product already in list');
+    });
+
+    it('should show success message after adding', fakeAsync(() => {
+      shoppingListService.addProductToList.and.returnValue(of(mockItems[0]));
+      component.addProductForm.patchValue({ productId: 1, quantity: 2 });
+
+      component.onAddProduct();
+
+      expect(component.successMessage()).toBe('Product added successfully!');
+
+      tick(3000);
+      expect(component.successMessage()).toBe('');
+    }));
+  });
 });
