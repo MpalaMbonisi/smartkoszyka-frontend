@@ -416,4 +416,56 @@ describe('ShoppingListDetailComponent', () => {
       expect(component.errorMessage()).toBe('Failed to update item status.');
     });
   });
+
+  describe('Remove Item', () => {
+    it('should remove item from list', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.removeItemFromList.and.returnValue(of(undefined));
+
+      component.onRemoveItem(1);
+
+      expect(shoppingListService.removeItemFromList).toHaveBeenCalledWith(1);
+    });
+
+    it('should remove item from items array', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.removeItemFromList.and.returnValue(of(undefined));
+
+      const initialCount = component.items().length;
+      component.onRemoveItem(1);
+
+      expect(component.items().length).toBe(initialCount - 1);
+      expect(component.items().find(i => i.listItemId === 1)).toBeUndefined();
+    });
+
+    it('should not remove if user cancels confirmation', () => {
+      spyOn(window, 'confirm').and.returnValue(false);
+
+      component.onRemoveItem(1);
+
+      expect(shoppingListService.removeItemFromList).not.toHaveBeenCalled();
+    });
+
+    it('should handle remove error', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      const error = new Error('Remove failed');
+      shoppingListService.removeItemFromList.and.returnValue(throwError(() => error));
+
+      component.onRemoveItem(1);
+
+      expect(component.errorMessage()).toBe('Failed to remove item.');
+    });
+
+    it('should show success message after removal', fakeAsync(() => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      shoppingListService.removeItemFromList.and.returnValue(of(undefined));
+
+      component.onRemoveItem(1);
+
+      expect(component.successMessage()).toBe('Item removed successfully!');
+
+      tick(3000);
+      expect(component.successMessage()).toBe('');
+    }));
+  });
 });
