@@ -181,4 +181,21 @@ describe('ShoppingListDetailComponent', () => {
       expect(newComponent.errorMessage()).toBe('Failed to load shopping list.');
     });
   });
+
+  describe('Calculate Total', () => {
+    it('should calculate total price correctly', () => {
+      expect(component.totalPrice()).toBeCloseTo(27.95, 2); // (3 * 5.99) + (2 * 4.99)
+    });
+
+    it('should return 0 for empty list', () => {
+      component.items.set([]);
+      expect(component.totalPrice()).toBe(0);
+    });
+
+    it('should update when items change', () => {
+      const newItems: ShoppingListItem[] = [{ ...mockItems[0], quantity: 5 }];
+      component.items.set(newItems);
+      expect(component.totalPrice()).toBeCloseTo(29.95, 2);
+    });
+  });
 });
