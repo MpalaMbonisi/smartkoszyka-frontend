@@ -24,6 +24,22 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'shopping-lists',
+    loadComponent: () =>
+      import('./features/shopping-lists/shopping-list-management-component/shopping-list-management-component').then(
+        m => m.ShoppingListManagementComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'shopping-lists/:id',
+    loadComponent: () =>
+      import('./features/shopping-lists/shopping-list-detail-component/shopping-list-detail-component').then(
+        m => m.ShoppingListDetailComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: '**',
     redirectTo: 'dashboard',
   },
