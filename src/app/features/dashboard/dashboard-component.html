@@ -12,34 +12,38 @@
     </div>
 
     <nav class="dashboard-nav">
-      <button class="nav-item" [class.active]="activeView === 'overview'" (click)="setActiveView('overview')">
+      <button class="nav-item" [class.active]="activeView() === 'overview'" (click)="setActiveView('overview')">
         Overview
       </button>
-      <button class="nav-item" [class.active]="activeView === 'products'" (click)="setActiveView('products')">
+      <button class="nav-item" [class.active]="activeView() === 'products'" (click)="setActiveView('products')">
         Products
       </button>
-      <button class="nav-item" [class.active]="activeView === 'lists'" (click)="setActiveView('lists')">
+      <button class="nav-item" [class.active]="activeView() === 'lists'" (click)="setActiveView('lists')">
         Shopping Lists
       </button>
     </nav>
   </header>
 
   <main class="dashboard-content">
-    @if (activeView === 'overview') {
+    @if (activeView() === 'overview') {
     <div class="container">
       @if (user$ | async; as user) {
       <div class="welcome-section">
         <h1>Hello, {{ user.firstName }}! 👋</h1>
         <p class="subtitle">Welcome back to SmartKoszyka</p>
       </div>
-      }
-
+      } @if (isLoadingStats()) {
+      <div class="stats-loading">
+        <div class="spinner"></div>
+        <p>Loading statistics...</p>
+      </div>
+      } @else {
       <div class="overview-grid">
         <div class="stat-card">
           <div class="stat-icon">📝</div>
           <div class="stat-info">
             <h3>Active Lists</h3>
-            <p class="stat-value">0</p>
+            <p class="stat-value">{{ totalActiveListsCount() }}</p>
           </div>
         </div>
 
@@ -47,7 +51,7 @@
           <div class="stat-icon">🛒</div>
           <div class="stat-info">
             <h3>Total Items</h3>
-            <p class="stat-value">0</p>
+            <p class="stat-value">{{ totalItemsCount() }}</p>
           </div>
         </div>
 
@@ -55,10 +59,19 @@
           <div class="stat-icon">✓</div>
           <div class="stat-info">
             <h3>Completed Items</h3>
-            <p class="stat-value">0</p>
+            <p class="stat-value">{{ checkedItemsCount() }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <h3>Estimated Cost</h3>
+            <p class="stat-value">{{ totalEstimatedCost() | number: '1.2-2' }} zł</p>
           </div>
         </div>
       </div>
+      }
 
       <div class="quick-actions">
         <h2>Quick Actions</h2>
@@ -68,24 +81,43 @@
             <h3>Browse Products</h3>
             <p>Explore our product catalog</p>
           </button>
-          <button class="action-card" (click)="setActiveView('lists')">
+          <button class="action-card" (click)="navigateToLists()">
             <span class="action-icon">➕</span>
-            <h3>Create List</h3>
-            <p>Start a new shopping list</p>
+            <h3>Manage Lists</h3>
+            <p>Create and manage shopping lists</p>
           </button>
         </div>
       </div>
-    </div>
-    } @if (activeView === 'products') {
-    <app-product-catalog-component></app-product-catalog-component>
-    } @if (activeView === 'lists') {
-    <div class="container">
-      <div class="coming-soon-section">
-        <h2>Shopping Lists</h2>
-        <p>Shopping list management coming soon...</p>
-        <button class="btn-secondary" (click)="setActiveView('products')">Browse Products Instead</button>
+
+      @if (activeLists().length > 0) {
+      <div class="recent-lists-section">
+        <div class="section-header">
+          <h2>Recent Shopping Lists</h2>
+          <button class="btn-link" (click)="navigateToLists()">View All →</button>
+        </div>
+        <div class="recent-lists-grid">
+          @for (list of activeLists().slice(0, 3); track list.listId) {
+          <button class="recent-list-card" (click)="navigateToList(list.listId)">
+            <div class="list-card-header">
+              <h3>{{ list.title }}</h3>
+              <span class="list-date">{{ list.createdAt | date: 'MMM d' }}</span>
+            </div>
+            @if (list.description) {
+            <p class="list-card-description">{{ list.description }}</p>
+            }
+            <div class="list-card-footer">
+              <span class="btn-view">View Items →</span>
+            </div>
+          </button>
+          }
+        </div>
       </div>
+      }
     </div>
+    } @else if (activeView() === 'products') {
+    <app-product-catalog-component></app-product-catalog-component>
+    } @else if (activeView() === 'lists') {
+    <app-shopping-list-management-component></app-shopping-list-management-component>
     }
   </main>
 
