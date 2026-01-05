@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "syncup-frontend": {
+    "smartkoszyka-frontend": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -57,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "syncup-frontend:build:production"
+              "buildTarget": "smartkoszyka-frontend:build:production"
             },
             "development": {
-              "buildTarget": "syncup-frontend:build:development"
+              "buildTarget": "smartkoszyka-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"
