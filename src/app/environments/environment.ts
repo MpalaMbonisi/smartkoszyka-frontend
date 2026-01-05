@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://3.72.62.228',
+  apiUrl: 'http://35.159.222.210',
   apiEndpoints: {
     auth: {
       login: '/auth/login',
