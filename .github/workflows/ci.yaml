@@ -113,7 +113,10 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          aws s3 sync dist/syncup-frontend/browser/ s3://${{ secrets.S3_BUCKET_NAME }} --delete --cache-control "public, max-age=31536000, immutable" --exclude "index.html"
+          # 1. Upload new files WITHOUT deleting old ones (prevents ChunkLoadErrors for active users)
+          aws s3 sync dist/syncup-frontend/browser/ s3://${{ secrets.S3_BUCKET_NAME }} --cache-control "public, max-age=31536000, immutable" --exclude "index.html"
+          
+          # 2. Upload the new index.html (this "switches" the app to the new version)
           aws s3 cp dist/syncup-frontend/browser/index.html s3://${{ secrets.S3_BUCKET_NAME }}/index.html --cache-control "public, max-age=0, must-revalidate"
 
       - name: Invalidate CloudFront Cache (Optional)
