@@ -90,6 +90,8 @@ export class AuthService {
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     this.currentUserSubject.next(user);
     this.isAuthenticated.set(true);
+
+    this.router.navigate(['/dashboard']);
   }
 
   private getUserFromStorage(): User | null {
