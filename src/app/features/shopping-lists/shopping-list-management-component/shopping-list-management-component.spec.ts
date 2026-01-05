@@ -490,11 +490,11 @@ describe('ShoppingListManagementComponent', () => {
     });
 
     it('should trigger view list action', () => {
-      spyOn(console, 'log');
+      spyOn(component['router'], 'navigate'); // Add router spy
 
       component.onViewList(1);
 
-      expect(console.log).toHaveBeenCalledWith('View list:', 1);
+      expect(component['router'].navigate).toHaveBeenCalledWith(['/shopping-lists', 1]);
     });
   });
 
