@@ -32,47 +32,7 @@
         <h1>Hello, {{ user.firstName }}! 👋</h1>
         <p class="subtitle">Welcome back to SmartKoszyka</p>
       </div>
-      } @if (isLoadingStats()) {
-      <div class="stats-loading">
-        <div class="spinner"></div>
-        <p>Loading statistics...</p>
-      </div>
-      } @else {
-      <div class="overview-grid">
-        <div class="stat-card">
-          <div class="stat-icon">📝</div>
-          <div class="stat-info">
-            <h3>Active Lists</h3>
-            <p class="stat-value">{{ totalActiveListsCount() }}</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">🛒</div>
-          <div class="stat-info">
-            <h3>Total Items</h3>
-            <p class="stat-value">{{ totalItemsCount() }}</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">✓</div>
-          <div class="stat-info">
-            <h3>Completed Items</h3>
-            <p class="stat-value">{{ checkedItemsCount() }}</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">💰</div>
-          <div class="stat-info">
-            <h3>Estimated Cost</h3>
-            <p class="stat-value">{{ totalEstimatedCost() | number: '1.2-2' }} zł</p>
-          </div>
-        </div>
-      </div>
       }
-
       <div class="quick-actions">
         <h2>Quick Actions</h2>
         <div class="action-cards">

@@ -131,44 +131,6 @@ describe('DashboardComponent', () => {
         done();
       });
     });
-
-    it('should load dashboard data on init', () => {
-      expect(shoppingListService.getActiveShoppingLists).toHaveBeenCalled();
-    });
-
-    it('should load items for each list', () => {
-      expect(shoppingListService.getShoppingListItems).toHaveBeenCalledWith(1);
-      expect(shoppingListService.getShoppingListItems).toHaveBeenCalledWith(2);
-    });
-  });
-
-  describe('Statistics Calculation', () => {
-    it('should calculate total active lists count', () => {
-      expect(component.totalActiveListsCount()).toBe(2);
-    });
-
-    it('should calculate total items count', () => {
-      expect(component.totalItemsCount()).toBe(2);
-    });
-
-    it('should calculate checked items count', () => {
-      expect(component.checkedItemsCount()).toBe(1);
-    });
-
-    it('should calculate total estimated cost', () => {
-      const expectedCost = 3 * 5.99 + 2 * 4.99; // 27.95
-      expect(component.totalEstimatedCost()).toBeCloseTo(expectedCost, 2);
-    });
-
-    it('should return 0 for empty lists', () => {
-      component.activeLists.set([]);
-      component.allItems.set([]);
-
-      expect(component.totalActiveListsCount()).toBe(0);
-      expect(component.totalItemsCount()).toBe(0);
-      expect(component.checkedItemsCount()).toBe(0);
-      expect(component.totalEstimatedCost()).toBe(0);
-    });
   });
 
   describe('View Navigation', () => {
@@ -229,48 +191,6 @@ describe('DashboardComponent', () => {
     });
   });
 
-  describe('Statistics Display', () => {
-    it('should display active lists count', () => {
-      fixture.detectChanges();
-      const compiled = fixture.nativeElement as HTMLElement;
-      const statCards = compiled.querySelectorAll('.stat-card');
-      const activeListsStat = statCards[0];
-
-      expect(activeListsStat.textContent).toContain('Active Lists');
-      expect(activeListsStat.textContent).toContain('2');
-    });
-
-    it('should display total items count', () => {
-      fixture.detectChanges();
-      const compiled = fixture.nativeElement as HTMLElement;
-      const statCards = compiled.querySelectorAll('.stat-card');
-      const totalItemsStat = statCards[1];
-
-      expect(totalItemsStat.textContent).toContain('Total Items');
-      expect(totalItemsStat.textContent).toContain('2');
-    });
-
-    it('should display checked items count', () => {
-      fixture.detectChanges();
-      const compiled = fixture.nativeElement as HTMLElement;
-      const statCards = compiled.querySelectorAll('.stat-card');
-      const checkedItemsStat = statCards[2];
-
-      expect(checkedItemsStat.textContent).toContain('Completed Items');
-      expect(checkedItemsStat.textContent).toContain('1');
-    });
-
-    it('should display estimated cost', () => {
-      fixture.detectChanges();
-      const compiled = fixture.nativeElement as HTMLElement;
-      const statCards = compiled.querySelectorAll('.stat-card');
-      const costStat = statCards[3];
-
-      expect(costStat.textContent).toContain('Estimated Cost');
-      expect(costStat.textContent).toContain('27.95');
-    });
-  });
-
   describe('Recent Lists Section', () => {
     it('should display recent lists section when lists exist', () => {
       component.setActiveView('overview');
@@ -313,30 +233,6 @@ describe('DashboardComponent', () => {
       const recentSection = compiled.querySelector('.recent-lists-section');
 
       expect(recentSection).toBeFalsy();
-    });
-  });
-
-  describe('Loading State', () => {
-    it('should show loading state while fetching data', () => {
-      component.isLoadingStats.set(true);
-      component.setActiveView('overview');
-      fixture.detectChanges();
-
-      const compiled = fixture.nativeElement as HTMLElement;
-      const loadingState = compiled.querySelector('.stats-loading');
-
-      expect(loadingState).toBeTruthy();
-    });
-
-    it('should hide loading state after data is loaded', () => {
-      component.isLoadingStats.set(false);
-      component.setActiveView('overview');
-      fixture.detectChanges();
-
-      const compiled = fixture.nativeElement as HTMLElement;
-      const loadingState = compiled.querySelector('.stats-loading');
-
-      expect(loadingState).toBeFalsy();
     });
   });
 
