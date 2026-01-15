@@ -37,14 +37,6 @@
           <span class="stat-label">Total Items:</span>
           <span class="stat-value">{{ items().length }}</span>
         </div>
-        <div class="stat">
-          <span class="stat-label">Checked:</span>
-          <span class="stat-value">{{ checkedCount() }}</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Remaining:</span>
-          <span class="stat-value">{{ uncheckedCount() }}</span>
-        </div>
         <div class="stat total">
           <span class="stat-label">Total:</span>
           <span class="stat-value total-price">{{ totalPrice() | number: '1.2-2' }} zł</span>
@@ -60,20 +52,49 @@
         <span>+ Add Product</span>
         }
       </button>
+      <button class="btn-secondary btn-shop-mode" (click)="goToShopMode()">🛒 Shop Mode</button>
     </div>
 
     @if (showAddProduct()) {
     <div class="add-product-section">
       <h3>Add Product to List</h3>
 
-      <div class="product-search">
-        <input type="text" [formControl]="productSearchControl" placeholder="Search products..." class="search-input" />
-      </div>
-
       <form [formGroup]="addProductForm" (ngSubmit)="onAddProduct()">
+        <!-- Step 1: Category Selection -->
         <div class="form-group">
-          <label for="product">Select Product *</label>
-          <select id="product" formControlName="productId" class="product-select">
+          <label for="categoryFilter">1. Select Category *</label>
+          <select id="categoryFilter" [formControl]="categoryFilterControl" class="category-select">
+            <option [value]="null">-- Choose a category first --</option>
+            @for (category of categories(); track category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+            }
+          </select>
+          <p class="helper-text">Select a category to load products</p>
+        </div>
+
+        <!-- Step 2: Product Search & Selection (Only shows after category selected) -->
+        @if (categoryFilterControl.value) {
+        <div class="product-search">
+          <label for="productSearch">2. Search Products (Optional)</label>
+          <input
+            id="productSearch"
+            type="text"
+            [formControl]="productSearchControl"
+            placeholder="Search products in this category..."
+            class="search-input"
+          />
+        </div>
+
+        <!-- Step 3: Product Selection -->
+        <div class="form-group">
+          <label for="product">3. Select Product *</label>
+          @if (isLoadingProducts()) {
+          <div class="loading-products">
+            <div class="small-spinner"></div>
+            <span>Loading products...</span>
+          </div>
+          }
+          <select id="product" formControlName="productId" class="product-select" [disabled]="isLoadingProducts()">
             <option [value]="null">-- Choose a product --</option>
             @for (product of filteredProducts(); track product.id) {
             <option [value]="product.id">
@@ -81,17 +102,24 @@
             </option>
             }
           </select>
+          @if (filteredProducts().length === 0 && !isLoadingProducts()) {
+          <p class="info-text">No products found in this category</p>
+          }
         </div>
 
+        <!-- Step 4: Quantity -->
         <div class="form-group">
-          <label for="quantity">Quantity *</label>
+          <label for="quantity">4. Quantity *</label>
           <input id="quantity" type="number" formControlName="quantity" min="1" class="quantity-input" />
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="addProductForm.invalid">Add to List</button>
+          <button type="submit" class="btn-primary" [disabled]="addProductForm.invalid || isLoadingProducts()">
+            Add to List
+          </button>
           <button type="button" class="btn-secondary" (click)="toggleAddProduct()">Cancel</button>
         </div>
+        }
       </form>
     </div>
     } @if (items().length === 0) {
@@ -103,16 +131,6 @@
     <div class="items-list">
       @for (item of items(); track item.listItemId) {
       <div class="item-card" [class.checked]="item.isChecked">
-        <div class="item-checkbox">
-          <input
-            type="checkbox"
-            [checked]="item.isChecked"
-            (change)="onToggleChecked(item.listItemId)"
-            [id]="'item-' + item.listItemId"
-          />
-          <label [for]="'item-' + item.listItemId"></label>
-        </div>
-
         <div class="item-details">
           <h4 class="item-name">{{ item.productName }}</h4>
           <div class="item-meta">
@@ -138,7 +156,7 @@
           <span class="total-value">{{ (item.quantity * item.priceAtAddition) | number: '1.2-2' }} zł</span>
         </div>
 
-        <button class="btn-remove" (click)="onRemoveItem(item.listItemId)" aria-label="Remove item">🗑️</button>
+        <button class="btn-remove" (click)="onRemoveItem(item.listItemId)" aria-label="Remove item">delete</button>
       </div>
       }
     </div>

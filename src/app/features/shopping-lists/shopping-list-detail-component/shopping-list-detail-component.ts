@@ -3,13 +3,14 @@ import { ShoppingListService } from '../../../core/services/shopping-list/shoppi
 import { ProductService } from '../../../core/services/product/product.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ShoppingList, ShoppingListItem } from '../../../core/models/shopping-list.model';
-import { Product } from '../../../core/models/product.model';
+import { Category, Product } from '../../../core/models/product.model';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-shopping-list-detail-component',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './shopping-list-detail-component.html',
   styleUrl: './shopping-list-detail-component.scss',
@@ -23,15 +24,18 @@ export class ShoppingListDetailComponent implements OnInit {
   listId!: number;
   shoppingList = signal<ShoppingList | null>(null);
   items = signal<ShoppingListItem[]>([]);
-  availableProducts = signal<Product[]>([]);
+  categories = signal<Category[]>([]);
+  categoryProducts = signal<Product[]>([]);
   filteredProducts = signal<Product[]>([]);
   showAddProduct = signal(false);
   isLoading = signal(false);
+  isLoadingProducts = signal(false);
   errorMessage = signal('');
   successMessage = signal('');
   isEditingTitle = signal(false);
 
   productSearchControl = new FormControl('');
+  categoryFilterControl = new FormControl<number | null>(null);
   editTitleControl = new FormControl('', [Validators.required, Validators.minLength(3)]);
 
   addProductForm = new FormGroup({
@@ -45,14 +49,6 @@ export class ShoppingListDetailComponent implements OnInit {
     }, 0);
   });
 
-  checkedCount = computed(() => {
-    return this.items().filter(item => item.isChecked).length;
-  });
-
-  uncheckedCount = computed(() => {
-    return this.items().filter(item => !item.isChecked).length;
-  });
-
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
@@ -63,7 +59,8 @@ export class ShoppingListDetailComponent implements OnInit {
     this.listId = parseInt(id, 10);
     this.loadShoppingList();
     this.loadItems();
-    this.loadProducts();
+    this.loadCategories();
+    this.setupCategoryFilter();
     this.setupProductSearch();
   }
 
@@ -97,14 +94,40 @@ export class ShoppingListDetailComponent implements OnInit {
     });
   }
 
-  private loadProducts(): void {
-    this.productService.getAllProducts().subscribe({
+  private loadCategories(): void {
+    this.productService.getAllCategories().subscribe({
+      next: categories => this.categories.set(categories),
+      error: error => console.error('Failed to load categories:', error),
+    });
+  }
+
+  private setupCategoryFilter(): void {
+    this.categoryFilterControl.valueChanges.subscribe(categoryId => {
+      if (categoryId) {
+        this.loadProductsByCategory(categoryId);
+      } else {
+        this.categoryProducts.set([]);
+        this.filteredProducts.set([]);
+      }
+      // Reset product selection when category changes
+      this.addProductForm.patchValue({ productId: null });
+    });
+  }
+
+  private loadProductsByCategory(categoryId: number): void {
+    this.isLoadingProducts.set(true);
+    this.productSearchControl.setValue('', { emitEvent: false });
+
+    this.productService.getProductsByCategory(categoryId).subscribe({
       next: products => {
-        this.availableProducts.set(products);
+        this.categoryProducts.set(products);
         this.filteredProducts.set(products);
+        this.isLoadingProducts.set(false);
       },
       error: error => {
         console.error('Failed to load products:', error);
+        this.errorMessage.set('Failed to load products for this category.');
+        this.isLoadingProducts.set(false);
       },
     });
   }
@@ -114,30 +137,28 @@ export class ShoppingListDetailComponent implements OnInit {
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(query => {
         if (query && query.trim()) {
-          this.searchProducts(query.trim());
+          this.filterProducts(query.trim());
         } else {
-          this.filteredProducts.set(this.availableProducts());
+          this.filteredProducts.set(this.categoryProducts());
         }
       });
   }
 
-  private searchProducts(query: string): void {
-    this.productService.searchProducts(query).subscribe({
-      next: products => {
-        this.filteredProducts.set(products);
-      },
-      error: error => {
-        this.errorMessage.set('Failed to search products.');
-        console.error('Search failed:', error);
-      },
-    });
+  private filterProducts(query: string): void {
+    const searchTerm = query.toLowerCase();
+    const filtered = this.categoryProducts().filter(product =>
+      product.name.toLowerCase().includes(searchTerm)
+    );
+    this.filteredProducts.set(filtered);
   }
 
   toggleAddProduct(): void {
     this.showAddProduct.update(val => !val);
     if (!this.showAddProduct()) {
+      this.categoryFilterControl.setValue(null);
       this.productSearchControl.setValue('');
       this.addProductForm.reset({ quantity: 1 });
+      this.errorMessage.set('');
     }
   }
 
@@ -158,6 +179,7 @@ export class ShoppingListDetailComponent implements OnInit {
         this.items.update(items => [newItem, ...items]);
         this.successMessage.set('Product added successfully!');
         this.addProductForm.reset({ quantity: 1 });
+        this.categoryFilterControl.setValue(null);
         this.showAddProduct.set(false);
         setTimeout(() => this.successMessage.set(''), 3000);
       },
@@ -179,22 +201,6 @@ export class ShoppingListDetailComponent implements OnInit {
       error: error => {
         this.errorMessage.set('Failed to update quantity.');
         console.error('Update quantity failed:', error);
-      },
-    });
-  }
-
-  onToggleChecked(itemId: number): void {
-    this.shoppingListService.toggleItemChecked(itemId).subscribe({
-      next: () => {
-        this.items.update(items =>
-          items.map(item =>
-            item.listItemId === itemId ? { ...item, isChecked: !item.isChecked } : item
-          )
-        );
-      },
-      error: error => {
-        this.errorMessage.set('Failed to update item status.');
-        console.error('Toggle checked failed:', error);
       },
     });
   }
@@ -238,12 +244,18 @@ export class ShoppingListDetailComponent implements OnInit {
       next: updatedList => {
         this.shoppingList.set(updatedList);
         this.isEditingTitle.set(false);
+        this.successMessage.set('List title updated successfully!');
+        setTimeout(() => this.successMessage.set(''), 3000);
       },
       error: error => {
         this.errorMessage.set('Failed to update list title.');
         console.error('Update title failed:', error);
       },
     });
+  }
+
+  goToShopMode(): void {
+    this.router.navigate(['/shopping-lists', this.listId, 'shop']);
   }
 
   goBack(): void {

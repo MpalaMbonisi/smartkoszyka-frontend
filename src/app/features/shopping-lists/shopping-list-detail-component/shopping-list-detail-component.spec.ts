@@ -6,7 +6,7 @@ import { ProductService } from '../../../core/services/product/product.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { of, throwError } from 'rxjs';
-import { Product } from '../../../core/models/product.model';
+import { Category, Product } from '../../../core/models/product.model';
 import { ShoppingList, ShoppingListItem } from '../../../core/models/shopping-list.model';
 
 describe('ShoppingListDetailComponent', () => {
@@ -64,6 +64,23 @@ describe('ShoppingListDetailComponent', () => {
     },
   ];
 
+  const mockCategories: Category[] = [
+    {
+      id: 1,
+      name: 'Warzywa',
+      description: 'Fresh vegetables',
+      createdAt: '2025-01-01T10:00:00',
+      updatedAt: '2025-01-01T10:00:00',
+    },
+    {
+      id: 2,
+      name: 'Owoce',
+      description: 'Fresh fruits',
+      createdAt: '2025-01-01T10:00:00',
+      updatedAt: '2025-01-01T10:00:00',
+    },
+  ];
+
   beforeEach(async () => {
     const shoppingListServiceSpy = jasmine.createSpyObj('ShoppingListService', [
       'getShoppingListById',
@@ -76,7 +93,8 @@ describe('ShoppingListDetailComponent', () => {
     ]);
 
     const productServiceSpy = jasmine.createSpyObj('ProductService', [
-      'getAllProducts',
+      'getAllCategories',
+      'getProductsByCategory',
       'searchProducts',
     ]);
 
@@ -101,12 +119,13 @@ describe('ShoppingListDetailComponent', () => {
       ShoppingListService
     ) as jasmine.SpyObj<ShoppingListService>;
     productService = TestBed.inject(ProductService) as jasmine.SpyObj<ProductService>;
+
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     activatedRoute = TestBed.inject(ActivatedRoute);
 
     shoppingListService.getShoppingListById.and.returnValue(of(mockList));
     shoppingListService.getShoppingListItems.and.returnValue(of(mockItems));
-    productService.getAllProducts.and.returnValue(of(mockProducts));
+    productService.getAllCategories.and.returnValue(of(mockCategories));
 
     fixture = TestBed.createComponent(ShoppingListDetailComponent);
     component = fixture.componentInstance;
@@ -126,11 +145,6 @@ describe('ShoppingListDetailComponent', () => {
     it('should load list items on init', () => {
       expect(shoppingListService.getShoppingListItems).toHaveBeenCalledWith(1);
       expect(component.items()).toEqual(mockItems);
-    });
-
-    it('should load all products on init', () => {
-      expect(productService.getAllProducts).toHaveBeenCalled();
-      expect(component.availableProducts()).toEqual(mockProducts);
     });
 
     it('should extract listId from route params', () => {
@@ -199,22 +213,6 @@ describe('ShoppingListDetailComponent', () => {
     });
   });
 
-  describe('Calculate Checked/Unchecked Items', () => {
-    it('should count checked items correctly', () => {
-      expect(component.checkedCount()).toBe(1);
-    });
-
-    it('should count unchecked items correctly', () => {
-      expect(component.uncheckedCount()).toBe(1);
-    });
-
-    it('should return 0 for empty list', () => {
-      component.items.set([]);
-      expect(component.checkedCount()).toBe(0);
-      expect(component.uncheckedCount()).toBe(0);
-    });
-  });
-
   describe('Toggle Add Product View', () => {
     it('should toggle showAddProduct flag', () => {
       expect(component.showAddProduct()).toBe(false);
@@ -238,29 +236,40 @@ describe('ShoppingListDetailComponent', () => {
 
   describe('Search Products', () => {
     it('should filter products by search query', fakeAsync(() => {
-      productService.searchProducts.and.returnValue(of([mockProducts[0]]));
+      // First, load products by selecting a category
+      component.categoryProducts.set(mockProducts);
+      component.filteredProducts.set(mockProducts);
 
       component.productSearchControl.setValue('pomidor');
       tick(300);
 
-      expect(productService.searchProducts).toHaveBeenCalledWith('pomidor');
-      expect(component.filteredProducts()).toEqual([mockProducts[0]]);
+      // Should filter locally, not call the service
+      expect(component.filteredProducts().length).toBe(1);
+      expect(component.filteredProducts()[0].name).toBe('Pomidory');
     }));
 
     it('should show all products when search is empty', fakeAsync(() => {
+      // Set up category products first
+      component.categoryProducts.set(mockProducts);
+      component.filteredProducts.set(mockProducts);
+
+      component.productSearchControl.setValue('test');
+      tick(300);
+
       component.productSearchControl.setValue('');
       tick(300);
 
       expect(component.filteredProducts()).toEqual(mockProducts);
     }));
 
-    it('should handle search error', fakeAsync(() => {
-      productService.searchProducts.and.returnValue(throwError(() => new Error('Search failed')));
+    it('should handle search with no matches', fakeAsync(() => {
+      component.categoryProducts.set(mockProducts);
+      component.filteredProducts.set(mockProducts);
 
-      component.productSearchControl.setValue('test');
+      component.productSearchControl.setValue('xyz');
       tick(300);
 
-      expect(component.errorMessage()).toBe('Failed to search products.');
+      expect(component.filteredProducts().length).toBe(0);
     }));
   });
 
@@ -385,35 +394,6 @@ describe('ShoppingListDetailComponent', () => {
       component.onUpdateQuantity(1, 0);
 
       expect(shoppingListService.updateItemQuantity).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Toggle Item Checked', () => {
-    it('should toggle item checked status', () => {
-      shoppingListService.toggleItemChecked.and.returnValue(of(undefined));
-
-      component.onToggleChecked(1);
-
-      expect(shoppingListService.toggleItemChecked).toHaveBeenCalledWith(1);
-    });
-
-    it('should update item checked status in list', () => {
-      shoppingListService.toggleItemChecked.and.returnValue(of(undefined));
-      const initialStatus = mockItems[0].isChecked;
-
-      component.onToggleChecked(1);
-
-      const item = component.items().find(i => i.listItemId === 1);
-      expect(item?.isChecked).toBe(!initialStatus);
-    });
-
-    it('should handle toggle error', () => {
-      const error = new Error('Toggle failed');
-      shoppingListService.toggleItemChecked.and.returnValue(throwError(() => error));
-
-      component.onToggleChecked(1);
-
-      expect(component.errorMessage()).toBe('Failed to update item status.');
     });
   });
 
