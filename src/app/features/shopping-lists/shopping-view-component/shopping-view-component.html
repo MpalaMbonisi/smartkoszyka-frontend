@@ -1,0 +1,72 @@
+<div class="shopping-view">
+  <div class="shopping-header">
+    <button class="btn-back" (click)="goBack()">← Back</button>
+    <h2>{{ shoppingList()?.title }}</h2>
+    <button class="btn-edit" (click)="goToEditMode()">Edit</button>
+  </div>
+
+  @if (isLoading()) {
+  <div class="loading">Loading...</div>
+  } @else {
+  <div class="shopping-content">
+    <!-- Total Price at Top -->
+    <div class="total-banner">
+      <span class="total-label">Checked / Total</span>
+      <div class="price-display">
+        <span class="checked-total">{{ checkedTotalPrice() | number: '1.2-2' }} zł</span>
+        <span class="separator">/</span>
+        <span class="total-price">{{ totalPrice() | number: '1.2-2' }} zł</span>
+      </div>
+    </div>
+
+    <!-- Active Items -->
+    <div class="items-section">
+      <h3 class="section-title">Shopping List ({{ activeItems().length }})</h3>
+
+      @if (activeItems().length === 0) {
+      <p class="empty-message">All items checked! ✓</p>
+      } @else {
+      <div class="items-list">
+        @for (item of activeItems(); track item.listItemId) {
+        <button class="item-row" (click)="toggleItem(item.listItemId)">
+          <div class="item-checkbox">
+            <span class="checkbox-icon">☐</span>
+          </div>
+          <div class="item-info">
+            <span class="item-name">{{ item.productName }}</span>
+            <span class="item-meta">{{ item.quantity }} {{ item.unit }}</span>
+          </div>
+          <span class="item-price">{{ (item.quantity * item.priceAtAddition) | number: '1.2-2' }} zł</span>
+        </button>
+        }
+      </div>
+      }
+    </div>
+
+    <!-- Completed Items (Collapsible) -->
+    <div class="completed-section">
+      <button class="completed-header" (click)="toggleCompletedSection()">
+        <span>Completed ({{ completedItems().length }})</span>
+        <span class="chevron">{{ showCompleted() ? '▼' : '▶' }}</span>
+      </button>
+
+      @if (showCompleted() && completedItems().length > 0) {
+      <div class="completed-list">
+        @for (item of completedItems(); track item.listItemId) {
+        <button class="item-row completed" (click)="toggleItem(item.listItemId)">
+          <div class="item-checkbox">
+            <span class="checkbox-icon checked">✓</span>
+          </div>
+          <div class="item-info">
+            <span class="item-name">{{ item.productName }}</span>
+            <span class="item-meta">{{ item.quantity }} {{ item.unit }}</span>
+          </div>
+          <span class="item-price">{{ (item.quantity * item.priceAtAddition) | number: '1.2-2' }} zł</span>
+        </button>
+        }
+      </div>
+      }
+    </div>
+  </div>
+  }
+</div>
