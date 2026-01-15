@@ -120,4 +120,25 @@ describe('ShoppingViewComponent', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
     });
   });
+
+  describe('Active and Completed Items', () => {
+    it('should separate active items', () => {
+      expect(component.activeItems().length).toBe(1);
+      expect(component.activeItems()[0].productName).toBe('Pomidory');
+    });
+
+    it('should separate completed items', () => {
+      expect(component.completedItems().length).toBe(1);
+      expect(component.completedItems()[0].productName).toBe('Banany');
+    });
+
+    it('should update active items when item is checked', () => {
+      shoppingListService.toggleItemChecked.and.returnValue(of(undefined));
+
+      const initialActiveCount = component.activeItems().length;
+      component.toggleItem(1);
+
+      expect(component.activeItems().length).toBe(initialActiveCount - 1);
+    });
+  });
 });
