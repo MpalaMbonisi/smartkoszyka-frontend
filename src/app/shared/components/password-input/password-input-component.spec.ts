@@ -122,4 +122,36 @@ describe('PasswordInputComponent', () => {
       expect(callback).toHaveBeenCalled();
     });
   });
+
+  describe('UI Elements', () => {
+    it('should display toggle button', () => {
+      const toggleBtn = fixture.nativeElement.querySelector('.toggle-password-btn');
+
+      expect(toggleBtn).toBeTruthy();
+    });
+
+    it('should apply placeholder', () => {
+      component.placeholder = 'Enter your password';
+      fixture.detectChanges();
+
+      const input = fixture.nativeElement.querySelector('input');
+      expect(input.placeholder).toBe('Enter your password');
+    });
+
+    it('should apply input id', () => {
+      component.inputId = 'password-field';
+      fixture.detectChanges();
+
+      const input = fixture.nativeElement.querySelector('input');
+      expect(input.id).toBe('password-field');
+    });
+
+    it('should apply invalid class when isInvalid is true', () => {
+      component.isInvalid = true;
+      fixture.detectChanges();
+
+      const input = fixture.nativeElement.querySelector('input');
+      expect(input.classList.contains('invalid')).toBe(true);
+    });
+  });
 });
