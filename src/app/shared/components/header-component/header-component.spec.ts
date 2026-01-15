@@ -64,4 +64,43 @@ describe('HeaderComponent', () => {
       expect(logoKoszyka).toBeTruthy();
     });
   });
+
+  describe('Menu Button', () => {
+    it('should display menu button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const menuBtn = compiled.querySelector('.btn-menu');
+
+      expect(menuBtn).toBeTruthy();
+    });
+
+    it('should toggle menu when button clicked', () => {
+      expect(component.showMenu()).toBe(false);
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const menuBtn = compiled.querySelector('.btn-menu') as HTMLButtonElement;
+      menuBtn.click();
+
+      expect(component.showMenu()).toBe(true);
+    });
+
+    it('should show settings panel when menu is open', () => {
+      component.showMenu.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const settingsPanel = compiled.querySelector('.settings-panel');
+
+      expect(settingsPanel).toBeTruthy();
+    });
+
+    it('should hide settings panel when menu is closed', () => {
+      component.showMenu.set(false);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const settingsPanel = compiled.querySelector('.settings-panel');
+
+      expect(settingsPanel).toBeFalsy();
+    });
+  });
 });
