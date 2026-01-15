@@ -141,4 +141,21 @@ describe('ShoppingViewComponent', () => {
       expect(component.activeItems().length).toBe(initialActiveCount - 1);
     });
   });
+
+  describe('Checked Total Price Calculation', () => {
+    it('should calculate checked total price correctly', () => {
+      // In mockItems, 'Banany' is checked (2 * 4.99 = 9.98)
+      expect(component.checkedTotalPrice()).toBeCloseTo(9.98, 2);
+    });
+
+    it('should update checked total when an item is toggled', () => {
+      shoppingListService.toggleItemChecked.and.returnValue(of(undefined));
+
+      // Toggle 'Pomidory' (3 * 5.99 = 17.97)
+      component.toggleItem(1);
+
+      const expected = 9.98 + 17.97;
+      expect(component.checkedTotalPrice()).toBeCloseTo(expected, 2);
+    });
+  });
 });
