@@ -17,18 +17,17 @@ export class ProductCatalogComponent implements OnInit {
   private productService = inject(ProductService);
   private productSelectionService = inject(ProductSelectionService);
 
-  products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
-  filteredProducts = signal<Product[]>([]);
+  products = signal<Product[]>([]);
   selectedCategory = signal<number | null>(null);
   isLoading = signal(false);
   errorMessage = signal('');
+  showEmptyState = signal(true); // Show message before any filter is applied
 
   searchControl = new FormControl('');
 
   ngOnInit(): void {
     this.loadCategories();
-    this.loadProducts();
     this.setupSearch();
   }
 
@@ -41,32 +40,12 @@ export class ProductCatalogComponent implements OnInit {
     });
   }
 
-  private loadProducts(): void {
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-
-    this.productService.getAllProducts().subscribe({
-      next: products => {
-        this.products.set(products);
-        this.filteredProducts.set(products);
-        this.isLoading.set(false);
-      },
-      error: error => {
-        this.errorMessage.set('Failed to load products. Please try again.');
-        this.isLoading.set(false);
-        console.error('Failed to load products:', error);
-      },
-    });
-  }
-
   private setupSearch(): void {
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe(query => {
         if (query && query.trim()) {
           this.searchProducts(query.trim());
-        } else {
-          this.filterByCategory(this.selectedCategory());
         }
       });
   }
@@ -74,10 +53,12 @@ export class ProductCatalogComponent implements OnInit {
   private searchProducts(query: string): void {
     this.isLoading.set(true);
     this.errorMessage.set('');
+    this.showEmptyState.set(false);
+    this.selectedCategory.set(null);
 
     this.productService.searchProducts(query).subscribe({
       next: products => {
-        this.filteredProducts.set(products);
+        this.products.set(products);
         this.isLoading.set(false);
       },
       error: error => {
@@ -89,20 +70,20 @@ export class ProductCatalogComponent implements OnInit {
   }
 
   filterByCategory(categoryId: number | null): void {
-    this.selectedCategory.set(categoryId);
-    this.searchControl.setValue('', { emitEvent: false });
-
     if (categoryId === null) {
-      this.filteredProducts.set(this.products());
+      this.clearFilters();
       return;
     }
 
+    this.selectedCategory.set(categoryId);
+    this.searchControl.setValue('', { emitEvent: false });
+    this.showEmptyState.set(false);
     this.isLoading.set(true);
     this.errorMessage.set('');
 
     this.productService.getProductsByCategory(categoryId).subscribe({
       next: products => {
-        this.filteredProducts.set(products);
+        this.products.set(products);
         this.isLoading.set(false);
       },
       error: error => {
@@ -116,7 +97,8 @@ export class ProductCatalogComponent implements OnInit {
   clearFilters(): void {
     this.selectedCategory.set(null);
     this.searchControl.setValue('', { emitEvent: false });
-    this.filteredProducts.set(this.products());
+    this.products.set([]);
+    this.showEmptyState.set(true);
   }
 
   onProductSelect(product: Product): void {
