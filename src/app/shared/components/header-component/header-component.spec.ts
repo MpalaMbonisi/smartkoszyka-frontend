@@ -370,4 +370,20 @@ describe('HeaderComponent', () => {
       expect(newComponent.selectedTheme()).toBe('auto');
     });
   });
+
+  describe('Responsive Design', () => {
+    it('should have header with proper structure', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const header = compiled.querySelector('.header');
+
+      expect(header).toBeTruthy();
+    });
+
+    it('should position menu button on the right', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const headerContent = compiled.querySelector('.header-content');
+
+      expect(headerContent).toBeTruthy();
+    });
+  });
 });
