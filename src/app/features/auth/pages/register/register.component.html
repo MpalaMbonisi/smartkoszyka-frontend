@@ -66,9 +66,12 @@
 
         <div class="form-group">
           <label for="password">Password</label>
-          <app-password-input-component>
-            id="password" type="password" formControlName="password" placeholder="Create a password (min. 8 characters)"
+          <app-password-input-component
+            id="password"
+            formControlName="password"
+            placeholder="Create a password (min. 8 characters)"
             [class.invalid]="isFieldInvalid('password')"
+          >
           </app-password-input-component>
           @if (isFieldInvalid('password')) {
             <span class="error">{{ getErrorMessage('password') }}</span>
@@ -77,9 +80,13 @@
 
         <div class="form-group">
           <label for="confirmPassword">Confirm Password</label>
-          <app-password-input-component>
-            id="confirmPassword" type="password" formControlName="confirmPassword" placeholder="Re-enter your password"
+          <app-password-input-component
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="Re-enter your password"
             [class.invalid]="isFieldInvalid('confirmPassword')"
+          >
           </app-password-input-component>
 
           @if (isFieldInvalid('confirmPassword')) {

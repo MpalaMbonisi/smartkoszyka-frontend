@@ -30,10 +30,14 @@
 
         <div class="form-group">
           <label for="password">Password</label>
-          <app-password-input-component>
-            id="password" type="password" formControlName="password" placeholder="Enter your password"
+          <app-password-input-component
+            id="password"
+            formControlName="password"
+            placeholder="Enter your password"
             [class.invalid]="isFieldInvalid('password')"
+          >
           </app-password-input-component>
+
           @if (isFieldInvalid('password')) {
             <span class="error">{{ getErrorMessage('password') }}</span>
           }
