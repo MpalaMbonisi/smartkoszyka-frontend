@@ -365,4 +365,23 @@ describe('ShoppingViewComponent', () => {
       expect(children?.length).toBe(2);
     });
   });
+
+  describe('Loading State', () => {
+    it('should show loading state initially', () => {
+      component.isLoading.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const loading = compiled.querySelector('.loading');
+
+      expect(loading?.textContent).toContain('Loading');
+    });
+
+    it('should hide loading state after data loads', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const loading = compiled.querySelector('.loading');
+
+      expect(loading).toBeFalsy();
+    });
+  });
 });
