@@ -1,3 +1,4 @@
+// src/app/app.routes.ts (Updated)
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 
@@ -36,6 +37,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/shopping-lists/shopping-list-detail-component/shopping-list-detail-component').then(
         m => m.ShoppingListDetailComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'shopping-lists/:id/shop',
+    loadComponent: () =>
+      import('./features/shopping-lists/shopping-view-component/shopping-view-component').then(
+        m => m.ShoppingViewComponent
       ),
     canActivate: [authGuard],
   },
