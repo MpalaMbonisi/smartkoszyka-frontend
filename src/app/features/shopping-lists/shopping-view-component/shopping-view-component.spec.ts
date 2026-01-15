@@ -305,4 +305,43 @@ describe('ShoppingViewComponent', () => {
       expect(editBtn?.textContent).toContain('Edit');
     });
   });
+
+  describe('User Interactions', () => {
+    it('should toggle item when clicked', () => {
+      shoppingListService.toggleItemChecked.and.returnValue(of(undefined));
+      const compiled = fixture.nativeElement as HTMLElement;
+      const itemRow = compiled.querySelector('.item-row') as HTMLButtonElement;
+
+      itemRow.click();
+
+      expect(shoppingListService.toggleItemChecked).toHaveBeenCalled();
+    });
+
+    it('should toggle completed section when header clicked', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const completedHeader = compiled.querySelector('.completed-header') as HTMLButtonElement;
+
+      completedHeader.click();
+
+      expect(component.showCompleted()).toBe(true);
+    });
+
+    it('should navigate back when back button clicked', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const backBtn = compiled.querySelector('.btn-back') as HTMLButtonElement;
+
+      backBtn.click();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    });
+
+    it('should navigate to edit when edit button clicked', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const editBtn = compiled.querySelector('.btn-edit') as HTMLButtonElement;
+
+      editBtn.click();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists', 1]);
+    });
+  });
 });
