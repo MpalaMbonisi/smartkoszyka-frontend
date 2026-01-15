@@ -96,4 +96,30 @@ describe('PasswordInputComponent', () => {
       expect(component.onTouched).toHaveBeenCalled();
     });
   });
+
+  describe('ControlValueAccessor Implementation', () => {
+    it('should write value', () => {
+      component.writeValue('written-value');
+
+      expect(component.value).toBe('written-value');
+    });
+
+    it('should register onChange callback', () => {
+      const callback = jasmine.createSpy('onChange');
+      component.registerOnChange(callback);
+
+      component.onChange('test');
+
+      expect(callback).toHaveBeenCalledWith('test');
+    });
+
+    it('should register onTouched callback', () => {
+      const callback = jasmine.createSpy('onTouched');
+      component.registerOnTouched(callback);
+
+      component.onTouched();
+
+      expect(callback).toHaveBeenCalled();
+    });
+  });
 });
