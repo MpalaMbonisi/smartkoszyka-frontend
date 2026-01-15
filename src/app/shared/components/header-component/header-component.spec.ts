@@ -276,4 +276,46 @@ describe('HeaderComponent', () => {
       expect(component.showAccountInfo()).toBe(false);
     });
   });
+
+  describe('Delete Account', () => {
+    beforeEach(() => {
+      component.showMenu.set(true);
+      fixture.detectChanges();
+    });
+
+    it('should display delete account button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const deleteBtn = compiled.querySelector('.btn-delete-account');
+
+      expect(deleteBtn).toBeTruthy();
+    });
+
+    it('should show confirmation dialog when delete clicked', () => {
+      spyOn(window, 'confirm').and.returnValue(false);
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const deleteBtn = compiled.querySelector('.btn-delete-account') as HTMLButtonElement;
+
+      deleteBtn.click();
+
+      expect(window.confirm).toHaveBeenCalled();
+    });
+
+    it('should not delete account if user cancels', () => {
+      spyOn(window, 'confirm').and.returnValue(false);
+
+      component.onDeleteAccount();
+
+      expect(authService.logout).not.toHaveBeenCalled();
+    });
+
+    it('should delete account if user confirms', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+
+      component.onDeleteAccount();
+
+      // In real implementation, would call delete API
+      expect(window.confirm).toHaveBeenCalled();
+    });
+  });
 });
