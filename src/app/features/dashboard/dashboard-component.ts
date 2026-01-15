@@ -56,6 +56,6 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToList(listId: number): void {
-    this.router.navigate(['/shopping-lists', listId]);
+    this.router.navigate(['/shopping-lists', listId, 'shop']);
   }
 }

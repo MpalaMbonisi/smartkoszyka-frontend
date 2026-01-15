@@ -107,7 +107,7 @@ export class ShoppingListManagementComponent implements OnInit {
   }
 
   onViewList(listId: number): void {
-    this.router.navigate(['/shopping-lists', listId]);
+    this.router.navigate(['/shopping-lists', listId, 'shop']);
   }
 
   goBackToDashboard(): void {

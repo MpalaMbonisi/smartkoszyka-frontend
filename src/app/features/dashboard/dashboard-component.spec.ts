@@ -168,7 +168,7 @@ describe('DashboardComponent', () => {
 
     it('should navigate to specific list', () => {
       component.navigateToList(1);
-      expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists', 1]);
+      expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists', 1, 'shop']);
     });
   });
 
@@ -221,7 +221,7 @@ describe('DashboardComponent', () => {
 
       firstCard.click();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists', 1]);
+      expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists', 1, 'shop']);
     });
 
     it('should not display recent lists when no lists exist', () => {

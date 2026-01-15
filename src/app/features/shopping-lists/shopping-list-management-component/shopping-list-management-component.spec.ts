@@ -347,7 +347,7 @@ describe('ShoppingListManagementComponent', () => {
 
       component.onViewList(1);
 
-      expect(component['router'].navigate).toHaveBeenCalledWith(['/shopping-lists', 1]);
+      expect(component['router'].navigate).toHaveBeenCalledWith(['/shopping-lists', 1, 'shop']);
     });
   });
 
