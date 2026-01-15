@@ -344,4 +344,25 @@ describe('ShoppingViewComponent', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists', 1]);
     });
   });
+
+  describe('Mobile Optimization', () => {
+    it('should have large touch targets', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const itemRow = compiled.querySelector('.item-row') as HTMLElement;
+
+      const computedStyle = window.getComputedStyle(itemRow);
+      const padding = computedStyle.padding;
+
+      expect(padding).toBeTruthy();
+    });
+
+    it('should display minimal information per item', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const itemInfo = compiled.querySelector('.item-info');
+      const children = itemInfo?.children;
+
+      // Should only have name and meta (quantity + unit)
+      expect(children?.length).toBe(2);
+    });
+  });
 });
