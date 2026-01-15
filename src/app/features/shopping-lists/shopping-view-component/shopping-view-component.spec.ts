@@ -158,4 +158,16 @@ describe('ShoppingViewComponent', () => {
       expect(component.checkedTotalPrice()).toBeCloseTo(expected, 2);
     });
   });
+
+  describe('Total Price Calculation', () => {
+    it('should calculate total price correctly', () => {
+      const expected = 3 * 5.99 + 2 * 4.99;
+      expect(component.totalPrice()).toBeCloseTo(expected, 2);
+    });
+
+    it('should return 0 for empty list', () => {
+      component.items.set([]);
+      expect(component.totalPrice()).toBe(0);
+    });
+  });
 });
