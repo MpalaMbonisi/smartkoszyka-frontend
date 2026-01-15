@@ -384,4 +384,26 @@ describe('ShoppingViewComponent', () => {
       expect(loading).toBeFalsy();
     });
   });
+
+  describe('Error Handling', () => {
+    it('should handle error loading list', () => {
+      spyOn(console, 'error');
+      const error = new Error('Not found');
+      shoppingListService.getShoppingListById.and.returnValue(throwError(() => error));
+
+      component.ngOnInit();
+
+      expect(console.error).toHaveBeenCalled();
+    });
+
+    it('should handle error loading items', () => {
+      spyOn(console, 'error');
+      const error = new Error('Failed');
+      shoppingListService.getShoppingListItems.and.returnValue(throwError(() => error));
+
+      component.ngOnInit();
+
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
 });
