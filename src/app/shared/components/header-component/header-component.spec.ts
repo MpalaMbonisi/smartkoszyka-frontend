@@ -217,4 +217,63 @@ describe('HeaderComponent', () => {
       expect(component.showMenu()).toBe(false);
     });
   });
+
+  describe('Account Information', () => {
+    beforeEach(() => {
+      component.showMenu.set(true);
+      fixture.detectChanges();
+    });
+
+    it('should display view account button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const viewAccountBtn = compiled.querySelector('.btn-view-account');
+
+      expect(viewAccountBtn).toBeTruthy();
+    });
+
+    it('should show account info modal when clicked', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const viewAccountBtn = compiled.querySelector('.btn-view-account') as HTMLButtonElement;
+
+      viewAccountBtn.click();
+      fixture.detectChanges();
+
+      expect(component.showAccountInfo()).toBe(true);
+    });
+
+    it('should display user information in modal', () => {
+      component.showAccountInfo.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const modal = compiled.querySelector('.account-modal');
+
+      expect(modal?.textContent).toContain('Nicole');
+      expect(modal?.textContent).toContain('Smith');
+      expect(modal?.textContent).toContain('nicolesmith@example.com');
+    });
+
+    it('should not display password in account info', () => {
+      component.showAccountInfo.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const modal = compiled.querySelector('.account-modal');
+
+      expect(modal?.textContent).not.toContain('password');
+    });
+
+    it('should close account modal when close button clicked', () => {
+      component.showAccountInfo.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const closeBtn = compiled.querySelector('.btn-close-modal') as HTMLButtonElement;
+
+      closeBtn.click();
+      fixture.detectChanges();
+
+      expect(component.showAccountInfo()).toBe(false);
+    });
+  });
 });
