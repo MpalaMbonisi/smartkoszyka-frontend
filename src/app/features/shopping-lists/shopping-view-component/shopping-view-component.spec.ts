@@ -226,4 +226,83 @@ describe('ShoppingViewComponent', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists', 1]);
     });
   });
+
+  describe('UI Rendering', () => {
+    it('should display list title', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const title = compiled.querySelector('.shopping-header h2');
+
+      expect(title?.textContent).toContain('Weekly Groceries');
+    });
+
+    it('should display total price', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const totalPrice = compiled.querySelector('.total-price');
+
+      expect(totalPrice?.textContent).toContain('27.95');
+    });
+
+    it('should display active items count', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const sectionTitle = compiled.querySelector('.section-title');
+
+      expect(sectionTitle?.textContent).toContain('Shopping List (1)');
+    });
+
+    it('should display completed items count', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const completedHeader = compiled.querySelector('.completed-header');
+
+      expect(completedHeader?.textContent).toContain('Completed (1)');
+    });
+
+    it('should display item details', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const firstItem = compiled.querySelector('.item-row');
+
+      expect(firstItem?.textContent).toContain('Pomidory');
+      expect(firstItem?.textContent).toContain('3 kg');
+    });
+
+    it('should show empty message when all items checked', () => {
+      component.items.set([mockItems[1]]); // Only checked item
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const emptyMessage = compiled.querySelector('.empty-message');
+
+      expect(emptyMessage?.textContent).toContain('All items checked');
+    });
+
+    it('should hide completed section by default', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const completedList = compiled.querySelector('.completed-list');
+
+      expect(completedList).toBeFalsy();
+    });
+
+    it('should show completed section when toggled', () => {
+      component.toggleCompletedSection();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const completedList = compiled.querySelector('.completed-list');
+
+      expect(completedList).toBeTruthy();
+    });
+
+    it('should display back button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const backBtn = compiled.querySelector('.btn-back');
+
+      expect(backBtn?.textContent).toContain('Back');
+    });
+
+    it('should display edit button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const editBtn = compiled.querySelector('.btn-edit');
+
+      expect(editBtn?.textContent).toContain('Edit');
+    });
+  });
 });
