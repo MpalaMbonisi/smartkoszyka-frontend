@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ShoppingViewComponent } from './shopping-view-component';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { ShoppingListService } from '../../../core/services/shopping-list/shopping-list.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ShoppingList, ShoppingListItem } from '../../../core/models/shopping-list.model';
@@ -168,6 +168,36 @@ describe('ShoppingViewComponent', () => {
     it('should return 0 for empty list', () => {
       component.items.set([]);
       expect(component.totalPrice()).toBe(0);
+    });
+  });
+
+  describe('Toggle Item', () => {
+    it('should toggle item checked status', () => {
+      shoppingListService.toggleItemChecked.and.returnValue(of(undefined));
+
+      component.toggleItem(1);
+
+      expect(shoppingListService.toggleItemChecked).toHaveBeenCalledWith(1);
+    });
+
+    it('should update item in list after toggle', () => {
+      shoppingListService.toggleItemChecked.and.returnValue(of(undefined));
+      const initialStatus = component.items()[0].isChecked;
+
+      component.toggleItem(1);
+
+      const item = component.items().find(i => i.listItemId === 1);
+      expect(item?.isChecked).toBe(!initialStatus);
+    });
+
+    it('should handle toggle error', () => {
+      spyOn(console, 'error');
+      const error = new Error('Toggle failed');
+      shoppingListService.toggleItemChecked.and.returnValue(throwError(() => error));
+
+      component.toggleItem(1);
+
+      expect(console.error).toHaveBeenCalled();
     });
   });
 });
