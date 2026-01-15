@@ -200,4 +200,18 @@ describe('ShoppingViewComponent', () => {
       expect(console.error).toHaveBeenCalled();
     });
   });
+
+  describe('Completed Section Toggle', () => {
+    it('should start with completed section hidden', () => {
+      expect(component.showCompleted()).toBe(false);
+    });
+
+    it('should toggle completed section visibility', () => {
+      component.toggleCompletedSection();
+      expect(component.showCompleted()).toBe(true);
+
+      component.toggleCompletedSection();
+      expect(component.showCompleted()).toBe(false);
+    });
+  });
 });
