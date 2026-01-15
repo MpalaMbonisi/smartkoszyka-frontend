@@ -386,4 +386,27 @@ describe('HeaderComponent', () => {
       expect(headerContent).toBeTruthy();
     });
   });
+
+  describe('Accessibility', () => {
+    it('should have aria-label on menu button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const menuBtn = compiled.querySelector('.btn-menu') as HTMLButtonElement;
+
+      expect(menuBtn.getAttribute('aria-label')).toBeTruthy();
+    });
+
+    it('should have proper labels for theme options', () => {
+      component.showMenu.set(true);
+
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const labels = compiled.querySelectorAll('.theme-option');
+
+      expect(labels.length).toBe(3);
+      labels.forEach(label => {
+        expect(label.textContent?.trim()).toBeTruthy();
+      });
+    });
+  });
 });
