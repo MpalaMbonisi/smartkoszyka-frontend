@@ -10,6 +10,7 @@ import { of } from 'rxjs';
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
+  let authService: jasmine.SpyObj<AuthService>;
 
   const mockUser = {
     email: 'nicolesmith@example.com',
@@ -36,6 +37,8 @@ describe('HeaderComponent', () => {
         { provide: Router, useValue: routerSpy },
       ],
     }).compileComponents();
+
+    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
 
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
@@ -181,6 +184,37 @@ describe('HeaderComponent', () => {
       component.onThemeChange('dark');
 
       expect(localStorage.setItem).toHaveBeenCalledWith('theme-preference', 'dark');
+    });
+  });
+
+  describe('Logout', () => {
+    beforeEach(() => {
+      component.showMenu.set(true);
+      fixture.detectChanges();
+    });
+
+    it('should display logout button', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logoutBtn = compiled.querySelector('.btn-logout');
+
+      expect(logoutBtn).toBeTruthy();
+    });
+
+    it('should call authService.logout when clicked', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const logoutBtn = compiled.querySelector('.btn-logout') as HTMLButtonElement;
+
+      logoutBtn.click();
+
+      expect(authService.logout).toHaveBeenCalled();
+    });
+
+    it('should close menu after logout', () => {
+      component.showMenu.set(true);
+
+      component.onLogout();
+
+      expect(component.showMenu()).toBe(false);
     });
   });
 });
