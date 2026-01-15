@@ -277,10 +277,6 @@
     box-shadow: v.$shadow-lg;
   }
 
-  &.archived {
-    opacity: 0.7;
-  }
-
   .list-header {
     display: flex;
     justify-content: space-between;
@@ -299,16 +295,6 @@
     .list-date {
       font-size: v.$font-size-sm;
       color: var(--text-secondary);
-    }
-
-    .archived-badge {
-      padding: v.$spacing-xs;
-      background-color: var(--text-secondary);
-      color: #ffffff;
-      font-size: v.$font-size-sm;
-      border-radius: v.$border-radius;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
   }
 
@@ -343,12 +329,6 @@
         background-color: v.$primary;
         border-color: v.$primary;
         color: #ffffff;
-      }
-
-      &.archive-btn:hover {
-        background-color: v.$secondary;
-        border-color: v.$secondary;
-        color: #1a1a1a;
       }
 
       &.delete-btn:hover {

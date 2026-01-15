@@ -30,15 +30,6 @@ describe('ShoppingListManagementComponent', () => {
     },
   ];
 
-  const mockArchivedList: ShoppingList = {
-    listId: 3,
-    title: 'Old List',
-    description: 'Archived list',
-    isArchived: true,
-    createdAt: '2024-12-01T10:00:00',
-    updatedAt: '2024-12-01T10:00:00',
-  };
-
   beforeEach(async () => {
     const shoppingListServiceSpy = jasmine.createSpyObj('ShoppingListService', [
       'getActiveShoppingLists',
@@ -84,7 +75,6 @@ describe('ShoppingListManagementComponent', () => {
 
       fixture.detectChanges();
 
-      expect(component.showArchived()).toBe(false);
       expect(component.showCreateForm()).toBe(false);
       expect(component.isLoading()).toBe(false);
       expect(component.errorMessage()).toBe('');
@@ -132,74 +122,6 @@ describe('ShoppingListManagementComponent', () => {
       component.loadActiveLists();
 
       expect(component.errorMessage()).toBe('');
-    });
-  });
-
-  describe('Loading Archived Lists', () => {
-    beforeEach(() => {
-      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
-      fixture.detectChanges();
-    });
-
-    it('should load archived lists', () => {
-      shoppingListService.getAllShoppingLists.and.returnValue(of([...mockLists, mockArchivedList]));
-
-      component.loadArchivedLists();
-
-      expect(shoppingListService.getAllShoppingLists).toHaveBeenCalled();
-      expect(component.archivedLists()).toEqual([mockArchivedList]);
-    });
-
-    it('should filter only archived lists', () => {
-      shoppingListService.getAllShoppingLists.and.returnValue(of([...mockLists, mockArchivedList]));
-
-      component.loadArchivedLists();
-
-      expect(component.archivedLists().every(list => list.isArchived)).toBe(true);
-    });
-
-    it('should handle error when loading archived lists fails', () => {
-      const error = new Error('Failed');
-      shoppingListService.getAllShoppingLists.and.returnValue(throwError(() => error));
-
-      component.loadArchivedLists();
-
-      expect(component.errorMessage()).toBe('Failed to load archived lists.');
-      expect(component.isLoading()).toBe(false);
-    });
-  });
-
-  describe('Toggle Archived', () => {
-    beforeEach(() => {
-      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
-      fixture.detectChanges();
-    });
-
-    it('should load archived lists when toggled on', () => {
-      shoppingListService.getAllShoppingLists.and.returnValue(of([mockArchivedList]));
-
-      component.toggleArchived();
-
-      expect(shoppingListService.getAllShoppingLists).toHaveBeenCalled();
-    });
-
-    it('should toggle showArchived flag', () => {
-      expect(component.showArchived()).toBe(false);
-
-      component.toggleArchived();
-
-      expect(component.showArchived()).toBe(true);
-    });
-
-    it('should not reload archived lists when toggled off', () => {
-      shoppingListService.getAllShoppingLists.and.returnValue(of([mockArchivedList]));
-
-      component.toggleArchived();
-      shoppingListService.getAllShoppingLists.calls.reset();
-
-      component.toggleArchived();
-
-      expect(shoppingListService.getAllShoppingLists).not.toHaveBeenCalled();
     });
   });
 
@@ -356,65 +278,6 @@ describe('ShoppingListManagementComponent', () => {
     });
   });
 
-  describe('Archive Shopping List', () => {
-    beforeEach(() => {
-      shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
-      fixture.detectChanges();
-    });
-
-    it('should archive shopping list', () => {
-      spyOn(window, 'confirm').and.returnValue(true);
-      shoppingListService.archiveShoppingList.and.returnValue(of(undefined));
-
-      component.onArchiveList(1);
-
-      expect(shoppingListService.archiveShoppingList).toHaveBeenCalledWith(1);
-    });
-
-    it('should remove list from active lists after archiving', () => {
-      spyOn(window, 'confirm').and.returnValue(true);
-      shoppingListService.archiveShoppingList.and.returnValue(of(undefined));
-
-      const initialCount = component.activeLists().length;
-
-      component.onArchiveList(1);
-
-      expect(component.activeLists().length).toBe(initialCount - 1);
-      expect(component.activeLists().find(l => l.listId === 1)).toBeUndefined();
-    });
-
-    it('should show success message after archiving', fakeAsync(() => {
-      spyOn(window, 'confirm').and.returnValue(true);
-      shoppingListService.archiveShoppingList.and.returnValue(of(undefined));
-
-      component.onArchiveList(1);
-
-      expect(component.successMessage()).toBe('List archived successfully!');
-
-      tick(3000);
-
-      expect(component.successMessage()).toBe('');
-    }));
-
-    it('should not archive if user cancels confirmation', () => {
-      spyOn(window, 'confirm').and.returnValue(false);
-
-      component.onArchiveList(1);
-
-      expect(shoppingListService.archiveShoppingList).not.toHaveBeenCalled();
-    });
-
-    it('should handle archive error', () => {
-      spyOn(window, 'confirm').and.returnValue(true);
-      const error = new Error('Failed');
-      shoppingListService.archiveShoppingList.and.returnValue(throwError(() => error));
-
-      component.onArchiveList(1);
-
-      expect(component.errorMessage()).toBe('Failed to archive list. Please try again.');
-    });
-  });
-
   describe('Delete Shopping List', () => {
     beforeEach(() => {
       shoppingListService.getActiveShoppingLists.and.returnValue(of(mockLists));
@@ -439,16 +302,6 @@ describe('ShoppingListManagementComponent', () => {
       component.onDeleteList(1);
 
       expect(component.activeLists().length).toBe(initialCount - 1);
-    });
-
-    it('should remove list from archived lists after deletion', () => {
-      spyOn(window, 'confirm').and.returnValue(true);
-      shoppingListService.deleteShoppingList.and.returnValue(of(undefined));
-      component.archivedLists.set([mockArchivedList]);
-
-      component.onDeleteList(3);
-
-      expect(component.archivedLists().length).toBe(0);
     });
 
     it('should show success message after deletion', fakeAsync(() => {
@@ -590,14 +443,6 @@ describe('ShoppingListManagementComponent', () => {
       expect(createBtn.textContent).toContain('Create New List');
     });
 
-    it('should display show archived button', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      const buttons = compiled.querySelectorAll('.header-actions button');
-      const archivedBtn = buttons[1] as HTMLButtonElement;
-
-      expect(archivedBtn.textContent).toContain('Show Archived');
-    });
-
     it('should display active lists count', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       const sectionTitle = compiled.querySelector('.section-title');
@@ -635,7 +480,7 @@ describe('ShoppingListManagementComponent', () => {
       const firstCard = compiled.querySelector('.list-card');
       const actionButtons = firstCard?.querySelectorAll('.action-btn');
 
-      expect(actionButtons?.length).toBe(3);
+      expect(actionButtons?.length).toBe(2);
     });
 
     it('should show create form when toggled', () => {
@@ -700,30 +545,6 @@ describe('ShoppingListManagementComponent', () => {
       const createBtn = compiled.querySelector('.btn-primary') as HTMLButtonElement;
 
       expect(createBtn.textContent).toContain('Cancel');
-    });
-
-    it('should display archived badge on archived lists', () => {
-      component.showArchived.set(true);
-      component.archivedLists.set([mockArchivedList]);
-      fixture.detectChanges();
-
-      const compiled = fixture.nativeElement as HTMLElement;
-      const archivedBadge = compiled.querySelector('.archived-badge');
-
-      expect(archivedBadge).toBeTruthy();
-      expect(archivedBadge?.textContent).toBe('Archived');
-    });
-
-    it('should not show archive button for archived lists', () => {
-      component.showArchived.set(true);
-      component.archivedLists.set([mockArchivedList]);
-      fixture.detectChanges();
-
-      const compiled = fixture.nativeElement as HTMLElement;
-      const archivedCard = compiled.querySelector('.list-card.archived');
-      const archiveBtn = archivedCard?.querySelector('.archive-btn');
-
-      expect(archiveBtn).toBeFalsy();
     });
   });
 });

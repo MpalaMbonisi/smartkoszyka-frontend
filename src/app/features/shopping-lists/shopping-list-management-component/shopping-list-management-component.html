@@ -9,13 +9,6 @@
         <span>+ Create New List</span>
         }
       </button>
-      <button class="btn-secondary" (click)="toggleArchived()">
-        @if (showArchived()) {
-        <span>Hide Archived</span>
-        } @else {
-        <span>Show Archived</span>
-        }
-      </button>
     </div>
   </div>
 
@@ -70,7 +63,6 @@
   </div>
   } @else {
   <div class="lists-section">
-    @if (!showArchived()) {
     <h3 class="section-title">Active Lists ({{ activeLists().length }})</h3>
 
     @if (activeLists().length === 0) {
@@ -93,40 +85,12 @@
 
         <div class="list-actions">
           <button class="action-btn view-btn" (click)="onViewList(list.listId)">View Items</button>
-          <button class="action-btn archive-btn" (click)="onArchiveList(list.listId)">Archive</button>
           <button class="action-btn delete-btn" (click)="onDeleteList(list.listId)">Delete</button>
         </div>
       </div>
       }
     </div>
-    } } @else {
-    <h3 class="section-title">Archived Lists ({{ archivedLists().length }})</h3>
-
-    @if (archivedLists().length === 0) {
-    <div class="empty-state">
-      <p>No archived lists.</p>
-    </div>
-    } @else {
-    <div class="lists-grid">
-      @for (list of archivedLists(); track list.listId) {
-      <div class="list-card archived">
-        <div class="list-header">
-          <h4 class="list-title">{{ list.title }}</h4>
-          <span class="archived-badge">Archived</span>
-        </div>
-
-        @if (list.description) {
-        <p class="list-description">{{ list.description }}</p>
-        }
-
-        <div class="list-actions">
-          <button class="action-btn view-btn" (click)="onViewList(list.listId)">View Items</button>
-          <button class="action-btn delete-btn" (click)="onDeleteList(list.listId)">Delete</button>
-        </div>
-      </div>
-      }
-    </div>
-    } }
+    }
   </div>
   }
 </div>
