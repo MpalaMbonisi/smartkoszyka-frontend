@@ -19,6 +19,7 @@ describe('HeaderComponent', () => {
   };
 
   beforeEach(async () => {
+    localStorage.clear();
     const isDarkModeSignal = signal(false);
     const themeServiceSpy = jasmine.createSpyObj<ThemeService>('ThemeService', ['toggleTheme']);
     Object.assign(themeServiceSpy, { isDarkMode: isDarkModeSignal });
@@ -345,6 +346,28 @@ describe('HeaderComponent', () => {
       panel.dispatchEvent(event);
 
       expect(event.stopPropagation).toBeDefined();
+    });
+  });
+
+  describe('Initialization', () => {
+    it('should load theme preference from localStorage', () => {
+      spyOn(localStorage, 'getItem').and.returnValue('dark');
+
+      const newFixture = TestBed.createComponent(HeaderComponent);
+      const newComponent = newFixture.componentInstance;
+      newFixture.detectChanges();
+
+      expect(newComponent.selectedTheme()).toBe('dark');
+    });
+
+    it('should default to auto if no preference stored', () => {
+      spyOn(localStorage, 'getItem').and.returnValue(null);
+
+      const newFixture = TestBed.createComponent(HeaderComponent);
+      const newComponent = newFixture.componentInstance;
+      newFixture.detectChanges();
+
+      expect(newComponent.selectedTheme()).toBe('auto');
     });
   });
 });
