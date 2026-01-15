@@ -214,4 +214,16 @@ describe('ShoppingViewComponent', () => {
       expect(component.showCompleted()).toBe(false);
     });
   });
+
+  describe('Navigation', () => {
+    it('should navigate back to dashboard', () => {
+      component.goBack();
+      expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    });
+
+    it('should navigate to edit mode', () => {
+      component.goToEditMode();
+      expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists', 1]);
+    });
+  });
 });
