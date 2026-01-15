@@ -404,11 +404,14 @@ describe('RegisterComponent', () => {
     it('should have all input fields', () => {
       const compiled = fixture.nativeElement as HTMLElement;
 
+      // Standard inputs remain the same
       expect(compiled.querySelector('#firstName')).toBeTruthy();
       expect(compiled.querySelector('#lastName')).toBeTruthy();
       expect(compiled.querySelector('#email')).toBeTruthy();
-      expect(compiled.querySelector('#password')).toBeTruthy();
-      expect(compiled.querySelector('#confirmPassword')).toBeTruthy();
+
+      // Custom password components - find them by their tag name
+      const passwordInputs = compiled.querySelectorAll('app-password-input-component');
+      expect(passwordInputs.length).toBe(2);
     });
 
     it('should have submit button', () => {

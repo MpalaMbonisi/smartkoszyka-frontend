@@ -264,10 +264,9 @@ describe('LoginComponent', () => {
 
     it('should have password input field', () => {
       const compiled = fixture.nativeElement as HTMLElement;
-      const passwordInput = compiled.querySelector('#password') as HTMLInputElement;
+      const passwordInput = compiled.querySelector('app-password-input-component');
 
       expect(passwordInput).toBeTruthy();
-      expect(passwordInput.type).toBe('password');
     });
 
     it('should have submit button', () => {

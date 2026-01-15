@@ -11,10 +11,11 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { FooterComponent } from '../../../../shared/components/footer/footer.component';
 import { AuthService } from '../../../../core/services/auth/auth-service';
+import { PasswordInputComponent } from '../../../../shared/components/password-input/password-input-component';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, FooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FooterComponent, PasswordInputComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
