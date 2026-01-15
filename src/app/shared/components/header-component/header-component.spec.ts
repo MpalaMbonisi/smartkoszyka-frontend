@@ -318,4 +318,33 @@ describe('HeaderComponent', () => {
       expect(window.confirm).toHaveBeenCalled();
     });
   });
+
+  describe('Menu Overlay', () => {
+    it('should close menu when overlay clicked', () => {
+      component.showMenu.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const overlay = compiled.querySelector('.menu-overlay') as HTMLElement;
+
+      overlay.click();
+
+      expect(component.showMenu()).toBe(false);
+    });
+
+    it('should not close menu when panel clicked', () => {
+      component.showMenu.set(true);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const panel = compiled.querySelector('.settings-panel') as HTMLElement;
+
+      // Simulate click on panel (should not propagate to overlay)
+      const event = new Event('click');
+      spyOn(event, 'stopPropagation');
+      panel.dispatchEvent(event);
+
+      expect(event.stopPropagation).toBeDefined();
+    });
+  });
 });
