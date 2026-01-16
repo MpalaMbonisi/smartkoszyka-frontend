@@ -9,5 +9,6 @@ export const environment = {
     shoppingLists: '/api/shopping-lists',
     products: '/api/products',
     categories: '/api/categories',
+    account: '/api/account',
   },
 };
