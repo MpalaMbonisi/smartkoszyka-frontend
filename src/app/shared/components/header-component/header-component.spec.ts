@@ -5,12 +5,14 @@ import { signal } from '@angular/core';
 import { AuthService } from '../../../core/services/auth/auth-service';
 import { ThemeService } from '../../../core/services/theme/theme.service';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { AccountService } from '../../../core/services/account/account-service';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
   let fixture: ComponentFixture<HeaderComponent>;
   let authService: jasmine.SpyObj<AuthService>;
+  let accountServiceSpy: jasmine.SpyObj<AccountService>;
 
   const mockUser = {
     email: 'nicolesmith@example.com',
@@ -19,7 +21,9 @@ describe('HeaderComponent', () => {
   };
 
   beforeEach(async () => {
-    localStorage.clear();
+    // Fix: Use removeItem instead of clear()
+    localStorage.removeItem('theme-preference');
+
     const isDarkModeSignal = signal(false);
     const themeServiceSpy = jasmine.createSpyObj<ThemeService>('ThemeService', ['toggleTheme']);
     Object.assign(themeServiceSpy, { isDarkMode: isDarkModeSignal });
@@ -29,17 +33,21 @@ describe('HeaderComponent', () => {
     });
 
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const accountSpy = jasmine.createSpyObj('AccountService', ['deleteAccount']);
+    accountSpy.deleteAccount.and.returnValue(of(undefined));
 
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
       providers: [
         { provide: ThemeService, useValue: themeServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
+        { provide: AccountService, useValue: accountSpy },
         { provide: Router, useValue: routerSpy },
       ],
     }).compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    accountServiceSpy = TestBed.inject(AccountService) as jasmine.SpyObj<AccountService>;
 
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
@@ -158,7 +166,6 @@ describe('HeaderComponent', () => {
     });
 
     it('should apply system theme when auto selected', () => {
-      // Refactored: Cast to MediaQueryList instead of any
       spyOn(window, 'matchMedia').and.returnValue({
         matches: true,
         media: '(prefers-color-scheme: dark)',
@@ -315,7 +322,6 @@ describe('HeaderComponent', () => {
 
       component.onDeleteAccount();
 
-      // In real implementation, would call delete API
       expect(window.confirm).toHaveBeenCalled();
     });
   });
@@ -340,7 +346,6 @@ describe('HeaderComponent', () => {
       const compiled = fixture.nativeElement as HTMLElement;
       const panel = compiled.querySelector('.settings-panel') as HTMLElement;
 
-      // Simulate click on panel (should not propagate to overlay)
       const event = new Event('click');
       spyOn(event, 'stopPropagation');
       panel.dispatchEvent(event);
@@ -407,6 +412,55 @@ describe('HeaderComponent', () => {
       labels.forEach(label => {
         expect(label.textContent?.trim()).toBeTruthy();
       });
+    });
+  });
+
+  describe('Delete Account Flow', () => {
+    beforeEach(() => {
+      component.showMenu.set(true);
+      fixture.detectChanges();
+
+      accountServiceSpy.deleteAccount.and.returnValue(of(undefined));
+      spyOn(window, 'alert');
+    });
+
+    it('should call accountService.deleteAccount with user email when confirmed', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+
+      const deleteBtn = fixture.nativeElement.querySelector('.btn-delete-account');
+      deleteBtn.click();
+
+      expect(accountServiceSpy.deleteAccount).toHaveBeenCalledWith('nicolesmith@example.com');
+    });
+
+    it('should logout and close menu upon successful deletion', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      accountServiceSpy.deleteAccount.and.returnValue(of(undefined));
+
+      component.onDeleteAccount();
+
+      expect(authService.logout).toHaveBeenCalled();
+      expect(component.showMenu()).toBeFalse();
+      expect(window.alert).toHaveBeenCalledWith(jasmine.stringMatching(/permanently deleted/));
+    });
+
+    it('should show error alert if the server call fails', () => {
+      spyOn(window, 'confirm').and.returnValue(true);
+      accountServiceSpy.deleteAccount.and.returnValue(throwError(() => new Error('Server Error')));
+
+      component.onDeleteAccount();
+
+      expect(authService.logout).not.toHaveBeenCalled();
+      expect(window.alert).toHaveBeenCalledWith(jasmine.stringMatching(/Failed to delete/));
+    });
+
+    it('should do nothing if the user cancels the confirmation dialog', () => {
+      spyOn(window, 'confirm').and.returnValue(false);
+
+      component.onDeleteAccount();
+
+      expect(accountServiceSpy.deleteAccount).not.toHaveBeenCalled();
+      expect(authService.logout).not.toHaveBeenCalled();
     });
   });
 });
