@@ -3,10 +3,12 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ShoppingList, ShoppingListItem } from '../../../core/models/shopping-list.model';
 import { ShoppingListService } from '../../../core/services/shopping-list/shopping-list.service';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
+import { HeaderComponent } from '../../../shared/components/header-component/header-component';
 
 @Component({
   selector: 'app-shopping-view-component',
-  imports: [CommonModule],
+  imports: [CommonModule, FooterComponent, HeaderComponent],
   templateUrl: './shopping-view-component.html',
   styleUrl: './shopping-view-component.scss',
 })

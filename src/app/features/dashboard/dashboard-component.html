@@ -1,15 +1,6 @@
 <div class="dashboard">
   <header class="dashboard-header">
-    <div class="header-content">
-      <div class="logo"><span class="logo-smart">Smart</span><span class="logo-koszyka">Koszyka</span></div>
-
-      @if (user$ | async; as user) {
-      <div class="user-menu">
-        <span class="user-name">{{ user.firstName }} {{ user.lastName }}</span>
-        <button class="btn btn-logout" (click)="onLogout()">Logout</button>
-      </div>
-      }
-    </div>
+    <app-header-component></app-header-component>
 
     <nav class="dashboard-nav">
       <button class="nav-item" [class.active]="activeView() === 'overview'" (click)="setActiveView('overview')">

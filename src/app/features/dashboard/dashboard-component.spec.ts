@@ -11,7 +11,6 @@ import { ShoppingList, ShoppingListItem } from '../../core/models/shopping-list.
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
-  let authService: jasmine.SpyObj<AuthService>;
   let shoppingListService: jasmine.SpyObj<ShoppingListService>;
   let productService: jasmine.SpyObj<ProductService>;
   let router: jasmine.SpyObj<Router>;
@@ -92,7 +91,6 @@ describe('DashboardComponent', () => {
       ],
     }).compileComponents();
 
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     productService = TestBed.inject(ProductService) as jasmine.SpyObj<ProductService>;
     shoppingListService = TestBed.inject(
       ShoppingListService
@@ -163,7 +161,7 @@ describe('DashboardComponent', () => {
   describe('Navigation Methods', () => {
     it('should navigate to shopping lists', () => {
       component.navigateToLists();
-      expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists']);
+      expect(component.activeView()).toBe('lists');
     });
 
     it('should navigate to specific list', () => {
@@ -172,14 +170,25 @@ describe('DashboardComponent', () => {
     });
   });
 
-  describe('User Display', () => {
-    it('should display user name in header', () => {
+  describe('Header Component', () => {
+    it('should render header component', () => {
       const compiled = fixture.nativeElement as HTMLElement;
-      const userName = compiled.querySelector('.user-name');
+      const header = compiled.querySelector('app-header-component');
 
-      expect(userName?.textContent).toContain('Nicole Smith');
+      expect(header).toBeTruthy();
     });
+  });
 
+  describe('Footer Component', () => {
+    it('should render footer component', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const footer = compiled.querySelector('app-footer');
+
+      expect(footer).toBeTruthy();
+    });
+  });
+
+  describe('User Display', () => {
     it('should display user first name in welcome message when on overview', () => {
       component.setActiveView('overview');
       fixture.detectChanges();
@@ -259,27 +268,21 @@ describe('DashboardComponent', () => {
       expect(component.activeView()).toBe('products');
     });
 
-    it('should navigate to lists when manage lists clicked', () => {
+    it('should switch view to lists when manage lists card is clicked', () => {
       component.setActiveView('overview');
       fixture.detectChanges();
 
       const compiled = fixture.nativeElement as HTMLElement;
-      const manageListsCard = compiled.querySelectorAll('.action-card')[1] as HTMLButtonElement;
+      const cards = compiled.querySelectorAll('.action-card');
+
+      const manageListsCard = Array.from(cards).find(card =>
+        card.textContent?.toLowerCase().includes('lists')
+      ) as HTMLElement;
 
       manageListsCard.click();
+      fixture.detectChanges();
 
-      expect(router.navigate).toHaveBeenCalledWith(['/shopping-lists']);
-    });
-  });
-
-  describe('Logout Functionality', () => {
-    it('should call authService.logout when logout button clicked', () => {
-      const compiled = fixture.nativeElement as HTMLElement;
-      const logoutButton = compiled.querySelector('.btn-logout') as HTMLButtonElement;
-
-      logoutButton.click();
-
-      expect(authService.logout).toHaveBeenCalled();
+      expect(component.activeView()).toBe('lists');
     });
   });
 

@@ -7,6 +7,7 @@ import { ShoppingListManagementComponent } from '../shopping-lists/shopping-list
 import { ShoppingListService } from '../../core/services/shopping-list/shopping-list.service';
 import { Router } from '@angular/router';
 import { ShoppingList } from '../../core/models/shopping-list.model';
+import { HeaderComponent } from '../../shared/components/header-component/header-component';
 
 @Component({
   selector: 'app-dashboard-component',
@@ -15,6 +16,7 @@ import { ShoppingList } from '../../core/models/shopping-list.model';
     FooterComponent,
     ProductCatalogComponent,
     ShoppingListManagementComponent,
+    HeaderComponent,
   ],
   templateUrl: './dashboard-component.html',
   styleUrl: './dashboard-component.scss',
@@ -52,7 +54,7 @@ export class DashboardComponent implements OnInit {
   }
 
   navigateToLists(): void {
-    this.router.navigate(['/shopping-lists']);
+    this.setActiveView('lists');
   }
 
   navigateToList(listId: number): void {

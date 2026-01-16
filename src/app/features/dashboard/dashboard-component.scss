@@ -74,7 +74,6 @@
     padding: 0 v.$spacing-lg;
     display: flex;
     gap: v.$spacing-xs;
-    border-top: v.$border-width solid var(--border-color);
 
     .nav-item {
       padding: v.$spacing-sm v.$spacing-md;

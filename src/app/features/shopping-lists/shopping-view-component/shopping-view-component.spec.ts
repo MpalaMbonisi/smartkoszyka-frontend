@@ -306,6 +306,24 @@ describe('ShoppingViewComponent', () => {
     });
   });
 
+  describe('Header Component', () => {
+    it('should render header component', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const header = compiled.querySelector('app-header-component');
+
+      expect(header).toBeTruthy();
+    });
+  });
+
+  describe('Footer Component', () => {
+    it('should render footer component', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const footer = compiled.querySelector('app-footer');
+
+      expect(footer).toBeTruthy();
+    });
+  });
+
   describe('User Interactions', () => {
     it('should toggle item when clicked', () => {
       shoppingListService.toggleItemChecked.and.returnValue(of(undefined));

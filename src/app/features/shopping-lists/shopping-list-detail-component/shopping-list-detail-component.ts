@@ -7,11 +7,13 @@ import { Category, Product } from '../../../core/models/product.model';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { FooterComponent } from '../../../shared/components/footer/footer.component';
+import { HeaderComponent } from '../../../shared/components/header-component/header-component';
 
 @Component({
   selector: 'app-shopping-list-detail-component',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FooterComponent, HeaderComponent],
   templateUrl: './shopping-list-detail-component.html',
   styleUrl: './shopping-list-detail-component.scss',
 })
