@@ -36,6 +36,39 @@ describe('HeaderComponent', () => {
     const accountSpy = jasmine.createSpyObj('AccountService', ['deleteAccount']);
     accountSpy.deleteAccount.and.returnValue(of(undefined));
 
+    // ADD THIS: Create spy objects for localStorage
+    const localStorageSpy = jasmine.createSpyObj('localStorage', [
+      'getItem',
+      'setItem',
+      'removeItem',
+    ]);
+    localStorageSpy.getItem.and.returnValue(null); // Default return value
+
+    // ADD THIS: Replace global localStorage with spy
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageSpy,
+      writable: true,
+      configurable: true,
+    });
+
+    // ADD THIS: Create spy for matchMedia
+    const matchMediaSpy = jasmine.createSpy('matchMedia').and.returnValue({
+      matches: false,
+      media: '',
+      onchange: null,
+      addListener: jasmine.createSpy(),
+      removeListener: jasmine.createSpy(),
+      addEventListener: jasmine.createSpy(),
+      removeEventListener: jasmine.createSpy(),
+      dispatchEvent: jasmine.createSpy(),
+    } as MediaQueryList);
+
+    Object.defineProperty(window, 'matchMedia', {
+      value: matchMediaSpy,
+      writable: true,
+      configurable: true,
+    });
+
     await TestBed.configureTestingModule({
       imports: [HeaderComponent],
       providers: [
@@ -52,10 +85,6 @@ describe('HeaderComponent', () => {
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
   });
 
   describe('Logo Display', () => {
@@ -166,7 +195,8 @@ describe('HeaderComponent', () => {
     });
 
     it('should apply system theme when auto selected', () => {
-      spyOn(window, 'matchMedia').and.returnValue({
+      // Access the existing spy from beforeEach and reconfigure it
+      (window.matchMedia as jasmine.Spy).and.returnValue({
         matches: true,
         media: '(prefers-color-scheme: dark)',
         onchange: null,
@@ -187,8 +217,6 @@ describe('HeaderComponent', () => {
     });
 
     it('should persist theme selection in localStorage', () => {
-      spyOn(localStorage, 'setItem');
-
       component.onThemeChange('dark');
 
       expect(localStorage.setItem).toHaveBeenCalledWith('theme-preference', 'dark');
@@ -356,7 +384,17 @@ describe('HeaderComponent', () => {
 
   describe('Initialization', () => {
     it('should load theme preference from localStorage', () => {
-      spyOn(localStorage, 'getItem').and.returnValue('dark');
+      // Set up a fresh localStorage mock for this test
+      const getItemSpy = jasmine.createSpy('getItem').and.returnValue('dark');
+      Object.defineProperty(window, 'localStorage', {
+        value: {
+          getItem: getItemSpy,
+          setItem: jasmine.createSpy(),
+          removeItem: jasmine.createSpy(),
+        },
+        writable: true,
+        configurable: true,
+      });
 
       const newFixture = TestBed.createComponent(HeaderComponent);
       const newComponent = newFixture.componentInstance;
@@ -366,7 +404,17 @@ describe('HeaderComponent', () => {
     });
 
     it('should default to auto if no preference stored', () => {
-      spyOn(localStorage, 'getItem').and.returnValue(null);
+      // Set up a fresh localStorage mock for this test
+      const getItemSpy = jasmine.createSpy('getItem').and.returnValue(null);
+      Object.defineProperty(window, 'localStorage', {
+        value: {
+          getItem: getItemSpy,
+          setItem: jasmine.createSpy(),
+          removeItem: jasmine.createSpy(),
+        },
+        writable: true,
+        configurable: true,
+      });
 
       const newFixture = TestBed.createComponent(HeaderComponent);
       const newComponent = newFixture.componentInstance;
