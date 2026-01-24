@@ -2,7 +2,7 @@
 
 A modern Angular shopping list management application with product catalog browsing, list creation, and an optimized shopping mode interface.
 
-## 🚀 Live Demo
+## Live Demo
 
 **Production:** [https://smartkoszyka.com](https://d1gb8dxpe17qcc.cloudfront.net)
 
@@ -15,7 +15,7 @@ A modern Angular shopping list management application with product catalog brows
 - **Build Tool:** Angular CLI
 - **Package Manager:** npm 10.9.4
 
-## ✨ Features
+## Features
 
 - 🔐 JWT-based authentication
 - 📱 Responsive design (mobile-first for shopping mode)
@@ -170,7 +170,7 @@ Theme preference persisted in `localStorage`.
 
 ## Backend Integration
 
-**Backend Repository:** [SmartKoszyka Backend](https://github.com/yourusername/smartkoszyka-backend)
+**Backend Repository:** [SmartKoszyka Backend](https://github.com/MpalaMbonisi/smartkoszyka-api)
 
 ### API Endpoints Used
 - `POST /auth/login` - User login
