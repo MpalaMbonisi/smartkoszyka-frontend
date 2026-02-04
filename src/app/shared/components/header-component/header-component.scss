@@ -14,16 +14,22 @@
     padding: v.$spacing-md v.$spacing-lg;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    position: relative;
 
     .logo {
       font-family: v.$font-logo;
       font-size: 2rem;
       font-weight: 400;
       cursor: default;
-
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
+      pointer-events: none;
+
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
 
       .logo-smart {
         color: var(--logo-smart);
@@ -45,6 +51,9 @@
       transition: all v.$transition-speed v.$transition-timing;
       margin-left: auto;
       z-index: 101;
+      display: flex;
+      align-items: center;
+      gap: v.$spacing-xs;
 
       &:hover {
         background-color: v.$secondary;
@@ -53,7 +62,24 @@
       }
 
       .menu-icon {
-        display: block;
+        font-size: 1.25rem;
+      }
+
+      .menu-text {
+        display: inline;
+      }
+
+      // Hide text on mobile, show only icon
+      @media (max-width: 768px) {
+        padding: v.$spacing-xs;
+
+        .menu-text {
+          display: none;
+        }
+
+        .menu-icon {
+          font-size: 1.5rem;
+        }
       }
     }
   }
