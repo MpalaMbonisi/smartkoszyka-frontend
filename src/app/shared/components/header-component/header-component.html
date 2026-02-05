@@ -1,9 +1,9 @@
 <header class="header">
-  <div class="header-content">
+  <div class="header-content" [class.menu-open]="showMenu()">
     <div class="logo"><span class="logo-smart">Smart</span><span class="logo-koszyka">Koszyka</span></div>
 
     <button class="btn-menu" (click)="toggleMenu()" aria-label="Open settings menu">
-      <span class="menu-icon">⚙️</span>
+      <span class="menu-icon" [class.close-icon]="showMenu()"> {{ showMenu() ? '✕' : '⚙️' }} </span>
       <span class="menu-text">Settings</span>
     </button>
   </div>

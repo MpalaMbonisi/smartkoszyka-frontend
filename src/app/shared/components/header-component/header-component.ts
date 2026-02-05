@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { AuthService } from '../../../core/services/auth/auth-service';
 import { AccountService } from '../../../core/services/account/account-service';
 import { take } from 'rxjs';
@@ -21,14 +21,28 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadThemePreference();
+
+    effect(() => {
+      if (this.showMenu()) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    });
   }
 
   toggleMenu(): void {
-    this.showMenu.update(val => !val);
+    this.showMenu.update(value => !value);
+    if (this.showMenu()) {
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+    }
   }
 
   closeMenu(): void {
     this.showMenu.set(false);
+    document.body.classList.remove('menu-open');
   }
 
   onThemeChange(theme: 'auto' | 'light' | 'dark'): void {

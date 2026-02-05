@@ -217,3 +217,8 @@ label {
   box-shadow: v.$shadow-md;
   padding: v.$spacing-lg;
 }
+
+body.menu-open {
+  overflow: hidden;
+  height: 100vh;
+}
