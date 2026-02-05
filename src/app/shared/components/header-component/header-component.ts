@@ -19,9 +19,7 @@ export class HeaderComponent implements OnInit {
   showAccountInfo = signal(false);
   selectedTheme = signal<'auto' | 'light' | 'dark'>('auto');
 
-  ngOnInit(): void {
-    this.loadThemePreference();
-
+  constructor() {
     effect(() => {
       if (this.showMenu()) {
         document.body.style.overflow = 'hidden';
@@ -29,6 +27,10 @@ export class HeaderComponent implements OnInit {
         document.body.style.overflow = '';
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.loadThemePreference();
   }
 
   toggleMenu(): void {
