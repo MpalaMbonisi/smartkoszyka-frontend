@@ -75,6 +75,12 @@
     display: flex;
     gap: v.$spacing-xs;
 
+    @media (max-width: 768px) {
+      padding: 0 v.$spacing-sm;
+      gap: 0;
+      justify-content: space-between;
+    }
+
     .nav-item {
       padding: v.$spacing-sm v.$spacing-md;
       background: none;
@@ -87,6 +93,13 @@
       transition: all v.$transition-speed v.$transition-timing;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+
+      @media (max-width: 768px) {
+        padding: v.$spacing-sm v.$spacing-xs;
+        font-size: v.$font-size-sm;
+        flex: 1;
+        text-align: center;
+      }
 
       &:hover {
         color: var(--text-color);
@@ -368,8 +381,8 @@
     }
 
     .dashboard-nav {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow-x: visible;
+      -webkit-overflow-scrolling: auto;
     }
   }
 
