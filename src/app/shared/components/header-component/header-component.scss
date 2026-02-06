@@ -185,11 +185,6 @@
       border-color: #d32f2f;
       color: #ffffff;
     }
-
-    // Hide on mobile since we have X icon on button
-    @media (max-width: 768px) {
-      display: none;
-    }
   }
 }
 
